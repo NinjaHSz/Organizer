@@ -1,0 +1,185 @@
+<!doctype html>
+<html class="light" lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Organizer</title>
+    <link rel="icon" type="image/x-icon" href="assets/div.ico"/>
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Supabase Client -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#4285F4",
+              "on-primary": "#ffffff",
+              "primary-container": "#E8F0FE",
+              "on-primary-container": "#1967D2",
+              surface: "#FFFFFF",
+              "surface-variant": "#F1F3F4",
+              "on-surface-variant": "#5F6368",
+              outline: "#DADCE0",
+              "background-light": "#FFFFFF",
+              "background-dark": "#202124",
+              "google-red": "#EA4335",
+              "google-green": "#34A853",
+              "google-yellow": "#FBBC05",
+              "google-blue": "#4285F4",
+            },
+            fontFamily: {
+              display: ["Inter", "Roboto", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "1rem",
+              lg: "1.5rem",
+              xl: "2rem",
+              "2xl": "2.5rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      body {
+        min-height: 100dvh;
+      }
+      .active-tab {
+        color: #4285f4 !important;
+      }
+      .filled {
+        font-variation-settings: "FILL" 1;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-100 dark:bg-background-dark text-gray-900 dark:text-gray-100 font-display transition-colors duration-200"
+  >
+    <div class="flex min-h-screen w-full bg-gray-50 dark:bg-background-dark overflow-hidden">
+      <!-- Sidebar (Desktop only) -->
+      <aside class="hidden md:flex flex-col w-72 bg-surface dark:bg-[#1A1B1E] border-r border-outline/20 shrink-0 z-40">
+        <div class="p-8 flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary text-4xl filled">check_circle</span>
+          <h1 class="text-gray-900 dark:text-white text-2xl font-black tracking-tighter">ORGANIZER</h1>
+        </div>
+
+        <nav class="flex-1 px-4 py-4 space-y-2">
+          <button data-nav="tasks" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 group hover:bg-primary/5">
+            <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">dashboard</span>
+            <span class="font-semibold text-gray-600 group-hover:text-primary">Dashboard</span>
+          </button>
+          <button data-nav="subjects-config" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 group hover:bg-primary/5">
+            <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">category</span>
+            <span class="font-semibold text-gray-600 group-hover:text-primary">Matérias</span>
+          </button>
+          <button data-nav="calendar" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 group hover:bg-primary/5">
+            <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">calendar_month</span>
+            <span class="font-semibold text-gray-600 group-hover:text-primary">Calendário</span>
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Main Content Area -->
+      <div class="flex-1 flex flex-col min-w-0 relative h-screen">
+        <!-- Header (Mobile/PC) -->
+        <header class="flex items-center justify-between px-8 py-5 bg-surface/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-30 transition-all border-b border-outline/10">
+          <div class="flex items-center gap-4 md:hidden">
+            <span class="material-symbols-outlined text-primary text-3xl filled">check_circle</span>
+            <h1 class="text-gray-900 dark:text-white text-xl font-bold tracking-tight">Organizer</h1>
+          </div>
+          <div class="hidden md:block">
+            <h2 id="page-title" class="text-sm font-black text-gray-400 uppercase tracking-[0.2em]">Dashboard de Tarefas</h2>
+          </div>
+          <div class="flex items-center gap-4">
+            <button id="theme-toggle" class="w-10 h-10 rounded-2xl bg-surface-variant dark:bg-gray-800 flex items-center justify-center text-on-surface-variant dark:text-gray-400 border border-outline/50 shadow-sm transition-all hover:scale-110 active:scale-95">
+              <span class="material-symbols-outlined theme-icon">light_mode</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Dynamic Content -->
+        <main id="app-root" class="flex-1 overflow-y-auto px-6 md:px-12 py-8 pb-32 no-scrollbar">
+          <!-- Rendered by app.js -->
+        </main>
+
+        <!-- FAB (Desktop only) -->
+        <button id="global-add-btn" class="hidden md:flex fixed bottom-10 right-10 z-50 h-16 w-16 items-center justify-center rounded-[2rem] bg-primary text-on-primary shadow-2xl shadow-primary/40 transition-all active:scale-95 hover:scale-110 hover:rotate-3 hover:bg-google-blue animate-float">
+          <span class="material-symbols-outlined text-[32px]">add</span>
+        </button>
+
+        <!-- Bottom Navigation (Mobile only) -->
+        <!-- Floating Mobile Navigation -->
+        <!-- Floating Mobile Navigation -->
+        <div class="md:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-[10px] w-[262px] h-[76px] animate-fade-in">
+          <!-- Nav Menu Pill -->
+          <nav class="flex items-center justify-center gap-1 bg-white dark:bg-[#1A1B1F] rounded-full px-[10px] h-[52px] w-[176px] shadow-2xl shadow-black/40 border border-outline/20 dark:border-white/5 transition-colors duration-200">
+            <button data-nav="tasks" class="nav-btn flex items-center justify-center w-[52px] h-[52px] rounded-[6px] transition-all active:scale-90">
+               <div class="flex flex-col items-center justify-center p-[5px] gap-[1px] w-[52px] h-[52px]">
+                 <span class="material-symbols-outlined text-[#4285F4] text-[24px]">dashboard</span>
+               </div>
+            </button>
+            <button data-nav="subjects-config" class="nav-btn flex items-center justify-center w-[52px] h-[52px] rounded-[6px] transition-all active:scale-90">
+              <div class="flex flex-col items-center justify-center p-[5px] gap-[1px] w-[52px] h-[52px]">
+                <span class="material-symbols-outlined text-[#4285F4] text-[24px]">category</span>
+              </div>
+            </button>
+            <button data-nav="calendar" class="nav-btn flex items-center justify-center w-[52px] h-[52px] rounded-[6px] transition-all active:scale-90">
+              <div class="flex flex-col items-center justify-center p-[5px] gap-[1px] w-[52px] h-[52px]">
+                <span class="material-symbols-outlined text-[#4285F4] text-[24px]">calendar_month</span>
+              </div>
+            </button>
+          </nav>
+
+          <!-- New Task Square -->
+          <button onclick="App.showTaskForm()" class="flex items-center justify-center w-[76px] h-[76px] bg-[#4285F4] rounded-[18px] shadow-xl shadow-[#4285F4]/40 active:scale-95 transition-all outline-none">
+            <div class="flex flex-col items-center justify-center p-[5px] gap-[1px] w-[52px] h-[52px]">
+              <span class="material-symbols-outlined text-white text-[24px]">add</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Modals Host -->
+    <div id="modal-container"></div>
+    <div
+      id="notifications-root"
+      class="fixed top-12 left-0 right-0 z-[100] flex flex-col items-center pointer-events-none"
+    ></div>
+
+    <!-- Scripts -->
+    <script src="supabase.js"></script>
+    <script src="components.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
