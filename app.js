@@ -22,6 +22,7 @@ const App = {
         this.registerServiceWorker();
         this.bindGlobalEvents();
         await this.loadInitialData();
+        this.checkTaskReminders();
         this.router();
     },
 
@@ -892,6 +893,48 @@ const App = {
             }
         } else {
             UI.notify('Por favor, ative as notificações primeiro.', 'warning');
+        }
+    },
+
+    checkTaskReminders() {
+        if (Notification.permission !== "granted") return;
+
+        const lastCheck = localStorage.getItem('last-notif-check');
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        if (lastCheck === todayStr) return; // Already checked today
+
+        // Calculate counts
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        const nextWeekStr = nextWeek.toISOString().split('T')[0];
+        
+        const today = new Date().toISOString().split('T')[0];
+
+        const tasksTomorrow = this.state.tasks.filter(t => t.due_date === tomorrowStr && t.status !== 'done').length;
+        const tasksThisWeek = this.state.tasks.filter(t => t.due_date >= today && t.due_date <= nextWeekStr && t.status !== 'done').length;
+
+        if (tasksThisWeek > 0 || tasksTomorrow > 0) {
+            const body = `Você tem ${tasksThisWeek} tarefas nesta semana e ${tasksTomorrow} para amanhã.`;
+            
+            const options = {
+                body: body,
+                icon: "assets/div.ico",
+                badge: "assets/div.ico",
+                vibrate: [200, 100, 200]
+            };
+
+            if (this.swReg) {
+                this.swReg.showNotification("Boas vindas!", options);
+            } else {
+                new Notification("Boas vindas!", options);
+            }
+            
+            localStorage.setItem('last-notif-check', todayStr);
         }
     }
 };
