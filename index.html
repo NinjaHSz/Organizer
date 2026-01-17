@@ -5,6 +5,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Organizer</title>
     <link rel="icon" type="image/x-icon" href="assets/div.ico"/>
+    <link rel="manifest" href="manifest.json">
 
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -32,10 +33,10 @@
         theme: {
           extend: {
             colors: {
-              primary: "#4285F4",
+              primary: "var(--color-primary)",
               "on-primary": "#ffffff",
-              "primary-container": "#E8F0FE",
-              "on-primary-container": "#1967D2",
+              "primary-container": "var(--color-primary-container)",
+              "on-primary-container": "var(--color-on-primary-container)",
               surface: "#FFFFFF",
               "surface-variant": "#F1F3F4",
               "on-surface-variant": "#5F6368",
@@ -45,7 +46,7 @@
               "google-red": "#EA4335",
               "google-green": "#34A853",
               "google-yellow": "#FBBC05",
-              "google-blue": "#4285F4",
+              "google-blue": "var(--color-primary)",
             },
             fontFamily: {
               display: ["Inter", "Roboto", "sans-serif"],
@@ -62,6 +63,13 @@
       };
     </script>
 
+    <style id="theme-colors">
+      :root {
+        --color-primary: #4285f4;
+        --color-primary-container: #e8f0fe;
+        --color-on-primary-container: #1967d2;
+      }
+    </style>
     <style>
       .no-scrollbar::-webkit-scrollbar {
         display: none;
@@ -74,7 +82,7 @@
         min-height: 100dvh;
       }
       .active-tab {
-        color: #4285f4 !important;
+        color: var(--color-primary) !important;
       }
       .filled {
         font-variation-settings: "FILL" 1;
@@ -105,6 +113,10 @@
             <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">calendar_month</span>
             <span class="font-semibold text-gray-600 group-hover:text-primary">Calendário</span>
           </button>
+          <button data-nav="settings" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 group hover:bg-primary/5">
+            <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">settings</span>
+            <span class="font-semibold text-gray-600 group-hover:text-primary">Configurações</span>
+          </button>
         </nav>
       </aside>
 
@@ -132,7 +144,7 @@
         </main>
 
         <!-- FAB (Desktop only) -->
-        <button id="global-add-btn" class="hidden md:flex fixed bottom-10 right-10 z-50 h-16 w-16 items-center justify-center rounded-[2rem] bg-primary text-on-primary shadow-2xl shadow-primary/40 transition-all active:scale-95 hover:scale-110 hover:rotate-3 hover:bg-google-blue animate-float">
+        <button id="global-add-btn" class="hidden md:flex fixed bottom-10 right-10 z-50 h-16 w-16 items-center justify-center rounded-[2rem] bg-primary text-on-primary shadow-2xl shadow-primary/40 transition-all active:scale-95 hover:scale-110 hover:rotate-3 hover:bg-primary/90 animate-float">
           <span class="material-symbols-outlined text-[32px]">add</span>
         </button>
 
@@ -144,23 +156,23 @@
           <nav class="flex items-center justify-center gap-1 bg-white dark:bg-[#1A1B1F] rounded-full px-[12px] h-[64px] w-[210px] shadow-2xl shadow-black/40 border border-outline/20 dark:border-white/5 transition-colors duration-200">
             <button data-nav="tasks" class="nav-btn flex items-center justify-center w-[58px] h-[58px] rounded-[10px] transition-all active:scale-90">
                <div class="flex flex-col items-center justify-center p-[5px] gap-[1px] w-[58px] h-[58px]">
-                 <span class="material-symbols-outlined text-[#4285F4] text-[28px]">dashboard</span>
+                 <span class="material-symbols-outlined text-primary text-[28px]">dashboard</span>
                </div>
             </button>
             <button data-nav="subjects-config" class="nav-btn flex items-center justify-center w-[58px] h-[58px] rounded-[10px] transition-all active:scale-90">
               <div class="flex flex-col items-center justify-center p-[5px] gap-[1px] w-[58px] h-[58px]">
-                <span class="material-symbols-outlined text-[#4285F4] text-[28px]">category</span>
+                <span class="material-symbols-outlined text-primary text-[28px]">category</span>
               </div>
             </button>
-            <button data-nav="calendar" class="nav-btn flex items-center justify-center w-[58px] h-[58px] rounded-[10px] transition-all active:scale-90">
+            <button data-nav="settings" class="nav-btn flex items-center justify-center w-[58px] h-[58px] rounded-[10px] transition-all active:scale-90">
               <div class="flex flex-col items-center justify-center p-[5px] gap-[1px] w-[58px] h-[58px]">
-                <span class="material-symbols-outlined text-[#4285F4] text-[28px]">calendar_month</span>
+                <span class="material-symbols-outlined text-primary text-[28px]">settings</span>
               </div>
             </button>
           </nav>
 
           <!-- New Task Square -->
-          <button onclick="App.showTaskForm()" class="flex items-center justify-center w-[84px] h-[84px] bg-[#4285F4] rounded-[22px] shadow-xl shadow-[#4285F4]/40 active:scale-95 transition-all outline-none">
+          <button onclick="App.showTaskForm()" class="flex items-center justify-center w-[84px] h-[84px] bg-primary rounded-[22px] shadow-xl shadow-primary/40 active:scale-95 transition-all outline-none">
             <div class="flex flex-col items-center justify-center p-[5px] gap-[1px] w-[60px] h-[60px]">
               <span class="material-symbols-outlined text-white text-[32px]">add</span>
             </div>

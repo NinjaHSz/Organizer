@@ -18,9 +18,22 @@ const App = {
 
     async init() {
         this.initTheme();
+        this.initAccentColor();
+        this.registerServiceWorker();
         this.bindGlobalEvents();
         await this.loadInitialData();
         this.router();
+    },
+
+    async registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                this.swReg = await navigator.serviceWorker.register('sw.js');
+                console.log('SW Registered', this.swReg);
+            } catch (error) {
+                console.error('SW Registration Failed', error);
+            }
+        }
     },
 
     bindGlobalEvents() {
@@ -65,6 +78,21 @@ const App = {
         }
     },
 
+    initAccentColor() {
+        const savedColor = localStorage.getItem('accent-color') || '#4285f4';
+        this.setAccentColor(savedColor);
+    },
+
+    setAccentColor(color) {
+        localStorage.setItem('accent-color', color);
+        document.documentElement.style.setProperty('--color-primary', color);
+        
+        // Generate container colors based on the color
+        // For simplicity, we just use the color itself or static variants
+        document.documentElement.style.setProperty('--color-primary-container', `${color}15`); // 10% opacity for container
+        document.documentElement.style.setProperty('--color-on-primary-container', color);
+    },
+
     async loadInitialData() {
         try {
             if (window.supabaseClient) {
@@ -91,7 +119,8 @@ const App = {
             'tasks': 'Dashboard de Tarefas',
             'subjects-view': 'Visão por Matérias',
             'subjects-config': 'Gerenciar Categorias',
-            'calendar': 'Calendário'
+            'calendar': 'Calendário',
+            'settings': 'Configurações'
         };
         const titleEl = document.getElementById('page-title');
         if (titleEl) titleEl.innerText = titles[page] || 'Organizer';
@@ -133,6 +162,7 @@ const App = {
             case 'subjects-view': this.renderBySubjectPage(root); break;
             case 'subjects-config': this.renderSubjectsConfigPage(root); break;
             case 'calendar': this.renderCalendarPage(root); break;
+            case 'settings': this.renderSettingsPage(root); break;
             default: this.renderTasksPage(root);
         }
     },
@@ -156,8 +186,8 @@ const App = {
                         <p class="text-2xl font-black text-gray-900 dark:text-white">${this.state.tasks.length}</p>
                     </div>
                     <div class="flex-1 min-w-[200px] bg-white dark:bg-[#1A1B1E] p-6 rounded-[2rem] border border-outline/10 shadow-sm">
-                        <p class="text-[10px] font-black text-google-blue uppercase tracking-widest mb-1">Pendentes</p>
-                        <p class="text-2xl font-black text-google-blue">${this.state.tasks.filter(t => t.status !== 'done').length}</p>
+                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Pendentes</p>
+                        <p class="text-2xl font-black text-primary">${this.state.tasks.filter(t => t.status !== 'done').length}</p>
                     </div>
                     <div class="flex-1 min-w-[200px] bg-white dark:bg-[#1A1B1E] p-6 rounded-[2rem] border border-outline/10 shadow-sm">
                         <p class="text-[10px] font-black text-google-green uppercase tracking-widest mb-1">Concluídas</p>
@@ -714,7 +744,7 @@ const App = {
                 <input type="text" id="form-sub-name" placeholder="Nome da Matéria" value="${subject ? subject.name : ''}" class="h-12 bg-surface-variant dark:bg-gray-800 dark:text-white rounded-2xl px-4 border-none font-bold">
                 <div class="flex items-center gap-4 px-2">
                     <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Cor:</span>
-                    <input type="color" id="form-sub-color" value="${subject ? subject.color : '#4285F4'}" class="h-10 grow border-none bg-transparent cursor-pointer">
+                    <input type="color" id="form-sub-color" value="${subject ? subject.color : 'var(--color-primary)'}" class="h-10 grow border-none bg-transparent cursor-pointer">
                 </div>
             </div>
         `;
@@ -750,6 +780,119 @@ const App = {
         this.state.subjects = this.state.subjects.filter(s => s.id !== id);
         if (window.supabaseClient) await db.deleteSubject(id);
         this.render();
+    },
+
+    renderSettingsPage(root) {
+        const colors = [
+            { name: 'Google Blue', value: '#4285f4' },
+            { name: 'Red', value: '#EA4335' },
+            { name: 'Green', value: '#34A853' },
+            { name: 'Yellow', value: '#FBBC05' },
+            { name: 'Purple', value: '#A142F4' },
+            { name: 'Pink', value: '#F442A1' },
+            { name: 'Orange', value: '#F48542' },
+            { name: 'Teal', value: '#00BFA5' },
+            { name: 'Indigo', value: '#3F51B5' },
+            { name: 'Gray', value: '#5F6368' }
+        ];
+
+        const currentColor = localStorage.getItem('accent-color') || '#4285f4';
+
+        root.innerHTML = `
+            <div class="animate-fade-in flex flex-col gap-8 max-w-2xl mx-auto w-full px-4 mb-20">
+                <div class="flex flex-col gap-2">
+                    <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Configurações</h1>
+                    <p class="text-gray-500 font-medium">Personalize a aparência do seu Organizer.</p>
+                </div>
+
+                <div class="bg-white dark:bg-[#1A1B1E] p-8 rounded-3xl border border-outline/10 shadow-sm">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Cor de Destaque</h2>
+                    <div class="grid grid-cols-5 gap-4 md:gap-6">
+                        ${colors.map(c => `
+                            <button 
+                                onclick="App.setAccentColor('${c.value}'); App.render();"
+                                class="w-12 h-12 rounded-full border-4 transition-all active:scale-95 hover:scale-110 ${currentColor === c.value ? 'border-primary' : 'border-transparent'}"
+                                style="background-color: ${c.value}"
+                                title="${c.name}"
+                            ></button>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-[#1A1B1E] p-8 rounded-3xl border border-outline/10 shadow-sm">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Notificações</h2>
+                    <p class="text-sm text-gray-500 mb-6">Receba alertas sobre suas tarefas diretamente no sistema.</p>
+                    
+                    <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-outline/5">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-gray-900 dark:text-white">Permissão do Sistema</span>
+                            <span id="notif-status" class="text-xs text-gray-500 italic">Verificando...</span>
+                        </div>
+                        <button 
+                            onclick="App.requestNotificationPermission()"
+                            class="h-10 px-4 bg-primary text-white text-xs font-black rounded-xl active:scale-95 transition-all shadow-lg shadow-primary/20 uppercase tracking-widest"
+                        >Permitir</button>
+                    </div>
+
+                    <button 
+                        onclick="App.sendTestNotification()"
+                        class="mt-4 w-full h-12 border-2 border-primary/20 text-primary text-xs font-black rounded-xl hover:bg-primary/5 active:scale-95 transition-all uppercase tracking-widest"
+                    >Enviar Notificação de Teste</button>
+                </div>
+            </div>
+        `;
+
+        this.updateNotificationStatus();
+    },
+
+    updateNotificationStatus() {
+        const el = document.getElementById('notif-status');
+        if (!el) return;
+        
+        if (!("Notification" in window)) {
+            el.innerText = "Não suportado neste navegador";
+            return;
+        }
+
+        const statusMap = {
+            granted: "Ativada ✅",
+            denied: "Bloqueada ❌",
+            default: "Não solicitada ❓"
+        };
+        el.innerText = statusMap[Notification.permission] || "Desconhecido";
+    },
+
+    async requestNotificationPermission() {
+        if (!("Notification" in window)) return;
+        
+        const permission = await Notification.requestPermission();
+        this.updateNotificationStatus();
+        
+        if (permission === "granted") {
+            UI.notify('Notificações ativadas! 🔔', 'success');
+        }
+    },
+
+    async sendTestNotification() {
+        if (Notification.permission === "granted") {
+            const options = {
+                body: "Isso é uma notificação em segundo plano! 🚀",
+                icon: "assets/div.ico",
+                badge: "assets/div.ico",
+                vibrate: [100, 50, 100],
+                data: {
+                    dateOfArrival: Date.now(),
+                    primaryKey: 1
+                }
+            };
+
+            if (this.swReg) {
+                this.swReg.showNotification("Organizer", options);
+            } else {
+                new Notification("Organizer", options);
+            }
+        } else {
+            UI.notify('Por favor, ative as notificações primeiro.', 'warning');
+        }
     }
 };
 

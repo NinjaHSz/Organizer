@@ -41,7 +41,7 @@ const UI = {
         };
 
         const p = priorityData[task.priority] || priorityData.medium;
-        const subColor = subject ? subject.color : '#4285F4';
+        const subColor = subject ? subject.color : 'var(--color-primary)';
 
         return `
             <div class="group relative flex flex-col justify-between p-[25px] gap-[15px] w-full min-h-[130px] bg-white dark:bg-[#1A1B1E] border-t-[3px] ${p.border} rounded-[18px] shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${isDone ? 'opacity-50' : ''} stagger-item" data-id="${task.id}">
@@ -82,7 +82,7 @@ const UI = {
 
                     <!-- Actions -->
                     <div class="flex flex-row items-center gap-[8px] shrink-0">
-                        <button class="action-btn flex items-center justify-center w-[30px] h-[30px] rounded-full hover:bg-primary/5 text-[#4285F4]/50 hover:text-[#4285F4] transition-all" data-action="edit">
+                        <button class="action-btn flex items-center justify-center w-[30px] h-[30px] rounded-full hover:bg-primary/5 text-primary/50 hover:text-primary transition-all" data-action="edit">
                             <span class="material-symbols-outlined text-[18px]">edit</span>
                         </button>
                         <button class="action-btn flex items-center justify-center w-[30px] h-[30px] rounded-full hover:bg-google-red/5 text-[#EA4335]/50 hover:text-[#EA4335] transition-all" data-action="delete">
