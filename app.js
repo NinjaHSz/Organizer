@@ -22,7 +22,11 @@ const App = {
         this.registerServiceWorker();
         this.bindGlobalEvents();
         await this.loadInitialData();
+        
+        // Initial check and setup periodic check
         this.checkTaskReminders();
+        setInterval(() => this.checkTaskReminders(), 60000); // Check every minute
+        
         this.router();
     },
 
@@ -823,6 +827,20 @@ const App = {
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Notificações</h2>
                     <p class="text-sm text-gray-500 mb-6">Receba alertas sobre suas tarefas diretamente no sistema.</p>
                     
+                    <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-outline/5 mb-4">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-gray-900 dark:text-white">Horário do Lembrete</span>
+                            <span class="text-xs text-gray-500 italic">Resumo diário de tarefas</span>
+                        </div>
+                        <input 
+                            type="time" 
+                            id="notif-time" 
+                            value="${localStorage.getItem('notif-time') || '12:00'}"
+                            onchange="App.changeNotificationTime(this.value)"
+                            class="bg-white dark:bg-gray-800 border-none rounded-lg text-sm font-bold text-primary focus:ring-2 focus:ring-primary"
+                        >
+                    </div>
+
                     <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-outline/5">
                         <div class="flex flex-col">
                             <span class="text-sm font-bold text-gray-900 dark:text-white">Permissão do Sistema</span>
@@ -873,6 +891,11 @@ const App = {
         }
     },
 
+    changeNotificationTime(time) {
+        localStorage.setItem('notif-time', time);
+        UI.notify(`Horário atualizado para ${time} 🕒`, 'success');
+    },
+
     async sendTestNotification() {
         if (Notification.permission === "granted") {
             const options = {
@@ -899,10 +922,22 @@ const App = {
     checkTaskReminders() {
         if (Notification.permission !== "granted") return;
 
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
         const lastCheck = localStorage.getItem('last-notif-check');
-        const todayStr = new Date().toISOString().split('T')[0];
+        
+        if (lastCheck === todayStr) return; // Already notified today
 
-        if (lastCheck === todayStr) return; // Already checked today
+        const targetTime = localStorage.getItem('notif-time') || '12:00';
+        const [targetHour, targetMin] = targetTime.split(':').map(Number);
+        
+        const currentHour = now.getHours();
+        const currentMin = now.getMinutes();
+
+        // Check if current time is past or equal to target time
+        if (currentHour < targetHour || (currentHour === targetHour && currentMin < targetMin)) {
+            return;
+        }
 
         // Calculate counts
         const tomorrow = new Date();
