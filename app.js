@@ -106,6 +106,12 @@ const App = {
       "--color-on-primary-container",
       color,
     );
+
+    // Update Browser/Mobile Status Bar Theme Color
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeMeta) {
+      themeMeta.setAttribute("content", color);
+    }
   },
 
   initNavStyle() {
@@ -317,7 +323,7 @@ const App = {
                         <input type="text" id="task-search" placeholder="Pesquisar tarefas..." value="${this.state.filters.search}" class="w-full h-14 pl-12 pr-4 bg-white dark:bg-gray-800 border-outline/20 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-primary shadow-sm">
                     </div>
 
-                    <div class="flex gap-2 overflow-x-auto no-scrollbar">
+                    <div class="flex flex-wrap gap-2">
                         ${[
                           { id: "all", label: "TODOS" },
                           { id: "tomorrow", label: "AMANHÃ" },
@@ -337,7 +343,7 @@ const App = {
 
                 <!-- Task Container -->
                 <div class="flex flex-col gap-2 flex-grow">
-                    <div class="flex items-center justify-between py-2 mb-2">
+                    <div class="flex flex-wrap items-center justify-between gap-4 py-2 mb-2">
                         <div class="flex items-center gap-4">
                             <h2 class="text-[10px] font-black text-gray-400 uppercase tracking-widest"><span id="search-results-count">${filteredTasks.length}</span> TAREFAS ENCONTRADAS</h2>
                             <div class="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
@@ -345,7 +351,7 @@ const App = {
                                 <button id="view-kanban-btn" class="p-1.5 px-3 rounded-lg text-[10px] md:text-xs font-bold transition-all ${this.state.filters.viewMode === "kanban" ? "bg-white dark:bg-gray-700 shadow-sm text-primary" : "text-gray-400"}">KANBAN</button>
                             </div>
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex flex-wrap gap-1.5">
                              ${[
                                { id: "all", label: "Todas", color: "text-gray-400" },
                                { id: "high", label: "Alta", color: "text-[#EA4335]" },
