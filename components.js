@@ -82,8 +82,8 @@ const UI = {
 
                     <!-- Actions -->
                     <div class="flex flex-row items-center gap-[8px] shrink-0">
-                        <button class="action-btn flex items-center justify-center w-[30px] h-[30px] rounded-full hover:bg-primary/5 text-primary/50 hover:text-primary transition-all" data-action="edit">
-                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                        <button class="action-btn flex items-center justify-center w-[30px] h-[30px] rounded-full hover:bg-primary/10 text-primary transition-all scale-110" data-action="edit">
+                            <span class="material-symbols-outlined text-[18px] filled">edit</span>
                         </button>
                         <button class="action-btn flex items-center justify-center w-[30px] h-[30px] rounded-full hover:bg-google-red/5 text-[#EA4335]/50 hover:text-[#EA4335] transition-all" data-action="delete">
                             <span class="material-symbols-outlined text-[18px]">delete</span>

@@ -142,3 +142,15 @@ body,
 .filled {
   font-variation-settings: "FILL" 1;
 }
+
+/* Sidebar Nav Hover Optimization */
+aside .nav-btn:not(.text-primary):hover .material-symbols-outlined,
+aside .nav-btn:not(.text-primary):hover span:not(.material-symbols-outlined) {
+  color: var(--color-primary) !important;
+  opacity: 0.5 !important;
+}
+
+aside .nav-btn .material-symbols-outlined,
+aside .nav-btn span:not(.material-symbols-outlined) {
+  transition: all 0.3s ease;
+}
