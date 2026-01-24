@@ -69,8 +69,16 @@ export const Dashboard = {
                 <section class="mt-8">
                     <div class="flex items-center justify-between px-1 mb-6">
                         <div class="flex flex-col">
-                            <h2 class="text-xl font-bold text-text-primary">Tarefas de Hoje</h2>
-                            <p class="text-xs text-text-secondary font-medium">${new Date().toLocaleDateString("pt-BR", { weekday: "long", month: "long", day: "numeric" })}</p>
+                            <h2 class="text-xl font-bold text-text-primary">
+                                ${
+                                  {
+                                    all: "Todas as Tarefas",
+                                    upcoming: "Próximas Tarefas",
+                                    done: "Tarefas Concluídas",
+                                    overdue: "Tarefas Atrasadas",
+                                  }[state.filters.category] || "Tarefas"
+                                }
+                            </h2>
                         </div>
                     </div>
 
