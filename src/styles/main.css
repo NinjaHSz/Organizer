@@ -1,0 +1,251 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap");
+
+:root {
+  /* Surface Colors - Darker, More Contrast */
+  --surface-page: #202124;
+  --surface-card: #1a1b1e;
+  --surface-subtle: rgba(255, 255, 255, 0.05);
+
+  /* Text Colors */
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #64748b;
+
+  /* Action Colors */
+  --action-primary: #4285f4;
+  --status-success: #34a853;
+  --status-warning: #fbbc05;
+  --status-error: #ea4335;
+
+  /* Touch Targets */
+  --touch-min: 48px;
+  --touch-comfortable: 56px;
+  --touch-spacing: 8px;
+
+  /* Border Radius */
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+
+  /* Shadows - More Pronounced */
+  --shadow-card:
+    0 4px 6px -1px rgb(0 0 0 / 0.2), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-button-primary: 0 4px 14px 0 rgba(66, 133, 244, 0.3);
+
+  /* Animation */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark {
+  --surface-page: #202124;
+  --surface-card: #1a1b1e;
+  --surface-subtle: rgba(255, 255, 255, 0.05);
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #64748b;
+}
+
+body {
+  font-family: "Lexend", sans-serif;
+  background-color: var(--surface-page);
+  color: var(--text-primary);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  min-height: 100dvh;
+}
+
+.ios-blur {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+.shadow-button-primary {
+  box-shadow: var(--shadow-button-primary);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Priority Border - NEW */
+.priority-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.priority-border::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background-color: var(--border-color);
+}
+
+/* Subject Border - NEW */
+.subject-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.subject-border::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--subject-color);
+}
+
+/* Touch Targets */
+.touch-target {
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+}
+
+.touch-target-comfortable {
+  min-width: var(--touch-comfortable);
+  min-height: var(--touch-comfortable);
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--duration-slow) var(--ease-out);
+  will-change: opacity;
+}
+
+.stagger-item {
+  opacity: 0;
+  animation: slideUp 0.6s var(--ease-out) forwards;
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .stagger-item {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* Checkbox */
+.task-checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background-color: transparent;
+  transition: all var(--duration-fast) var(--ease-in-out);
+}
+
+.task-checkbox:checked {
+  background-color: var(--status-success);
+  border-color: var(--status-success);
+}
+
+/* iOS Toggle - RETANGULAR MODERNO */
+.ios-toggle-bg {
+  width: 51px;
+  height: 31px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  transition: background-color var(--duration-normal) var(--ease-in-out);
+  position: relative;
+  cursor: pointer;
+  min-width: 51px;
+  min-height: 31px;
+  display: flex;
+  align-items: center;
+}
+
+.ios-toggle-dot {
+  width: 27px;
+  height: 27px;
+  background-color: white;
+  border-radius: 16px;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  transition: transform var(--duration-normal) var(--ease-in-out);
+}
+
+input:checked + .ios-toggle-bg {
+  background-color: var(--action-primary);
+}
+
+input:checked + .ios-toggle-bg .ios-toggle-dot {
+  transform: translate3d(20px, 0, 0);
+}
+
+/* Touch Feedback */
+.touch-feedback:active {
+  transform: scale3d(0.98, 0.98, 1);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+/* Accent Color Utilities */
+.bg-action-primary {
+  background-color: var(--action-primary) !important;
+}
+
+.text-action-primary {
+  color: var(--action-primary) !important;
+}
+
+.bg-action-primary\/10 {
+  background-color: color-mix(
+    in srgb,
+    var(--action-primary) 10%,
+    transparent
+  ) !important;
+}
+
+.hover\:text-action-primary:hover {
+  color: var(--action-primary) !important;
+}
+
+.group:hover .group-hover\:text-action-primary {
+  color: var(--action-primary) !important;
+}
