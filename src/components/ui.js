@@ -43,9 +43,15 @@ export const UI = {
     };
 
     const p = priorityData[task.priority] || priorityData.medium;
+    const dateDisplay = task.due_date
+      ? new Date(task.due_date + "T12:00:00").toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+        })
+      : "";
 
     return `
-            <div class="priority-border group flex items-center bg-[var(--surface-card)] p-4 md:p-6 rounded-[24px] shadow-card active:scale-[0.98] transition-transform stagger-item cursor-pointer" style="--priority-color: ${p.color};">
+            <div class="priority-border group flex items-center bg-[var(--surface-card)] p-4 md:p-6 rounded-[16px] shadow-card active:scale-[0.98] transition-transform stagger-item cursor-pointer" style="--priority-color: ${p.color};">
                 
                 <!-- Checkbox Area -->
                 <div class="shrink-0 pr-4">
@@ -58,9 +64,9 @@ export const UI = {
                 <!-- Content Area -->
                 <div class="flex-1 flex flex-col min-w-0" onclick="document.querySelector('button[data-action=edit][data-id=${task.id}]')?.click()">
                     <span class="text-sm font-bold text-[var(--text-primary)] truncate ${isDone ? "line-through opacity-50" : ""}">${task.title}</span>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="text-[10px] font-bold uppercase tracking-wider" style="color: ${p.color};">${p.label}</span>
-                        <span class="text-[10px] text-[var(--text-secondary)] font-medium truncate">• ${subject ? subject.name : "Pessoal"}</span>
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
+                        ${dateDisplay ? `<span class="text-[10px] font-bold text-[var(--text-muted)] shrink-0">${dateDisplay}</span>` : ""}
+                        <span class="text-[10px] font-medium truncate shrink-0" style="color: ${subject ? subject.color : "var(--text-secondary)"}">${dateDisplay ? "• " : ""}${subject ? subject.name : "Pessoal"}</span>
                     </div>
                 </div>
 

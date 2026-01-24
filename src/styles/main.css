@@ -113,6 +113,21 @@ body {
   background-color: var(--subject-color);
 }
 
+.priority-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.priority-border::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--priority-color);
+}
+
 /* Touch Targets */
 .touch-target {
   min-width: var(--touch-min);
