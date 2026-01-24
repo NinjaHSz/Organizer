@@ -113,6 +113,31 @@ export const db = {
       .eq("id", id);
     if (error) throw error;
   },
+
+  // REALTIME
+  subscribeToTasks(callback) {
+    if (!supabaseClient) return null;
+    return supabaseClient
+      .channel("public:tasks")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "tasks" },
+        (payload) => callback(payload),
+      )
+      .subscribe();
+  },
+
+  subscribeToSubjects(callback) {
+    if (!supabaseClient) return null;
+    return supabaseClient
+      .channel("public:subjects")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "subjects" },
+        (payload) => callback(payload),
+      )
+      .subscribe();
+  },
 };
 
 window.db = db;

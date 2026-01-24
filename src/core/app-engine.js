@@ -116,9 +116,25 @@ export class AppEngine {
     await this.loadData();
     window.addEventListener("hashchange", () => this.router());
     this.router();
-    this.router();
     this.bindStaticEvents();
     this.setupGlobalSearch();
+    this.setupRealtime();
+  }
+
+  setupRealtime() {
+    // Sincroniza tarefas
+    db.subscribeToTasks(async (payload) => {
+      console.log("Realtime Task update:", payload);
+      await this.loadData();
+      this.render();
+    });
+
+    // Sincroniza matérias
+    db.subscribeToSubjects(async (payload) => {
+      console.log("Realtime Subject update:", payload);
+      await this.loadData();
+      this.render();
+    });
   }
 
   setupGlobalSearch() {
