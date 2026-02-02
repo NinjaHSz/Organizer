@@ -79,22 +79,6 @@ export const Settings = {
                         </div>
                     </section>
 
-                    <!-- Banco de Dados (Supabase) -->
-                    <section>
-                        <h2 class="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-3 ml-1">Banco de Dados (Supabase)</h2>
-                        <div class="bg-[var(--surface-card)] rounded-[var(--radius-xl)] p-5 space-y-4">
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Supabase URL</label>
-                                <input type="text" id="db-url-input" placeholder="https://xyz.supabase.co" value="${localStorage.getItem("supabase_url") || ""}" class="w-full bg-surface-subtle/50 border-none rounded-xl px-4 py-3 text-xs font-mono text-text-primary outline-none focus:ring-0">
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Public Anon Key</label>
-                                <input type="password" id="db-key-input" placeholder="eyJhbG..." value="${localStorage.getItem("supabase_key") || ""}" class="w-full bg-surface-subtle/50 border-none rounded-xl px-4 py-3 text-xs font-mono text-text-primary outline-none focus:ring-0">
-                            </div>
-                            <button id="save-db-config" class="w-full h-11 bg-action-primary text-white text-xs rounded-xl font-bold border-none shadow-button-primary hover:scale-[1.02] active:scale-95 transition-all">SALVAR CONEXÃO</button>
-                            <p class="text-[9px] text-text-muted text-center italic">O app irá recarregar para aplicar as novas chaves.</p>
-                        </div>
-                    </section>
  
                     <!-- Notificações -->
                     <section>
@@ -152,17 +136,6 @@ export const Settings = {
         handlers.onChangeAccentColor(radio.value);
       };
     });
-    const saveDbBtn = document.getElementById("save-db-config");
-    if (saveDbBtn) {
-      saveDbBtn.onclick = () => {
-        const url = document.getElementById("db-url-input").value;
-        const key = document.getElementById("db-key-input").value;
-        localStorage.setItem("supabase_url", url);
-        localStorage.setItem("supabase_key", key);
-        console.log("Saving DB config and reloading...");
-        window.location.reload();
-      };
-    }
 
     const notifTime = document.getElementById("notif-time-input");
     if (notifTime) {
