@@ -80,7 +80,7 @@ body {
   scrollbar-width: none;
 }
 
-/* Priority Border - NEW */
+/* Priority Border */
 .priority-border {
   position: relative;
   overflow: hidden;
@@ -90,14 +90,14 @@ body {
   content: "";
   position: absolute;
   left: 0;
-  top: 12px;
-  bottom: 12px;
+  top: 14px;
+  bottom: 14px;
   width: 4px;
   border-radius: 0 4px 4px 0;
-  background-color: var(--border-color);
+  background-color: var(--priority-color);
 }
 
-/* Subject Border - NEW */
+/* Subject Border */
 .subject-border {
   position: relative;
   overflow: hidden;
@@ -111,21 +111,6 @@ body {
   bottom: 0;
   width: 4px;
   background-color: var(--subject-color);
-}
-
-.priority-border {
-  position: relative;
-  overflow: hidden;
-}
-
-.priority-border::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background-color: var(--priority-color);
 }
 
 /* Touch Targets */

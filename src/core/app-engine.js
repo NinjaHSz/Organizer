@@ -119,6 +119,9 @@ export class AppEngine {
     this.bindStaticEvents();
     this.setupGlobalSearch();
     this.setupRealtime();
+
+    // Listener para o botão de adicionar no mobile (via CustomEvent do MobileNav)
+    document.addEventListener("open-new-task-modal", () => this.showTaskForm());
   }
 
   setupRealtime() {
@@ -282,9 +285,18 @@ export class AppEngine {
   }
 
   async loadData() {
-    const tasks = await db.getTasks();
-    const subjects = await db.getSubjects();
-    updateState({ tasks, subjects });
+    try {
+      const tasks = await db.getTasks();
+      const subjects = await db.getSubjects();
+      updateState({ tasks, subjects });
+      console.log("✅ Data loaded successfully.");
+    } catch (error) {
+      console.error("❌ Failed to load data from Supabase:", error);
+      UI.notify(
+        "Erro de conexão: verifique as chaves no menu Ajustes.",
+        "error",
+      );
+    }
   }
 
   router() {
@@ -374,13 +386,17 @@ export class AppEngine {
   }
 
   bindStaticEvents() {
-    document.querySelectorAll(".nav-btn").forEach((btn) => {
-      btn.onclick = () => (window.location.hash = btn.dataset.nav);
+    // Cliques na Sidebar (Desktop)
+    document.querySelectorAll("aside .nav-btn").forEach((btn) => {
+      btn.onclick = () => {
+        const tab = btn.dataset.nav;
+        window.location.hash = tab === "tasks" ? "" : tab;
+      };
     });
+
+    // Botão de adicionar no Desktop
     const globalAdd = document.getElementById("global-add-btn");
     if (globalAdd) globalAdd.onclick = () => this.showTaskForm();
-    const mobileAdd = document.getElementById("mobile-add-btn");
-    if (mobileAdd) mobileAdd.onclick = () => this.showTaskForm();
   }
 
   showTaskForm(task = null) {
@@ -389,6 +405,11 @@ export class AppEngine {
               <div class="flex flex-col gap-1">
                   <label class="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Título</label>
                   <input type="text" id="form-task-title" placeholder="O que vamos fazer?" value="${task ? task.title : ""}" class="w-full text-xl font-bold bg-surface-card border-none rounded-xl px-5 py-4 text-text-primary outline-none focus:ring-0 shadow-sm">
+              </div>
+
+              <div class="flex flex-col gap-1">
+                  <label class="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Descrição</label>
+                  <textarea id="form-task-desc" placeholder="Adicione mais detalhes..." class="w-full h-32 text-sm bg-surface-card border-none rounded-xl px-5 py-4 text-text-primary outline-none focus:ring-0 shadow-sm resize-none">${task?.description || ""}</textarea>
               </div>
 
               <div class="grid grid-cols-2 gap-4">
@@ -454,23 +475,72 @@ export class AppEngine {
     });
 
     document.getElementById("save-task").onclick = async () => {
+      const title = document.getElementById("form-task-title").value;
+      const description = document.getElementById("form-task-desc").value;
+      const priority = document.getElementById("form-task-priority").value;
+      const due_date = document.getElementById("form-task-date").value;
+
+      if (!title) {
+        UI.notify("A tarefa precisa de um título!", "warning");
+        return;
+      }
+
       const data = {
-        title: document.getElementById("form-task-title").value,
-        priority: document.getElementById("form-task-priority").value,
-        due_date: document.getElementById("form-task-date").value,
+        title,
+        description,
+        priority,
+        due_date,
         subject_id: selectedSubId,
         status: task ? task.status : "todo",
       };
-      if (!data.title) return; // UI.notify("A tarefa precisa de um título!", "warning");
-      if (task) await db.updateTask(task.id, data);
-      else {
-        const nt = await db.createTask(data);
-        state.tasks.unshift(nt);
+
+      try {
+        if (task) {
+          await db.updateTask(task.id, data);
+          UI.notify("Tarefa atualizada!", "success");
+        } else {
+          await db.createTask(data);
+          UI.notify("Tarefa criada com sucesso!", "success");
+        }
+        await this.loadData();
+        this.render();
+        close();
+      } catch (error) {
+        console.error("Primary save failed:", error);
+
+        // Se o erro for de coluna inexistente (provavelmente a 'description'), tenta salvar sem ela
+        if (
+          error.code === "42703" ||
+          (error.message && error.message.includes("description"))
+        ) {
+          console.warn(
+            "Table might be missing 'description' column. Retrying without it...",
+          );
+          try {
+            const fallbackData = { ...data };
+            delete fallbackData.description;
+
+            if (task) {
+              await db.updateTask(task.id, fallbackData);
+            } else {
+              await db.createTask(fallbackData);
+            }
+
+            UI.notify(
+              "Tarefa salva (sem descrição). Adicione a coluna 'description' no Supabase!",
+              "warning",
+            );
+            await this.loadData();
+            this.render();
+            close();
+          } catch (retryError) {
+            console.error("Retry failed:", retryError);
+            UI.notify("Erro crítico ao salvar no banco.", "error");
+          }
+        } else {
+          UI.notify("Erro ao conectar com o banco de dados.", "error");
+        }
       }
-      await this.loadData();
-      this.render();
-      close();
-      // UI.notify("Salvo com sucesso!", "success");
     };
   }
 

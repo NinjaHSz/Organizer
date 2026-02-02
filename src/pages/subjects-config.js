@@ -34,7 +34,7 @@ export const SubjectsConfig = {
                                               const isDone =
                                                 t.status === "done";
                                               return `
-                                            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer" onclick="document.querySelector('button[data-action=edit][data-id=${t.id}]')?.click()">
+                                            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer task-item-link" data-task-id="${t.id}">
                                                 <div class="size-2 rounded-full shrink-0" style="background-color: ${subject.color}"></div>
                                                 <span class="flex-1 text-sm font-bold text-[var(--text-primary)] truncate ${isDone ? "line-through opacity-50" : ""}">${t.title}</span>
                                                 ${
@@ -94,6 +94,15 @@ export const SubjectsConfig = {
           list.classList.add("hidden");
           chevron.style.transform = "rotate(0deg)";
         }
+      };
+    });
+
+    // Clique nas tarefas da lista expandida
+    root.querySelectorAll(".task-item-link").forEach((link) => {
+      link.onclick = (e) => {
+        e.stopPropagation();
+        const taskId = link.dataset.taskId;
+        handlers.onEditTask(taskId);
       };
     });
   },

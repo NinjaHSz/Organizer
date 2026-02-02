@@ -56,7 +56,7 @@ export const UI = {
                 <!-- Checkbox Area -->
                 <div class="shrink-0 pr-4">
                     <label class="relative flex items-center justify-center size-6 cursor-pointer">
-                        <input type="checkbox" class="task-checkbox appearance-none size-6 border-2 border-white/30 bg-[var(--surface-page)] rounded-full checked:bg-[var(--status-success)] checked:border-[var(--status-success)] transition-colors cursor-pointer" ${isDone ? "checked" : ""} data-id="${task.id}">
+                        <input type="checkbox" class="task-checkbox appearance-none size-6 border-2 border-white/50 bg-[var(--surface-page)] rounded-full checked:bg-[var(--status-success)] checked:border-[var(--status-success)] transition-colors cursor-pointer" ${isDone ? "checked" : ""} data-id="${task.id}">
                         <span class="material-symbols-outlined absolute text-white text-[16px] pointer-events-none opacity-0 ${isDone ? "opacity-100" : ""}">check</span>
                     </label>
                 </div>
@@ -88,20 +88,20 @@ export const UI = {
     modal.className =
       "fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/20 ios-blur opacity-0 transition-opacity duration-300";
     modal.innerHTML = `
-            <div class="bg-surface-card rounded-2xl w-full max-w-sm mx-4 transform translate-y-10 transition-transform duration-300 shadow-2xl overflow-hidden border-none text-text-primary">
-                <div class="px-6 pt-6 pb-2 flex justify-between items-center">
+            <div class="bg-[var(--surface-card)] rounded-[var(--radius-xl)] w-full max-w-lg mx-4 flex flex-col max-h-[90vh] transform translate-y-10 transition-transform duration-300 shadow-2xl overflow-hidden border-none text-[var(--text-primary)]">
+                <div class="px-6 pt-6 pb-2 shrink-0 flex justify-between items-center bg-[var(--surface-card)] z-10">
                     <h2 class="text-xl font-bold tracking-tight">${title}</h2>
-                    <button class="close-modal text-text-muted hover:text-text-primary"><span class="material-symbols-outlined">close</span></button>
+                    <button class="close-modal text-[var(--text-muted)] hover:text-[var(--text-primary)] border-none bg-transparent cursor-pointer"><span class="material-symbols-outlined">close</span></button>
                 </div>
 
-                <div class="px-6 py-4">
+                <div class="px-6 py-4 overflow-y-auto no-scrollbar flex-1">
                     ${content}
                 </div>
 
                 ${
                   actions
                     ? `
-                    <div class="px-6 pb-6 pt-2 flex flex-col gap-3">
+                    <div class="px-6 pb-6 pt-2 shrink-0 flex flex-col gap-3 bg-[var(--surface-card)] z-10">
                         ${actions}
                     </div>
                 `

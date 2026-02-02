@@ -2,37 +2,44 @@
  * Supabase Client Settings & Database Operations
  */
 
-const SUPABASE_URL =
-  localStorage.getItem("supabase_url") ||
-  "https://sywueeqbijwdjjleyzbo.supabase.co";
-const SUPABASE_KEY =
-  localStorage.getItem("supabase_key") ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5d3VlZXFiaWp3ZGpqbGV5emJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NTYwMTksImV4cCI6MjA4NDIzMjAxOX0.LtUDmZ5MIxTAuf8L9TZFvYKo8HY6TngiJyVRouln85Q";
-
 let supabaseClient = null;
 
-if (
-  SUPABASE_URL &&
-  !SUPABASE_URL.includes("YOUR_SUPABASE") &&
-  SUPABASE_KEY &&
-  !SUPABASE_KEY.includes("YOUR_SUPABASE")
-) {
+const getClient = () => {
+  if (supabaseClient) return supabaseClient;
+
+  const url =
+    localStorage.getItem("supabase_url") ||
+    "https://sywueeqbijwdjjleyzbo.supabase.co";
+  const key =
+    localStorage.getItem("supabase_key") ||
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5d3VlZXFiaWp3ZGpqbGV5emJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NTYwMTksImV4cCI6MjA4NDIzMjAxOX0.LtUDmZ5MIxTAuf8L9TZFvYKo8HY6TngiJyVRouln85Q";
+
+  if (
+    !url ||
+    url.includes("YOUR_SUPABASE") ||
+    !key ||
+    key.includes("YOUR_SUPABASE")
+  ) {
+    return null;
+  }
+
   try {
-    // Assume 'supabase' is globally available via CDN or import script if not using bundler
-    // Since we are moving to modules, we should ideally import it, but for a simple refactor
-    // let's assume it's available via the window object if already loaded in index.html.
     if (window.supabase) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      supabaseClient = window.supabase.createClient(url, key);
       window.supabaseClient = supabaseClient;
+      console.log("✅ Supabase Client initialized.");
     }
   } catch (e) {
-    console.error("Failed to initialize Supabase:", e);
+    console.error("❌ Supabase init error:", e);
   }
-}
+
+  return supabaseClient;
+};
 
 export const db = {
   // TASKS
   async getTasks() {
+    const supabaseClient = getClient();
     if (!supabaseClient) return [];
     const { data, error } = await supabaseClient
       .from("tasks")
@@ -43,6 +50,7 @@ export const db = {
   },
 
   async createTask(taskData) {
+    const supabaseClient = getClient();
     if (!supabaseClient) return null;
     const { data, error } = await supabaseClient
       .from("tasks")
@@ -54,6 +62,7 @@ export const db = {
   },
 
   async updateTask(id, updates) {
+    const supabaseClient = getClient();
     if (!supabaseClient) return null;
     const { data, error } = await supabaseClient
       .from("tasks")
@@ -66,6 +75,7 @@ export const db = {
   },
 
   async deleteTask(id) {
+    const supabaseClient = getClient();
     if (!supabaseClient) return;
     const { error } = await supabaseClient.from("tasks").delete().eq("id", id);
     if (error) throw error;
@@ -73,6 +83,7 @@ export const db = {
 
   // SUBJECTS
   async getSubjects() {
+    const supabaseClient = getClient();
     if (!supabaseClient) return [];
     const { data, error } = await supabaseClient
       .from("subjects")
@@ -83,6 +94,7 @@ export const db = {
   },
 
   async createSubject(subjectData) {
+    const supabaseClient = getClient();
     if (!supabaseClient) return null;
     const { data, error } = await supabaseClient
       .from("subjects")
@@ -94,6 +106,7 @@ export const db = {
   },
 
   async updateSubject(id, updates) {
+    const supabaseClient = getClient();
     if (!supabaseClient) return null;
     const { data, error } = await supabaseClient
       .from("subjects")
@@ -106,6 +119,7 @@ export const db = {
   },
 
   async deleteSubject(id) {
+    const supabaseClient = getClient();
     if (!supabaseClient) return;
     const { error } = await supabaseClient
       .from("subjects")
@@ -116,6 +130,7 @@ export const db = {
 
   // REALTIME
   subscribeToTasks(callback) {
+    const supabaseClient = getClient();
     if (!supabaseClient) return null;
     return supabaseClient
       .channel("public:tasks")
@@ -128,6 +143,7 @@ export const db = {
   },
 
   subscribeToSubjects(callback) {
+    const supabaseClient = getClient();
     if (!supabaseClient) return null;
     return supabaseClient
       .channel("public:subjects")
