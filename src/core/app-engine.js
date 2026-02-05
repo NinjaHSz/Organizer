@@ -7,6 +7,7 @@ import { navStateManager } from "./nav-state.js";
 import { UI } from "../components/ui.js";
 import { Dashboard } from "../pages/dashboard.js";
 import { CalendarModule } from "../pages/calendar.js";
+import { Schedule } from "../pages/schedule.js";
 import { SubjectsConfig } from "../pages/subjects-config.js";
 import { Settings } from "../pages/settings.js";
 import { MobileNav } from "../components/mobile-nav.js";
@@ -320,7 +321,8 @@ export class AppEngine {
   updateHeaderTitle(page) {
     const titles = {
       tasks: "Dashboard",
-      calendar: "Calendário",
+      calendar: "Minha Agenda",
+      schedule: "Cronograma",
       "subjects-config": "Minhas Matérias",
       settings: "Ajustes",
     };
@@ -346,6 +348,9 @@ export class AppEngine {
         break;
       case "calendar":
         CalendarModule.render(root, state, this.handlers);
+        break;
+      case "schedule":
+        Schedule.render(root, state, this.handlers);
         break;
       case "subjects-config":
         SubjectsConfig.render(root, state, this.handlers);
@@ -454,6 +459,70 @@ export class AppEngine {
       `<button id="save-task" class="h-14 bg-action-primary text-white text-sm rounded-xl font-bold border-none shadow-button-primary hover:scale-[1.02] active:scale-95 transition-all">SALVAR</button>`,
     );
 
+    // Mapeamento do cronograma para sugestão de data inteligente
+    const timetable = [
+      { aula: "1", dias: ["ING", "FIL", "ETC", "RED", "ESP"] },
+      { aula: "2", dias: ["BIO", "ED.FIS", "ING", "", "MAT"] },
+      { aula: "3", dias: ["QUI", "FIS", "GRAM", "FIS", "GEO"] },
+      { aula: "4", dias: ["QUI", "FIS", "GRAM", "HIST", "LIT"] },
+      { aula: "5", dias: ["MAT", "SOC", "GEO", "HIST", "LIT"] },
+      { aula: "6", dias: ["MAT", "MAT", "BIO", "MAT", "BIO"] },
+      { aula: "7", dias: ["", "ARTE", "", "", ""] },
+    ];
+
+    const getNextClassDate = (subjectName) => {
+      const dayMap = [
+        "DOMINGO",
+        "SEGUNDA",
+        "TERÇA",
+        "QUARTA",
+        "QUINTA",
+        "SEXTA",
+        "SÁBADO",
+      ];
+      const mapping = {
+        Artes: "ARTE",
+        Literatura: "LIT",
+        Matemática: "MAT",
+        Biologia: "BIO",
+        Geografia: "GEO",
+        Filosofia: "FIL",
+        Inglês: "ING",
+        Química: "QUI",
+        Gramática: "GRAM",
+        História: "HIST",
+        Redação: "RED",
+        Física: "FIS",
+        Sociologia: "SOC",
+        Espanhol: "ESP",
+        "Ed. Física": "ED.FIS",
+      };
+
+      const sigla = mapping[subjectName];
+      if (!sigla) return null;
+
+      const daysWithClass = [];
+      timetable.forEach((row) => {
+        row.dias.forEach((d, i) => {
+          if (d === sigla && !daysWithClass.includes(i + 1))
+            daysWithClass.push(i + 1);
+        });
+      });
+
+      if (daysWithClass.length === 0) return null;
+
+      const now = new Date();
+      let nextDate = new Date();
+
+      for (let i = 1; i <= 7; i++) {
+        nextDate.setDate(now.getDate() + i);
+        if (daysWithClass.includes(nextDate.getDay())) {
+          return nextDate.toISOString().split("T")[0];
+        }
+      }
+      return null;
+    };
+
     let selectedSubId = task?.subject_id || null;
     modal.querySelectorAll(".sub-chip").forEach((chip) => {
       chip.onclick = () => {
@@ -471,6 +540,19 @@ export class AppEngine {
         const activeDot = chip.querySelector("div");
         if (activeDot) activeDot.style.backgroundColor = "#fff";
         selectedSubId = chip.dataset.id === "null" ? null : chip.dataset.id;
+
+        // Sugestão de data baseada no cronograma
+        if (selectedSubId && !task) {
+          const sub = state.subjects.find((s) => s.id === selectedSubId);
+          if (sub) {
+            const nextDate = getNextClassDate(sub.name);
+            const dateInput = document.getElementById("form-task-date");
+            if (nextDate && dateInput) {
+              dateInput.value = nextDate;
+              UI.notify(`Prazo sugerido: Próxima aula de ${sub.name}`, "info");
+            }
+          }
+        }
       };
     });
 

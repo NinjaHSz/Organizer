@@ -16,6 +16,7 @@ export const MobileNav = {
           <div class="flex items-center gap-6 mr-4">
             ${this.renderNavItem("tasks", "dashboard", activeTab)}
             ${this.renderNavItem("calendar", "calendar_today", activeTab)}
+            ${this.renderNavItem("schedule", "schedule", activeTab)}
             ${this.renderNavItem("subjects-config", "book", activeTab)}
             ${this.renderNavItem("settings", "settings", activeTab)}
           </div>

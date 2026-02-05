@@ -164,9 +164,41 @@ export const Dashboard = {
       };
     });
 
-    root.querySelectorAll("[data-id]").forEach((elem) => {
-      const id = elem.dataset.id;
-      elem.onclick = (e) => {
+    root.querySelectorAll(".task-card").forEach((card) => {
+      const id = card.dataset.id;
+      const toggleArea = card.querySelector(".task-toggle-area");
+      const expandContent = card.querySelector(".expand-content");
+
+      if (toggleArea && expandContent) {
+        toggleArea.onclick = (e) => {
+          e.stopPropagation();
+          const isExpanded = expandContent.classList.contains("max-h-96");
+
+          // Fecha outros cards se necessário (opcional - UX preference)
+          // root.querySelectorAll('.expand-content').forEach(el => {
+          //     el.classList.remove('max-h-96', 'opacity-100', 'mt-4');
+          //     el.classList.add('max-h-0', 'opacity-0');
+          // });
+
+          if (isExpanded) {
+            expandContent.classList.remove("max-h-96", "opacity-100");
+            expandContent.classList.add(
+              "max-h-0",
+              "opacity-0",
+              "pointer-events-none",
+            );
+          } else {
+            expandContent.classList.remove(
+              "max-h-0",
+              "opacity-0",
+              "pointer-events-none",
+            );
+            expandContent.classList.add("max-h-96", "opacity-100");
+          }
+        };
+      }
+
+      card.onclick = (e) => {
         const btn = e.target.closest("button");
         if (btn) {
           const action = btn.dataset.action;
