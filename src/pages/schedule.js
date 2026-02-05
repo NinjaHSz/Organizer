@@ -75,6 +75,8 @@ export const Schedule = {
     };
 
     const getSubjectStyle = (subject) => {
+      if (!subject)
+        return `background-color: transparent; border-color: transparent;`;
       const data = subjectData[subject] || { color: "#ffffff20" };
       return `background-color: ${data.color}15; color: ${data.color}; border-color: ${data.color}30;`;
     };
@@ -136,9 +138,7 @@ export const Schedule = {
                                         <td class="p-4 border-b border-white/5 text-xs font-bold text-text-primary whitespace-nowrap">${
                                           row.aula
                                         }</td>
-                                        <td class="p-4 border-b border-white/5 text-[10px] font-medium text-text-secondary whitespace-pre-line leading-tight uppercase font-mono">${row.horario.join(
-                                          "\n",
-                                        )}</td>
+                                        <td class="p-4 border-b border-white/5 text-[10px] font-medium text-text-secondary whitespace-nowrap uppercase font-mono">${row.horario[0]}</td>
                                         ${row.dias
                                           .map(
                                             (subject) => `
@@ -179,15 +179,11 @@ export const Schedule = {
                                     
                                     <!-- Time Column -->
                                     <div class="flex flex-col items-center justify-center w-12 shrink-0">
-                                        <span class="text-[10px] font-black text-text-primary ${
+                                        <span class="text-[11px] font-black text-text-primary ${
                                           active
                                             ? "text-[var(--action-primary)]"
                                             : ""
                                         }">${row.horario[0]}</span>
-                                        <div class="w-[1px] h-4 bg-[var(--separator)] my-0.5"></div>
-                                        <span class="text-[10px] font-medium text-text-muted">${
-                                          row.horario[1]
-                                        }</span>
                                     </div>
 
                                     <!-- Content Card -->
