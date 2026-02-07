@@ -44,6 +44,12 @@ export const Notifications = {
       // Verifica se já existe uma inscrição
       let subscription = await registration.pushManager.getSubscription();
 
+      const settings = {
+        dailyEnabled:
+          localStorage.getItem("daily-reminders-enabled") !== "false",
+        notifTime: localStorage.getItem("notif-time") || "09:00",
+      };
+
       if (!subscription) {
         // Cria uma nova inscrição
         const convertedVapidKey = this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
@@ -53,7 +59,7 @@ export const Notifications = {
         });
 
         console.log("[Notifications] Nova inscrição de Push criada.");
-        await db.savePushSubscription(subscription);
+        await db.savePushSubscription(subscription, settings);
       } else {
         console.log("[Notifications] Usuário já inscrito no Push.");
       }
@@ -117,10 +123,19 @@ export const Notifications = {
           tasks: state.tasks,
           settings: settings,
         });
-        console.log("🔄 [Notifications] Sincronizado");
+
+        // Sincroniza com o servidor para agendamento offline
+        db.updatePushSettings(settings).catch((e) =>
+          console.warn(
+            "[Notifications] Falha ao sincronizar ajustes no servidor:",
+            e,
+          ),
+        );
+
+        console.log("[Notifications] Sincronizado");
       }
     } catch (e) {
-      console.warn("⚠️ [Notifications] Falha na sincronia:", e);
+      console.warn("[Notifications] Falha na sincronia:", e);
     }
   },
 

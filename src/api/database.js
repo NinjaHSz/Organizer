@@ -155,16 +155,46 @@ export const db = {
       .subscribe();
   },
 
-  async savePushSubscription(subscription) {
+  async savePushSubscription(subscription, settings = {}) {
     const supabaseClient = getClient();
     if (!supabaseClient) return null;
     const { data, error } = await supabaseClient
       .from("push_subscriptions")
-      .insert([{ subscription }])
+      .insert([
+        {
+          subscription,
+          notif_time: settings.notifTime || "09:00",
+          daily_enabled: settings.dailyEnabled !== false,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+      ])
       .select()
       .single();
     if (error) throw error;
     return data;
+  },
+
+  async updatePushSettings(settings) {
+    const supabaseClient = getClient();
+    if (!supabaseClient) return null;
+
+    // Como não temos login, vamos assumir que queremos atualizar a inscrição deste navegador
+    // No sw.js podemos gerenciar melhor, mas aqui vamos atualizar todos os registros 'anon' por enquanto
+    // ou basear no endpoint da inscrição se disponível.
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+
+    if (subscription) {
+      const { error } = await supabaseClient
+        .from("push_subscriptions")
+        .update({
+          notif_time: settings.notifTime,
+          daily_enabled: settings.dailyEnabled,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        })
+        .filter("subscription->>endpoint", "eq", subscription.endpoint);
+      if (error) throw error;
+    }
   },
 };
 
