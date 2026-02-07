@@ -1,23 +1,23 @@
 // Organizer Service Worker - Background Engine V5
-const VERSION = "1.1.0";
+const VERSION = "1.1.1";
 const DB_NAME = "organizer-sw-db";
 const STORE_NAME = "config";
 
-let lastFiredTime = null;
+let lastFiredDateKey = null;
 
-// 1. Inicialização Global do Timer
+// 1. Inicialização Global do Timer (Curto prazo enquanto ativo)
 let checkInterval = null;
 
 const startBackgroundCheck = () => {
   if (checkInterval) clearInterval(checkInterval);
-  console.log(`[SW V${VERSION}] ⏰ Motor de fundo ativo.`);
+  console.log(`[SW V${VERSION}] ⏰ Verificação de fundo ativa.`);
   checkInterval = setInterval(async () => {
     try {
       await checkNotifications();
     } catch (e) {
-      console.error("[SW] Erro no ciclo de check:", e);
+      console.error("[SW] Erro no check:", e);
     }
-  }, 20000);
+  }, 30000);
 };
 
 startBackgroundCheck();
@@ -31,6 +31,7 @@ self.addEventListener("activate", (event) => {
   startBackgroundCheck();
 });
 
+// Acordado pelo Sistema Operacional
 self.addEventListener("periodicsync", (event) => {
   if (event.tag === "daily-check") {
     event.waitUntil(checkNotifications());
@@ -48,45 +49,44 @@ const checkNotifications = async () => {
   const currentH = now.getHours();
   const currentM = now.getMinutes();
   const todayStr = getLocalDateString(now);
-  const timeKey = `${todayStr}-${currentH}:${currentM}`;
-
-  if (lastFiredTime === timeKey) return;
 
   const timeSetting = settings.notifTime || "09:00";
   const [targetH, targetM] = timeSetting.split(":").map(Number);
 
+  // LÓGICA DE JANELA: Se já passou do horário alvo HOJE
+  const targetTotalMinutes = targetH * 60 + targetM;
+  const currentTotalMinutes = currentH * 60 + currentM;
+
   console.log(
-    `[SW] ${currentH}:${currentM} -> Alvo: ${targetH}:${targetM} | Tasks: ${tasks.length}`,
+    `[SW] Audit: ${currentH}:${currentM} (Alvo: ${targetH}:${targetM})`,
   );
 
-  if (currentH === targetH && currentM === targetM) {
+  if (currentTotalMinutes >= targetTotalMinutes) {
     const lastDate = await getData(db, "lastDailyNotif");
+
+    // Se ainda não disparou hoje, DISPARA!
     if (lastDate !== todayStr) {
-      lastFiredTime = timeKey;
-      await fireDailySummary(db, tasks, todayStr);
+      console.log("[SW] 🚀 Horário atingido/passado. Disparando resumo.");
+
+      const pendingTasks = tasks.filter(
+        (t) => t.status !== "done" && (!t.due_date || t.due_date >= todayStr),
+      );
+
+      await showNotification("Resumo do Dia 🎯", {
+        body:
+          pendingTasks.length > 0
+            ? `Você tem ${pendingTasks.length} tarefas pendentes. Vamos organizar o dia?`
+            : "Nenhuma tarefa para hoje. Aproveite!",
+        tag: "daily-summary",
+        data: { url: "/" },
+      });
+
+      await setData(db, "lastDailyNotif", todayStr);
     }
   }
 };
 
-const fireDailySummary = async (db, tasks, todayStr) => {
-  console.log("[SW] 🚀 Disparando Notificação");
-
-  const pendingTasks = tasks.filter(
-    (t) => t.status !== "done" && (!t.due_date || t.due_date >= todayStr),
-  );
-
-  await showNotification("Suas Tarefas de Hoje 🎯", {
-    body:
-      pendingTasks.length > 0
-        ? `Você tem ${pendingTasks.length} tarefas pendentes. Vamos nessa?`
-        : "Nenhuma tarefa para hoje. Aproveite seu tempo!",
-    tag: "daily-summary",
-    data: { url: "/" },
-  });
-
-  await setData(db, "lastDailyNotif", todayStr);
-};
-
+// IndexedDB Helpers
 const openDB = () => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
@@ -141,19 +141,18 @@ self.addEventListener("message", async (event) => {
     await setData(db, "tasks", data.tasks);
     await setData(db, "settings", data.settings);
     await setData(db, "lastSync", new Date().getTime());
-    console.log("[SW] 🔄 Sincronizado");
+    console.log("[SW] 🔄 Dados Sincronizados");
     startBackgroundCheck();
   }
 
   if (data.type === "FORCE_TEST") {
-    console.log("[SW] 🧪 Teste Forçado Recebido.");
     await setData(db, "lastDailyNotif", "reset");
     const tasks = (await getData(db, "tasks")) || [];
-    await fireDailySummary(db, tasks, getLocalDateString(new Date()));
+    await checkNotifications();
   }
 
   if (data.type === "GET_SW_STATUS") {
-    const tasks = await getData(db, "tasks");
+    const tasks = (await getData(db, "tasks")) || [];
     const lastSync = await getData(db, "lastSync");
 
     event.source.postMessage({
@@ -161,9 +160,14 @@ self.addEventListener("message", async (event) => {
       status: "active",
       version: VERSION,
       lastSync: lastSync,
-      taskCount: tasks ? tasks.length : 0,
+      taskCount: tasks.length,
     });
   }
+});
+
+// Listener de Push (Placeholder para evitar suspensão agressiva do navegador)
+self.addEventListener("push", (event) => {
+  console.log("[SW] Push Event");
 });
 
 self.addEventListener("notificationclick", (event) => {
