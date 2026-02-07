@@ -76,9 +76,9 @@ export const Notifications = {
         hour: "2-digit",
         minute: "2-digit",
       });
-      const dayIndex = now.getDay() - 1; // 0 = Segunda, 4 = Sexta
+      const dayIndex = now.getDay() - 1;
 
-      // 1. Resumo Diário
+      // 1. Resumo Semanal
       const notifTime = localStorage.getItem("notif-time") || "09:00";
       if (currentStr === notifTime) {
         const lastNotif = localStorage.getItem("last-daily-notif-date");
@@ -89,8 +89,9 @@ export const Notifications = {
         }
       }
 
-      // 2. Alertas de Aula (5 minutos antes)
+      // 2. Alertas de Aula
       if (dayIndex >= 0 && dayIndex <= 4) {
+        const todayStr = now.toISOString().split("T")[0];
         timetable.forEach((row) => {
           const subject = row.dias[dayIndex];
           if (!subject || subject === "INTERVALO") return;
@@ -112,8 +113,18 @@ export const Notifications = {
       }
     };
 
+    // Tenta esquentar o Service Worker para tarefas em segundo plano
+    this.pingServiceWorker();
+
     setInterval(checkAll, 60000);
     checkAll();
+  },
+
+  async pingServiceWorker() {
+    if ("serviceWorker" in navigator) {
+      const registration = await navigator.serviceWorker.ready;
+      console.log("📅 Background sync ready via SW");
+    }
   },
 
   async sendDailySummary() {
@@ -122,30 +133,28 @@ export const Notifications = {
     const now = new Date();
     const todayStr = now.toISOString().split("T")[0];
 
-    // Calcula o fim da "semana" (próximos 7 dias)
     const nextWeek = new Date();
     nextWeek.setDate(now.getDate() + 7);
     const nextWeekStr = nextWeek.toISOString().split("T")[0];
 
-    // Filtra tarefas pendentes para a semana (ou sem data)
     const weekTasks = state.tasks.filter(
       (t) =>
         t.status !== "done" &&
         ((t.due_date >= todayStr && t.due_date <= nextWeekStr) || !t.due_date),
     );
 
-    const title = "Bom dia! ☀️";
+    const title = "Resumo da Semana ☀️";
     const body =
       weekTasks.length > 0
-        ? `Você tem ${weekTasks.length} tarefa${weekTasks.length > 1 ? "s" : ""} pendente${weekTasks.length > 1 ? "s" : ""} nesta semana. Confira seus prazos!`
-        : "Sua semana está livre de tarefas pendentes! Aproveite o descanso.";
+        ? `Você tem ${weekTasks.length} tarefa${weekTasks.length > 1 ? "s" : ""} pendente${weekTasks.length > 1 ? "s" : ""} nesta semana. Fique atento aos prazos!`
+        : "Sua semana está livre de tarefas pendentes! Aproveite.";
 
     this.showNativeNotification(title, { body, tag: "daily-summary" });
   },
 
   async sendClassAlert(subject, time) {
     this.showNativeNotification("Próxima Aula 🏫", {
-      body: `A aula de ${subject} começa em breve às ${time}. Prepare seu material!`,
+      body: `Aula de ${subject} às ${time}. Prepare-se!`,
       tag: `class-${time}`,
     });
   },
@@ -157,6 +166,7 @@ export const Notifications = {
       icon: "/assets/div.ico",
       badge: "/assets/div.ico",
       vibrate: [200, 100, 200],
+      requireInteraction: true,
       ...options,
     };
 
