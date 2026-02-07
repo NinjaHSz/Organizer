@@ -154,6 +154,18 @@ export const db = {
       )
       .subscribe();
   },
+
+  async savePushSubscription(subscription) {
+    const supabaseClient = getClient();
+    if (!supabaseClient) return null;
+    const { data, error } = await supabaseClient
+      .from("push_subscriptions")
+      .insert([{ subscription }])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
 };
 
 window.db = db;

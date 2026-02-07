@@ -1,5 +1,5 @@
-// Organizer Service Worker - Background Engine V5
-const VERSION = "1.1.1";
+// Organizer Service Worker - Background Engine V6
+const VERSION = "1.2.2";
 const DB_NAME = "organizer-sw-db";
 const STORE_NAME = "config";
 
@@ -10,7 +10,7 @@ let checkInterval = null;
 
 const startBackgroundCheck = () => {
   if (checkInterval) clearInterval(checkInterval);
-  console.log(`[SW V${VERSION}] ⏰ Verificação de fundo ativa.`);
+  console.log(`[SW V${VERSION}] Verificação de fundo ativa.`);
   checkInterval = setInterval(async () => {
     try {
       await checkNotifications();
@@ -66,17 +66,17 @@ const checkNotifications = async () => {
 
     // Se ainda não disparou hoje, DISPARA!
     if (lastDate !== todayStr) {
-      console.log("[SW] 🚀 Horário atingido/passado. Disparando resumo.");
+      console.log("[SW] Horário atingido/passado. Disparando resumo.");
 
       const pendingTasks = tasks.filter(
         (t) => t.status !== "done" && (!t.due_date || t.due_date >= todayStr),
       );
 
-      await showNotification("Resumo do Dia 🎯", {
+      await showNotification("Resumo da Semana", {
         body:
           pendingTasks.length > 0
-            ? `Você tem ${pendingTasks.length} tarefas pendentes. Vamos organizar o dia?`
-            : "Nenhuma tarefa para hoje. Aproveite!",
+            ? `Você tem ${pendingTasks.length} tarefas pendentes. Vamos organizar a semana?`
+            : "Nenhuma tarefa para esta semana. Aproveite!",
         tag: "daily-summary",
         data: { url: "/" },
       });
@@ -141,7 +141,7 @@ self.addEventListener("message", async (event) => {
     await setData(db, "tasks", data.tasks);
     await setData(db, "settings", data.settings);
     await setData(db, "lastSync", new Date().getTime());
-    console.log("[SW] 🔄 Dados Sincronizados");
+    console.log("[SW] Dados Sincronizados");
     startBackgroundCheck();
   }
 
@@ -165,9 +165,23 @@ self.addEventListener("message", async (event) => {
   }
 });
 
-// Listener de Push (Placeholder para evitar suspensão agressiva do navegador)
+// Listener de Push do Servidor (Supabase Edge Function)
 self.addEventListener("push", (event) => {
-  console.log("[SW] Push Event");
+  console.log("[SW] Mensagem de Push recebida!");
+
+  if (event.data) {
+    try {
+      const payload = event.data.json();
+      const promise = showNotification(payload.title || "Organizer", {
+        body: payload.body || "Você tem novidades no seu organizador.",
+        tag: payload.tag || "push-notification",
+        data: { url: payload.url || "/" },
+      });
+      event.waitUntil(promise);
+    } catch (e) {
+      console.error("[SW] Erro ao processar payload de push:", e);
+    }
+  }
 });
 
 self.addEventListener("notificationclick", (event) => {

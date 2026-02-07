@@ -3,21 +3,28 @@
  */
 import { state } from "./state.js";
 import { UI } from "../components/ui.js";
+import { db } from "../api/database.js";
+
+const VAPID_PUBLIC_KEY =
+  "BCzt6hcNxLDdrJAsahoERLY4N99GL74Bs5qlNk8CgMAZVRABe7V08v2IjpM8peRzseEPFHeDG5ETe7yBzVo2ec8";
 
 export const Notifications = {
   _interval: null,
 
   async init() {
-    console.log("🔔 [Notifications] Inicializando...");
+    console.log("[Notifications] Inicializando...");
     if (!("Notification" in window)) return;
 
-    await Notification.requestPermission();
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      this.subscribeToPush();
+    }
 
-    // Listener para respostas do SW
+    // Listener para respostas do SW (Mantido para diagnóstico local)
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.addEventListener("message", (event) => {
         if (event.data.type === "SW_STATUS_RESPONSE") {
-          console.log("📊 [Notifications] SW Status:", event.data);
+          console.log("[Notifications] SW Status:", event.data);
           this.onStatusReceived?.(event.data);
         }
       });
@@ -26,6 +33,46 @@ export const Notifications = {
     this.syncWithSW();
     this.setupFrontendCheck();
     this.registerPeriodicSync();
+  },
+
+  async subscribeToPush() {
+    if (!("serviceWorker" in navigator)) return;
+
+    try {
+      const registration = await navigator.serviceWorker.ready;
+
+      // Verifica se já existe uma inscrição
+      let subscription = await registration.pushManager.getSubscription();
+
+      if (!subscription) {
+        // Cria uma nova inscrição
+        const convertedVapidKey = this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedVapidKey,
+        });
+
+        console.log("[Notifications] Nova inscrição de Push criada.");
+        await db.savePushSubscription(subscription);
+      } else {
+        console.log("[Notifications] Usuário já inscrito no Push.");
+      }
+    } catch (e) {
+      console.warn("[Notifications] Falha ao inscrever no Push:", e);
+    }
+  },
+
+  urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
   },
 
   async registerPeriodicSync() {
@@ -105,8 +152,25 @@ export const Notifications = {
     if ("serviceWorker" in navigator) {
       const registration = await navigator.serviceWorker.ready;
       if (registration.active) {
+        // 1. Testa a rota local (App Aberto)
         registration.active.postMessage({ type: "FORCE_TEST" });
-        UI.notify("Sinal de teste enviado ao Motor de Fundo...", "info");
+
+        // 2. Testa a rota de Produção (App Fechado)
+        // Chamando a Edge Function do Supabase que acabamos de criar
+        UI.notify("Solicitando sinal ao servidor (Web Push)...", "info");
+        try {
+          await fetch(
+            "https://sywueeqbijwdjjleyzbo.supabase.co/functions/v1/send-daily-reminders",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("supabase_key")}`,
+              },
+            },
+          );
+        } catch (e) {
+          console.warn("Falha ao chamar servidor:", e);
+        }
       }
     }
   },
