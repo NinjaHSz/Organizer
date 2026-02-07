@@ -1,5 +1,5 @@
 // Organizer Service Worker - Background Engine V6
-const VERSION = "1.2.2";
+const VERSION = "1.2.3";
 const DB_NAME = "organizer-sw-db";
 const STORE_NAME = "config";
 
@@ -66,20 +66,26 @@ const checkNotifications = async () => {
 
     // Se ainda não disparou hoje, DISPARA!
     if (lastDate !== todayStr) {
+      const weekFromNow = new Date();
+      weekFromNow.setDate(now.getDate() + 7);
+      const weekEndStr = getLocalDateString(weekFromNow);
+
       console.log("[SW] Horário atingido/passado. Disparando resumo.");
 
-      const pendingTasks = tasks.filter(
-        (t) => t.status !== "done" && (!t.due_date || t.due_date >= todayStr),
-      );
-
-      await showNotification("Resumo da Semana", {
-        body:
-          pendingTasks.length > 0
-            ? `Você tem ${pendingTasks.length} tarefas pendentes. Vamos organizar a semana?`
-            : "Nenhuma tarefa para esta semana. Aproveite!",
-        tag: "daily-summary",
-        data: { url: "/" },
+      const pendingWeeklyTasks = tasks.filter((t) => {
+        const isPending = t.status !== "done";
+        const isThisWeek =
+          t.due_date && t.due_date >= todayStr && t.due_date <= weekEndStr;
+        return isPending && isThisWeek;
       });
+
+      if (pendingWeeklyTasks.length > 0) {
+        await showNotification("Resumo da Semana", {
+          body: `Você tem ${pendingWeeklyTasks.length} tarefas pendentes para os próximos 7 dias. Vamos organizar?`,
+          tag: "daily-summary",
+          data: { url: "/" },
+        });
+      }
 
       await setData(db, "lastDailyNotif", todayStr);
     }
