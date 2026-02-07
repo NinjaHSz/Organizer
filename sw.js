@@ -12,12 +12,10 @@ const startBackgroundCheck = () => {
   if (checkInterval) clearInterval(checkInterval);
   console.log(`[SW V${VERSION}] Verificação de fundo ativa.`);
   checkInterval = setInterval(async () => {
-    try {
-      await checkNotifications();
-    } catch (e) {
-      console.error("[SW] Erro no check:", e);
-    }
-  }, 30000);
+    // Versão 1.2.4 - Lógica local desativada em favor do Servidor (Web Push)
+    // Apenas sincroniza dados, não dispara mais notificações locais
+    // para evitar duplicidade com o servidor.
+  }, 60000);
 };
 
 startBackgroundCheck();
@@ -34,63 +32,18 @@ self.addEventListener("activate", (event) => {
 // Acordado pelo Sistema Operacional
 self.addEventListener("periodicsync", (event) => {
   if (event.tag === "daily-check") {
-    event.waitUntil(checkNotifications());
+    // A lógica de verificação diária foi removida na V1.2.4
+    // Agora as notificações são gerenciadas 100% pelo servidor (Web Push)
+    // para garantir funcionamento com app fechado e evitar duplicidade.
+    console.log(
+      "[SW] PeriodicSync 'daily-check' acionado, mas a lógica local foi desativada.",
+    );
   }
 });
 
-const checkNotifications = async () => {
-  const db = await openDB();
-  const settings = (await getData(db, "settings")) || {};
-  const tasks = (await getData(db, "tasks")) || [];
-
-  if (!settings.dailyEnabled) return;
-
-  const now = new Date();
-  const currentH = now.getHours();
-  const currentM = now.getMinutes();
-  const todayStr = getLocalDateString(now);
-
-  const timeSetting = settings.notifTime || "09:00";
-  const [targetH, targetM] = timeSetting.split(":").map(Number);
-
-  // LÓGICA DE JANELA: Se já passou do horário alvo HOJE
-  const targetTotalMinutes = targetH * 60 + targetM;
-  const currentTotalMinutes = currentH * 60 + currentM;
-
-  console.log(
-    `[SW] Audit: ${currentH}:${currentM} (Alvo: ${targetH}:${targetM})`,
-  );
-
-  if (currentTotalMinutes >= targetTotalMinutes) {
-    const lastDate = await getData(db, "lastDailyNotif");
-
-    // Se ainda não disparou hoje, DISPARA!
-    if (lastDate !== todayStr) {
-      const weekFromNow = new Date();
-      weekFromNow.setDate(now.getDate() + 7);
-      const weekEndStr = getLocalDateString(weekFromNow);
-
-      console.log("[SW] Horário atingido/passado. Disparando resumo.");
-
-      const pendingWeeklyTasks = tasks.filter((t) => {
-        const isPending = t.status !== "done";
-        const isThisWeek =
-          t.due_date && t.due_date >= todayStr && t.due_date <= weekEndStr;
-        return isPending && isThisWeek;
-      });
-
-      if (pendingWeeklyTasks.length > 0) {
-        await showNotification("Resumo da Semana", {
-          body: `Você tem ${pendingWeeklyTasks.length} tarefas pendentes para os próximos 7 dias. Vamos organizar?`,
-          tag: "daily-summary",
-          data: { url: "/" },
-        });
-      }
-
-      await setData(db, "lastDailyNotif", todayStr);
-    }
-  }
-};
+// O disparo de notificações locais foi removido na V1.2.4
+// Agora as notificações são gerenciadas 100% pelo servidor (Web Push)
+// para garantir funcionamento com app fechado e evitar duplicidade.
 
 // IndexedDB Helpers
 const openDB = () => {
