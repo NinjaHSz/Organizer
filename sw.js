@@ -1,24 +1,23 @@
-// Organizer Service Worker - Background Engine V4
-const VERSION = "1.0.9";
+// Organizer Service Worker - Background Engine V5
+const VERSION = "1.1.0";
 const DB_NAME = "organizer-sw-db";
 const STORE_NAME = "config";
 
-// Controle interno para não disparar várias vezes no mesmo minuto
-let lastFiredMinute = null;
+let lastFiredTime = null;
 
 // 1. Inicialização Global do Timer
 let checkInterval = null;
 
 const startBackgroundCheck = () => {
   if (checkInterval) clearInterval(checkInterval);
-  console.log("[SW] ⏰ Timer de precisão iniciado.");
+  console.log(`[SW V${VERSION}] ⏰ Motor de fundo ativo.`);
   checkInterval = setInterval(async () => {
     try {
       await checkNotifications();
     } catch (e) {
-      console.error("[SW] Erro no check:", e);
+      console.error("[SW] Erro no ciclo de check:", e);
     }
-  }, 30000); // Check a cada 30s para não perder o minuto exato
+  }, 20000);
 };
 
 startBackgroundCheck();
@@ -49,44 +48,45 @@ const checkNotifications = async () => {
   const currentH = now.getHours();
   const currentM = now.getMinutes();
   const todayStr = getLocalDateString(now);
-  const currentTimeKey = `${todayStr}-${currentH}:${currentM}`;
+  const timeKey = `${todayStr}-${currentH}:${currentM}`;
 
-  // Se já disparou neste minuto, ignora
-  if (lastFiredMinute === currentTimeKey) return;
+  if (lastFiredTime === timeKey) return;
 
   const timeSetting = settings.notifTime || "09:00";
   const [targetH, targetM] = timeSetting.split(":").map(Number);
 
   console.log(
-    `[SW] Audit: Agora é ${currentH}:${currentM}. Alvo: ${targetH}:${targetM}`,
+    `[SW] ${currentH}:${currentM} -> Alvo: ${targetH}:${targetM} | Tasks: ${tasks.length}`,
   );
 
   if (currentH === targetH && currentM === targetM) {
     const lastDate = await getData(db, "lastDailyNotif");
-
     if (lastDate !== todayStr) {
-      lastFiredMinute = currentTimeKey;
-      console.log("[SW] 🚀 Disparando...");
-
-      const pendingTasks = tasks.filter(
-        (t) => t.status !== "done" && (!t.due_date || t.due_date >= todayStr),
-      );
-
-      await showNotification("Suas Tarefas de Hoje 🎯", {
-        body:
-          pendingTasks.length > 0
-            ? `Você tem ${pendingTasks.length} tarefas pendentes. Vamos nessa?`
-            : "Nenhuma tarefa para hoje. Aproveite seu tempo!",
-        tag: "daily-summary",
-        data: { url: "/" },
-      });
-
-      await setData(db, "lastDailyNotif", todayStr);
+      lastFiredTime = timeKey;
+      await fireDailySummary(db, tasks, todayStr);
     }
   }
 };
 
-// IndexedDB Helpers
+const fireDailySummary = async (db, tasks, todayStr) => {
+  console.log("[SW] 🚀 Disparando Notificação");
+
+  const pendingTasks = tasks.filter(
+    (t) => t.status !== "done" && (!t.due_date || t.due_date >= todayStr),
+  );
+
+  await showNotification("Suas Tarefas de Hoje 🎯", {
+    body:
+      pendingTasks.length > 0
+        ? `Você tem ${pendingTasks.length} tarefas pendentes. Vamos nessa?`
+        : "Nenhuma tarefa para hoje. Aproveite seu tempo!",
+    tag: "daily-summary",
+    data: { url: "/" },
+  });
+
+  await setData(db, "lastDailyNotif", todayStr);
+};
+
 const openDB = () => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
@@ -135,16 +135,24 @@ const showNotification = (title, options) => {
 
 self.addEventListener("message", async (event) => {
   const data = event.data;
+  const db = await openDB();
+
   if (data.type === "SYNC_DATA") {
-    const db = await openDB();
     await setData(db, "tasks", data.tasks);
     await setData(db, "settings", data.settings);
     await setData(db, "lastSync", new Date().getTime());
     console.log("[SW] 🔄 Sincronizado");
     startBackgroundCheck();
   }
+
+  if (data.type === "FORCE_TEST") {
+    console.log("[SW] 🧪 Teste Forçado Recebido.");
+    await setData(db, "lastDailyNotif", "reset");
+    const tasks = (await getData(db, "tasks")) || [];
+    await fireDailySummary(db, tasks, getLocalDateString(new Date()));
+  }
+
   if (data.type === "GET_SW_STATUS") {
-    const db = await openDB();
     const tasks = await getData(db, "tasks");
     const lastSync = await getData(db, "lastSync");
 

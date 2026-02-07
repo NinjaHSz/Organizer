@@ -102,8 +102,8 @@ export class AppEngine {
       },
       onToggleDailyReminders: (enabled) => {
         localStorage.setItem("daily-reminders-enabled", enabled);
-        if (enabled) {
-          Notifications.requestPermission();
+        if (enabled && "Notification" in window) {
+          Notification.requestPermission();
         }
         Notifications.syncWithSW();
         this.render();

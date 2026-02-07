@@ -104,10 +104,10 @@ export const Notifications = {
 
     if ("serviceWorker" in navigator) {
       const registration = await navigator.serviceWorker.ready;
-      registration.showNotification("Organizer Ativo ✅", {
-        body: "A rota de notificações está aberta e pronta.",
-        requireInteraction: true,
-      });
+      if (registration.active) {
+        registration.active.postMessage({ type: "FORCE_TEST" });
+        UI.notify("Sinal de teste enviado ao Motor de Fundo...", "info");
+      }
     }
   },
 };
