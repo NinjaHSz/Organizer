@@ -111,6 +111,12 @@ export const Settings = {
                                     <input id="notif-time-input" class="bg-transparent border-none p-0 text-sm font-bold focus:ring-0 w-16 text-center text-[var(--action-primary)]" type="time" value="${notifTime}"/>
                                 </div>
                             </div>
+                            <div class="h-[1px] bg-[var(--separator)] mx-5"></div>
+                            <div class="p-4 px-5">
+                                <button id="test-notif-btn" class="w-full py-2.5 rounded-xl bg-[var(--action-primary)]/10 text-[var(--action-primary)] text-xs font-bold hover:bg-[var(--action-primary)]/20 transition-all border-none">
+                                    Testar Notificação Agora
+                                </button>
+                            </div>
                         </div>
                     </section>
 
@@ -147,6 +153,11 @@ export const Settings = {
     if (dailyNotifToggle) {
       dailyNotifToggle.onchange = (e) =>
         handlers.onToggleDailyReminders(e.target.checked);
+    }
+
+    const testNotifBtn = document.getElementById("test-notif-btn");
+    if (testNotifBtn) {
+      testNotifBtn.onclick = () => handlers.onTestNotifications();
     }
   },
 };

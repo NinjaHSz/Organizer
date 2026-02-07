@@ -119,6 +119,7 @@ export class AppEngine {
       onAddSubject: () => this.showSubjectForm(),
       onEditSubject: (id) =>
         this.showSubjectForm(state.subjects.find((s) => s.id === id)),
+      onTestNotifications: () => Notifications.test(),
     };
   }
 
