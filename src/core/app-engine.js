@@ -646,23 +646,6 @@ export class AppEngine {
                 <input type="text" id="sub-name" placeholder="Ex: Cálculo I" value="${subject ? subject.name : ""}" class="w-full text-xl font-bold bg-surface-subtle/50 border-none rounded-xl px-5 py-4 text-text-primary outline-none focus:ring-0">
             </div>
             <div class="flex flex-col gap-1">
-                <label class="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Prioridade</label>
-                <div class="flex gap-2">
-                    <label class="flex-1 cursor-pointer">
-                        <input type="radio" name="sub-priority" value="high" class="peer sr-only" ${subject && subject.priority === "high" ? "checked" : ""}>
-                        <div class="h-12 rounded-xl bg-surface-subtle border-none flex items-center justify-center text-sm font-bold text-text-secondary peer-checked:bg-[var(--status-error)] peer-checked:text-white transition-all">ALTA</div>
-                    </label>
-                    <label class="flex-1 cursor-pointer">
-                        <input type="radio" name="sub-priority" value="medium" class="peer sr-only" ${!subject || subject.priority === "medium" ? "checked" : ""}>
-                        <div class="h-12 rounded-xl bg-surface-subtle border-none flex items-center justify-center text-sm font-bold text-text-secondary peer-checked:bg-[var(--status-warning)] peer-checked:text-white transition-all">MÉDIA</div>
-                    </label>
-                    <label class="flex-1 cursor-pointer">
-                        <input type="radio" name="sub-priority" value="low" class="peer sr-only" ${subject && subject.priority === "low" ? "checked" : ""}>
-                        <div class="h-12 rounded-xl bg-surface-subtle border-none flex items-center justify-center text-sm font-bold text-text-secondary peer-checked:bg-[var(--status-success)] peer-checked:text-white transition-all">BAIXA</div>
-                    </label>
-                </div>
-            </div>
-            <div class="flex flex-col gap-1">
                 <label class="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Cor</label>
                 <input type="color" id="sub-color" value="${subject ? subject.color : "#4285F4"}" class="w-full h-14 bg-surface-subtle/50 border-none rounded-xl px-2 py-1 cursor-pointer">
             </div>
@@ -678,13 +661,10 @@ export class AppEngine {
     document.getElementById("save-sub").onclick = async () => {
       const name = document.getElementById("sub-name").value;
       const color = document.getElementById("sub-color").value;
-      const priority =
-        document.querySelector('input[name="sub-priority"]:checked')?.value ||
-        "medium";
 
-      if (!name) return; // UI.notify("Qual o nome?", "warning");
+      if (!name) return;
 
-      const data = { name, color, priority };
+      const data = { name, color };
 
       if (subject) await db.updateSubject(subject.id, data);
       else await db.createSubject(data);

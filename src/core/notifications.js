@@ -25,6 +25,27 @@ export const Notifications = {
 
     this.syncWithSW();
     this.setupFrontendCheck();
+    this.registerPeriodicSync();
+  },
+
+  async registerPeriodicSync() {
+    if (!("serviceWorker" in navigator)) return;
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      if ("periodicSync" in registration) {
+        // Solicita ao navegador para acordar a cada 24 horas (ou o mínimo permitido)
+        // Isso garante que mesmo fechado, uma vez por dia ele verifique o banco local.
+        await registration.periodicSync.register("daily-check", {
+          minInterval: 12 * 60 * 60 * 1000, // 12 horas (mínimo conservador)
+        });
+        console.log("🔋 [Notifications] Periodic Sync registrado!");
+      }
+    } catch (e) {
+      console.warn(
+        "⚠️ [Notifications] Periodic Sync não suportado ou bloqueado:",
+        e,
+      );
+    }
   },
 
   setupFrontendCheck() {

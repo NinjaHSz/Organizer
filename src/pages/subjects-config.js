@@ -8,6 +8,15 @@ export const SubjectsConfig = {
 
     root.innerHTML = `
             <div class="animate-fade-in w-[98%] max-w-7xl mx-auto px-2 pb-32 md:px-8 pt-6">
+                <!-- Header Actions -->
+                <div class="flex items-center justify-between mb-8 px-1">
+                    <h2 class="text-xs font-black uppercase tracking-widest text-[var(--text-secondary)]">Gerenciar Matérias</h2>
+                    <button id="add-subject-btn" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--action-primary)] text-white text-xs font-bold shadow-button-primary hover:scale-105 transition-all border-none">
+                        <span class="material-symbols-outlined text-[18px]">add</span>
+                        ADICIONAR MATÉRIA
+                    </button>
+                </div>
+
                 <div class="space-y-4 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:items-start">
                     ${subjects
                       .map((subject) => {
@@ -16,13 +25,21 @@ export const SubjectsConfig = {
                         );
                         return `
                         <div class="subject-container bg-[var(--surface-card)] rounded-[var(--radius-xl)] shadow-card overflow-hidden transition-all duration-300 hover:shadow-lg">
-                            <button class="w-full subject-border flex items-center justify-between p-6 text-left outline-none" style="--subject-color: ${subject.color};" data-subject-id="${subject.id}">
-                                <div class="flex flex-col">
+                            <div class="w-full subject-border flex items-center justify-between p-6 text-left outline-none" style="--subject-color: ${subject.color};" data-subject-id="${subject.id}">
+                                <div class="flex flex-col flex-1 cursor-pointer" id="subject-info-${subject.id}">
                                     <span class="text-lg font-bold text-[var(--text-primary)]">${subject.name}</span>
                                     <span class="text-xs text-[var(--text-secondary)] font-medium">${tasks.filter((t) => t.status !== "done").length} tarefas ativas</span>
                                 </div>
-                                <span class="material-symbols-outlined text-[var(--text-secondary)] transition-transform duration-300 chevron-icon">expand_more</span>
-                            </button>
+                                <div class="flex items-center gap-2">
+                                    <button class="edit-sub-btn p-2 rounded-lg hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--action-primary)] transition-all border-none" data-edit-id="${subject.id}">
+                                        <span class="material-symbols-outlined text-[20px]">edit</span>
+                                    </button>
+                                    <button class="delete-sub-btn p-2 rounded-lg hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--status-error)] transition-all border-none" data-delete-id="${subject.id}">
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                                    </button>
+                                    <span class="material-symbols-outlined text-[var(--text-secondary)] transition-transform duration-300 chevron-icon cursor-pointer ml-2">expand_more</span>
+                                </div>
+                            </div>
                             
                             <!-- Lista de Tarefas Expandida -->
                             <div id="tasks-list-${subject.id}" class="hidden bg-[var(--surface-subtle)]/30">
@@ -78,22 +95,51 @@ export const SubjectsConfig = {
   },
 
   bindEvents(root, handlers) {
-    root.querySelectorAll("[data-subject-id]").forEach((btn) => {
-      btn.onclick = () => {
-        const id = btn.dataset.subjectId;
-        const list = document.getElementById(`tasks-list-${id}`);
-        const chevron = btn.querySelector(".chevron-icon");
+    // Botão Adicionar
+    const addBtn = document.getElementById("add-subject-btn");
+    if (addBtn) addBtn.onclick = () => handlers.onAddSubject();
 
-        const isHidden = list.classList.contains("hidden");
+    // Expansão do Card
+    root.querySelectorAll("[data-subject-id]").forEach((container) => {
+      const id = container.dataset.subjectId;
+      const infoArea = document.getElementById(`subject-info-${id}`);
+      const chevron = container.querySelector(".chevron-icon");
+      const list = document.getElementById(`tasks-list-${id}`);
 
-        if (isHidden) {
-          list.classList.remove("hidden");
-          list.classList.add("animate-fade-in");
-          chevron.style.transform = "rotate(180deg)";
-        } else {
-          list.classList.add("hidden");
-          chevron.style.transform = "rotate(0deg)";
-        }
+      if (infoArea) {
+        infoArea.onclick = () => {
+          const isHidden = list.classList.contains("hidden");
+          if (isHidden) {
+            list.classList.remove("hidden");
+            list.classList.add("animate-fade-in");
+            chevron.style.transform = "rotate(180deg)";
+          } else {
+            list.classList.add("hidden");
+            chevron.style.transform = "rotate(0deg)";
+          }
+        };
+      }
+      if (chevron) {
+        chevron.onclick = (e) => {
+          e.stopPropagation();
+          infoArea.onclick();
+        };
+      }
+    });
+
+    // Botão Editar Matéria
+    root.querySelectorAll(".edit-sub-btn").forEach((btn) => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        handlers.onEditSubject(btn.dataset.editId);
+      };
+    });
+
+    // Botão Excluir Matéria
+    root.querySelectorAll(".delete-sub-btn").forEach((btn) => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        handlers.onDeleteSubject(btn.dataset.deleteId);
       };
     });
 
