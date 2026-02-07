@@ -1,33 +1,78 @@
 /**
- * Sistema de Notificações PWA e Lembretes em Segundo Plano
+ * Sistema de Notificações PWA e Lembretes - Versão Robusta Local
  */
 import { state } from "./state.js";
 
 export const Notifications = {
+  _interval: null,
+
   async init() {
-    console.log("Inicializando sistema de notificações...");
-    if (!("Notification" in window)) {
-      console.error("Notificações não suportadas neste navegador.");
-      return;
-    }
+    console.log("🔔 [Notifications] Inicializando...");
+    if (!("Notification" in window)) return;
+
+    // Status atual
+    console.log("📌 [Notifications] Permissão atual:", Notification.permission);
 
     if (Notification.permission === "default") {
-      console.log("Solicitando permissão de notificação...");
       await Notification.requestPermission();
     }
 
-    console.log("Status da permissão:", Notification.permission);
     this.setupDailyReminder();
   },
 
   async requestPermission() {
     if (!("Notification" in window)) return false;
     const permission = await Notification.requestPermission();
-    console.log("Permissão de notificação atualizada para:", permission);
     return permission === "granted";
   },
 
   setupDailyReminder() {
+    // Limpa intervalo anterior se existir para evitar duplicidade
+    if (this._interval) clearInterval(this._interval);
+
+    console.log("⏰ [Notifications] Configurando verificador de lembretes...");
+
+    const checkAll = () => {
+      const isEnabled =
+        localStorage.getItem("daily-reminders-enabled") !== "false";
+      if (!isEnabled) return;
+
+      const now = new Date();
+      const currentH = now.getHours();
+      const currentM = now.getMinutes();
+
+      // Gera string de data LOCAL (YYYY-MM-DD)
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      const todayLocalStr = `${year}-${month}-${day}`;
+
+      // 1. Resumo Semanal (Dispara no horário configurado)
+      const notifTime = localStorage.getItem("notif-time") || "09:00";
+      const [targetH, targetM] = notifTime.split(":").map(Number);
+
+      if (currentH === targetH && currentM === targetM) {
+        const lastNotif = localStorage.getItem("last-daily-notif-date");
+        if (lastNotif !== todayLocalStr) {
+          console.log("🚀 [Notifications] Hora do resumo semanal atingida!");
+          this.sendDailySummary();
+          localStorage.setItem("last-daily-notif-date", todayLocalStr);
+        }
+      }
+
+      // 2. Alertas de Aula (Apenas Seg-Sex)
+      const dayOfWeek = now.getDay(); // 0=Dom, 1=Seg...
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        this.checkClassAlerts(now, todayLocalStr, dayOfWeek - 1);
+      }
+    };
+
+    // Verifica a cada 30 segundos para maior precisão
+    this._interval = setInterval(checkAll, 30000);
+    checkAll();
+  },
+
+  checkClassAlerts(now, todayStr, dayIndex) {
     const timetable = [
       {
         horario: ["07:10", "07:55"],
@@ -72,126 +117,74 @@ export const Notifications = {
       { horario: ["12:00", "12:45"], dias: ["", "Artes", "", "", ""] },
     ];
 
-    const checkAll = () => {
-      const isEnabled =
-        localStorage.getItem("daily-reminders-enabled") !== "false";
-      if (!isEnabled) return;
+    timetable.forEach((row) => {
+      const subject = row.dias[dayIndex];
+      if (!subject || subject === "INTERVALO") return;
 
-      const now = new Date();
-      const currentH = now.getHours();
-      const currentM = now.getMinutes();
-      const dayIndex = now.getDay() - 1;
+      const [h, m] = row.horario[0].split(":").map(Number);
+      const startTime = new Date(now.getTime());
+      startTime.setHours(h, m, 0, 0);
 
-      // 1. Resumo Semanal (Compara hora e minuto individualmente)
-      const notifTime = localStorage.getItem("notif-time") || "09:00";
-      const [targetH, targetM] = notifTime.split(":").map(Number);
+      const diffMinutes = (startTime.getTime() - now.getTime()) / 60000;
 
-      if (currentH === targetH && currentM === targetM) {
-        const lastNotif = localStorage.getItem("last-daily-notif-date");
-        const todayStr = now.toISOString().split("T")[0];
-        if (lastNotif !== todayStr) {
-          console.log("Disparando resumo semanal...");
-          this.sendDailySummary();
-          localStorage.setItem("last-daily-notif-date", todayStr);
+      // Alerta entre 1 e 6 minutos antes da aula
+      if (diffMinutes > 0 && diffMinutes <= 6) {
+        const key = `alert-${todayStr}-${row.horario[0]}`;
+        if (!localStorage.getItem(key)) {
+          this.sendClassAlert(subject, row.horario[0]);
+          localStorage.setItem(key, "sent");
         }
       }
-
-      // 2. Alertas de Aula (Apenas Seg-Sex)
-      if (dayIndex >= 0 && dayIndex <= 4) {
-        const todayStr = now.toISOString().split("T")[0];
-        timetable.forEach((row) => {
-          const subject = row.dias[dayIndex];
-          if (!subject || subject === "INTERVALO") return;
-
-          const [h, m] = row.horario[0].split(":").map(Number);
-          const start = new Date();
-          start.setHours(h, m, 0);
-
-          const diff = (start.getTime() - now.getTime()) / 60000;
-
-          if (diff > 0 && diff <= 5) {
-            const key = `alert-${todayStr}-${row.horario[0]}`;
-            if (!localStorage.getItem(key)) {
-              this.sendClassAlert(subject, row.horario[0]);
-              localStorage.setItem(key, "sent");
-            }
-          }
-        });
-      }
-    };
-
-    this.pingServiceWorker();
-    setInterval(checkAll, 60000);
-    checkAll();
-  },
-
-  async test() {
-    console.log("🧪 Iniciando notificação de teste...");
-    if (Notification.permission !== "granted") {
-      const granted = await this.requestPermission();
-      if (!granted) {
-        alert(
-          "Por favor, habilite as notificações no seu navegador para testar.",
-        );
-        return;
-      }
-    }
-    this.showNativeNotification("Teste de Notificação ✅", {
-      body: "Se você está vendo esta mensagem, as notificações estão funcionando corretamente!",
-      tag: "test-notification",
     });
   },
 
-  async pingServiceWorker() {
-    if ("serviceWorker" in navigator) {
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        console.log("Service Worker pronto para notificações (Ready)");
-      } catch (e) {
-        console.warn("Service Worker não responde:", e);
-      }
+  async test() {
+    console.log("🧪 [Notifications] Executando teste manual...");
+    const granted = await this.requestPermission();
+    if (!granted) {
+      alert("As notificações estão bloqueadas no seu navegador.");
+      return;
     }
+    this.showNativeNotification("Notificações Ativas! ✅", {
+      body: "Este é o alerta de comunicação do Organizer. Tudo pronto para seus lembretes!",
+      tag: "test-notif",
+    });
   },
 
   async sendDailySummary() {
-    if (Notification.permission !== "granted") return;
-
     const now = new Date();
-    const todayStr = now.toISOString().split("T")[0];
-
+    const today = now.toISOString().split("T")[0];
     const nextWeek = new Date();
     nextWeek.setDate(now.getDate() + 7);
     const nextWeekStr = nextWeek.toISOString().split("T")[0];
 
-    const weekTasks = state.tasks.filter(
+    // Busca no estado global
+    const pending = state.tasks.filter(
       (t) =>
         t.status !== "done" &&
-        ((t.due_date >= todayStr && t.due_date <= nextWeekStr) || !t.due_date),
+        ((t.due_date >= today && t.due_date <= nextWeekStr) || !t.due_date),
     );
 
-    const title = "Resumo da Semana";
+    const title = "Resumo da Semana ☀️";
     const body =
-      weekTasks.length > 0
-        ? `Você tem ${weekTasks.length} tarefa${weekTasks.length > 1 ? "s" : ""} pendente${weekTasks.length > 1 ? "s" : ""} nesta semana. Fique atento aos prazos!`
-        : "Sua semana está livre de tarefas pendentes! Aproveite.";
+      pending.length > 0
+        ? `Você tem ${pending.length} tarefa${pending.length > 1 ? "s" : ""} pendente${pending.length > 1 ? "s" : ""} programada${pending.length > 1 ? "s" : ""}. Vamos focar!`
+        : "Nada pendente para esta semana. Bom trabalho!";
 
     this.showNativeNotification(title, { body, tag: "daily-summary" });
   },
 
   async sendClassAlert(subject, time) {
-    this.showNativeNotification("Próxima Aula", {
-      body: `Aula de ${subject} às ${time}. Prepare-se!`,
+    this.showNativeNotification("Próxima Aula 🏫", {
+      body: `A aula de ${subject} começa às ${time}. Prepare seu material!`,
       tag: `class-${time}`,
     });
   },
 
   async showNativeNotification(title, options = {}) {
-    if (Notification.permission !== "granted") {
-      console.warn("Notificação bloqueada: Sem permissão.");
-      return;
-    }
+    if (Notification.permission !== "granted") return;
 
-    const defaultOptions = {
+    const config = {
       icon: "/assets/div.ico",
       badge: "/assets/div.ico",
       vibrate: [200, 100, 200],
@@ -199,22 +192,20 @@ export const Notifications = {
       ...options,
     };
 
-    console.log(`Tentando exibir notificação: "${title}"`);
+    console.log(`📤 [Notifications] Enviando: ${title}`);
 
-    if ("serviceWorker" in navigator) {
-      try {
+    try {
+      if ("serviceWorker" in navigator) {
         const registration = await navigator.serviceWorker.ready;
         if (registration) {
-          console.log("Enviando via Service Worker...");
-          registration.showNotification(title, defaultOptions);
+          registration.showNotification(title, config);
           return;
         }
-      } catch (e) {
-        console.error("Erro no Service Worker:", e);
       }
+    } catch (e) {
+      console.error("❌ [Notifications] Erro via SW, tentando direta:", e);
     }
 
-    console.log("Usando fallback de notificação nativa...");
-    new Notification(title, defaultOptions);
+    new Notification(title, config);
   },
 };
