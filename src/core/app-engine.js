@@ -98,15 +98,14 @@ export class AppEngine {
       },
       onChangeNotifTime: (time) => {
         localStorage.setItem("notif-time", time);
-        Notifications.setupDailyReminder(); // Recalcula o lembrete
-        // UI.notify(`Lembrete ajustado para ${time}`, "info");
+        Notifications.syncWithSW();
       },
       onToggleDailyReminders: (enabled) => {
         localStorage.setItem("daily-reminders-enabled", enabled);
         if (enabled) {
           Notifications.requestPermission();
-          Notifications.setupDailyReminder();
         }
+        Notifications.syncWithSW();
         this.render();
       },
       onDeleteSubject: async (id) => {
@@ -142,6 +141,7 @@ export class AppEngine {
     db.subscribeToTasks(async (payload) => {
       console.log("Realtime Task update:", payload);
       await this.loadData();
+      Notifications.syncWithSW();
       this.render();
     });
 
