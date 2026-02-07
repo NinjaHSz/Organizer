@@ -118,16 +118,27 @@ export const Notifications = {
 
   async sendDailySummary() {
     if (Notification.permission !== "granted") return;
-    const today = new Date().toISOString().split("T")[0];
-    const pendingTasks = state.tasks.filter(
-      (t) => t.status !== "done" && (t.due_date === today || !t.due_date),
+
+    const now = new Date();
+    const todayStr = now.toISOString().split("T")[0];
+
+    // Calcula o fim da "semana" (próximos 7 dias)
+    const nextWeek = new Date();
+    nextWeek.setDate(now.getDate() + 7);
+    const nextWeekStr = nextWeek.toISOString().split("T")[0];
+
+    // Filtra tarefas pendentes para a semana (ou sem data)
+    const weekTasks = state.tasks.filter(
+      (t) =>
+        t.status !== "done" &&
+        ((t.due_date >= todayStr && t.due_date <= nextWeekStr) || !t.due_date),
     );
 
     const title = "Bom dia! ☀️";
     const body =
-      pendingTasks.length > 0
-        ? `Você tem ${pendingTasks.length} tarefa${pendingTasks.length > 1 ? "s" : ""} para hoje. Mãos à obra!`
-        : "Você não tem tarefas pendentes para hoje. Aproveite o dia!";
+      weekTasks.length > 0
+        ? `Você tem ${weekTasks.length} tarefa${weekTasks.length > 1 ? "s" : ""} pendente${weekTasks.length > 1 ? "s" : ""} nesta semana. Confira seus prazos!`
+        : "Sua semana está livre de tarefas pendentes! Aproveite o descanso.";
 
     this.showNativeNotification(title, { body, tag: "daily-summary" });
   },
