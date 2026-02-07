@@ -1,42 +1,39 @@
 // Organizer Service Worker - Background Engine V4
-const VERSION = "1.0.8"; // Bumped version
+const VERSION = "1.0.9";
 const DB_NAME = "organizer-sw-db";
 const STORE_NAME = "config";
 
-// 1. Inicialização Global do Timer (Enquanto o SW estiver "acordado")
+// Controle interno para não disparar várias vezes no mesmo minuto
+let lastFiredMinute = null;
+
+// 1. Inicialização Global do Timer
 let checkInterval = null;
 
 const startBackgroundCheck = () => {
   if (checkInterval) clearInterval(checkInterval);
-  console.log("[SW] ⏰ Timer de curto prazo iniciado.");
+  console.log("[SW] ⏰ Timer de precisão iniciado.");
   checkInterval = setInterval(async () => {
     try {
       await checkNotifications();
     } catch (e) {
       console.error("[SW] Erro no check:", e);
     }
-  }, 45000);
+  }, 30000); // Check a cada 30s para não perder o minuto exato
 };
 
-// Auto-start quando o cérebro (SW) acorda
 startBackgroundCheck();
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
-  console.log("[SW] Instalado V" + VERSION);
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(clients.claim());
-  console.log("[SW] Ativado");
   startBackgroundCheck();
 });
 
-// 2. PERIODIC BACKGROUND SYNC (A solução real para o app fechado)
-// O sistema operacional acorda o SW para rodar este código
 self.addEventListener("periodicsync", (event) => {
   if (event.tag === "daily-check") {
-    console.log("[SW] 🔋 Acordado via Periodic Sync!");
     event.waitUntil(checkNotifications());
   }
 });
@@ -52,16 +49,25 @@ const checkNotifications = async () => {
   const currentH = now.getHours();
   const currentM = now.getMinutes();
   const todayStr = getLocalDateString(now);
+  const currentTimeKey = `${todayStr}-${currentH}:${currentM}`;
 
-  // 1. Resumo Diário/Semanal
-  const [targetH, targetM] = (settings.notifTime || "09:00")
-    .split(":")
-    .map(Number);
+  // Se já disparou neste minuto, ignora
+  if (lastFiredMinute === currentTimeKey) return;
+
+  const timeSetting = settings.notifTime || "09:00";
+  const [targetH, targetM] = timeSetting.split(":").map(Number);
+
+  console.log(
+    `[SW] Audit: Agora é ${currentH}:${currentM}. Alvo: ${targetH}:${targetM}`,
+  );
 
   if (currentH === targetH && currentM === targetM) {
     const lastDate = await getData(db, "lastDailyNotif");
+
     if (lastDate !== todayStr) {
-      console.log("[SW] 🚀 Disparando Notificação Agendada");
+      lastFiredMinute = currentTimeKey;
+      console.log("[SW] 🚀 Disparando...");
+
       const pendingTasks = tasks.filter(
         (t) => t.status !== "done" && (!t.due_date || t.due_date >= todayStr),
       );
@@ -69,16 +75,18 @@ const checkNotifications = async () => {
       await showNotification("Suas Tarefas de Hoje 🎯", {
         body:
           pendingTasks.length > 0
-            ? `Você tem ${pendingTasks.length} tarefas pendentes para hoje. Vamos nessa?`
+            ? `Você tem ${pendingTasks.length} tarefas pendentes. Vamos nessa?`
             : "Nenhuma tarefa para hoje. Aproveite seu tempo!",
         tag: "daily-summary",
+        data: { url: "/" },
       });
+
       await setData(db, "lastDailyNotif", todayStr);
     }
   }
 };
 
-// IndexedDB Helpers (Mantidos)
+// IndexedDB Helpers
 const openDB = () => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
@@ -125,7 +133,6 @@ const showNotification = (title, options) => {
   });
 };
 
-// Message Listener
 self.addEventListener("message", async (event) => {
   const data = event.data;
   if (data.type === "SYNC_DATA") {
@@ -138,7 +145,6 @@ self.addEventListener("message", async (event) => {
   }
   if (data.type === "GET_SW_STATUS") {
     const db = await openDB();
-    const settings = await getData(db, "settings");
     const tasks = await getData(db, "tasks");
     const lastSync = await getData(db, "lastSync");
 
