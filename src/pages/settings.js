@@ -124,6 +124,10 @@ export const Settings = {
                                         <span id="sw-status-val" class="text-orange-400 font-bold">Verificando...</span>
                                     </div>
                                     <div class="flex justify-between text-[11px]">
+                                        <span class="text-[var(--text-secondary)]">Modo de Entrega:</span>
+                                        <span class="text-blue-400 font-bold uppercase">Web Push (Servidor)</span>
+                                    </div>
+                                    <div class="flex justify-between text-[11px]">
                                         <span class="text-[var(--text-secondary)]">Tarefas Sincronizadas:</span>
                                         <span id="sw-tasks-val" class="text-[var(--text-primary)]">--</span>
                                     </div>
@@ -141,7 +145,7 @@ export const Settings = {
 
                     <!-- Rodapé -->
                     <section class="pt-4 flex flex-col items-center gap-2">
-                        <p class="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em]">Organizer PWA v2.5.0</p>
+                        <p class="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em]">Organizer PWA v2.6.0</p>
                     </section>
                 </main>
             </div>
