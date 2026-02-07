@@ -75,29 +75,22 @@ export const Notifications = {
     const checkAll = () => {
       const isEnabled =
         localStorage.getItem("daily-reminders-enabled") !== "false";
-      if (!isEnabled) {
-        console.log("Lembretes desativados pelo usuário.");
-        return;
-      }
+      if (!isEnabled) return;
 
       const now = new Date();
-      const currentStr = now.toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      const currentH = now.getHours();
+      const currentM = now.getMinutes();
       const dayIndex = now.getDay() - 1;
 
-      console.log(
-        `Verificando notificações... Hora atual: ${currentStr} | Dia index: ${dayIndex}`,
-      );
-
-      // 1. Resumo Semanal
+      // 1. Resumo Semanal (Compara hora e minuto individualmente)
       const notifTime = localStorage.getItem("notif-time") || "09:00";
-      if (currentStr === notifTime) {
+      const [targetH, targetM] = notifTime.split(":").map(Number);
+
+      if (currentH === targetH && currentM === targetM) {
         const lastNotif = localStorage.getItem("last-daily-notif-date");
         const todayStr = now.toISOString().split("T")[0];
         if (lastNotif !== todayStr) {
-          console.log("Disparando resumo semanal matinal...");
+          console.log("Disparando resumo semanal...");
           this.sendDailySummary();
           localStorage.setItem("last-daily-notif-date", todayStr);
         }
@@ -119,9 +112,6 @@ export const Notifications = {
           if (diff > 0 && diff <= 5) {
             const key = `alert-${todayStr}-${row.horario[0]}`;
             if (!localStorage.getItem(key)) {
-              console.log(
-                `Alerta de aula detectado: ${subject} às ${row.horario[0]}`,
-              );
               this.sendClassAlert(subject, row.horario[0]);
               localStorage.setItem(key, "sent");
             }
