@@ -1,6 +1,7 @@
 /**
- * Componente de Ajustes - Novo Design
+ * Componente de Ajustes - Novo Design com Diagnóstico de Notificações
  */
+import { Notifications } from "../core/notifications.js";
 
 export const Settings = {
   render(root, state, handlers) {
@@ -81,7 +82,6 @@ export const Settings = {
                         </div>
                     </section>
 
- 
                     <!-- Notificações -->
                     <section>
                         <h2 class="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-3 ml-1">Notificações</h2>
@@ -112,23 +112,43 @@ export const Settings = {
                                 </div>
                             </div>
                             <div class="h-[1px] bg-[var(--separator)] mx-5"></div>
-                            <div class="p-4 px-5">
+                            <div class="p-4 px-5 space-y-3">
                                 <button id="test-notif-btn" class="w-full py-2.5 rounded-xl bg-[var(--action-primary)]/10 text-[var(--action-primary)] text-xs font-bold hover:bg-[var(--action-primary)]/20 transition-all border-none">
                                     Testar Notificação Agora
                                 </button>
+                                
+                                <div id="sw-diagnostic-panel" class="mt-4 pt-4 border-t border-white/5 space-y-2">
+                                    <p class="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest mb-2">Diagnóstico PWA</p>
+                                    <div class="flex justify-between text-[11px]">
+                                        <span class="text-[var(--text-secondary)]">Motor de Segundo Plano:</span>
+                                        <span id="sw-status-val" class="text-orange-400 font-bold">Verificando...</span>
+                                    </div>
+                                    <div class="flex justify-between text-[11px]">
+                                        <span class="text-[var(--text-secondary)]">Tarefas Sincronizadas:</span>
+                                        <span id="sw-tasks-val" class="text-[var(--text-primary)]">--</span>
+                                    </div>
+                                    <div class="flex justify-between text-[11px]">
+                                        <span class="text-[var(--text-secondary)]">Última Sincronia:</span>
+                                        <span id="sw-sync-val" class="text-[var(--text-primary)]">--</span>
+                                    </div>
+                                    <button id="force-update-sw-btn" class="w-full mt-2 py-1.5 rounded-lg bg-white/5 text-[var(--text-secondary)] text-[10px] font-bold hover:bg-white/10 transition-all border-none">
+                                        Reiniciar e Atualizar Sistema
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </section>
 
                     <!-- Rodapé -->
                     <section class="pt-4 flex flex-col items-center gap-2">
-                        <p class="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em]">Organizer PWA v2.4.0</p>
+                        <p class="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em]">Organizer PWA v2.5.0</p>
                     </section>
                 </main>
             </div>
         `;
 
     this.bindEvents(root, handlers);
+    this.startDiagnostics();
   },
 
   bindEvents(root, handlers) {
@@ -159,5 +179,41 @@ export const Settings = {
     if (testNotifBtn) {
       testNotifBtn.onclick = () => handlers.onTestNotifications();
     }
+
+    const updateBtn = document.getElementById("force-update-sw-btn");
+    if (updateBtn) {
+      updateBtn.onclick = () => Notifications.updateSW();
+    }
+  },
+
+  startDiagnostics() {
+    const statusEl = document.getElementById("sw-status-val");
+    const tasksEl = document.getElementById("sw-tasks-val");
+    const syncEl = document.getElementById("sw-sync-val");
+
+    if (!statusEl) return;
+
+    Notifications.getSWStatus((data) => {
+      statusEl.textContent = `Ativo (V${data.version})`;
+      statusEl.classList.remove("text-orange-400");
+      statusEl.classList.add("text-green-400");
+
+      tasksEl.textContent = `${data.taskCount} tarefas`;
+
+      if (data.lastSync) {
+        const date = new Date(data.lastSync);
+        syncEl.textContent = date.toLocaleTimeString();
+      } else {
+        syncEl.textContent = "Nunca";
+      }
+    });
+
+    // Se em 3 segundos não responder, indica inativo
+    setTimeout(() => {
+      if (statusEl.textContent === "Verificando...") {
+        statusEl.textContent = "Inativo / Aguardando Sync";
+        statusEl.classList.add("text-red-400");
+      }
+    }, 3000);
   },
 };
