@@ -7,6 +7,8 @@ export const Settings = {
     const accentColor = localStorage.getItem("accent-color") || "#4285F4";
     const theme = localStorage.getItem("theme") || "dark";
     const notifTime = localStorage.getItem("notif-time") || "09:00";
+    const isDailyNotifEnabled =
+      localStorage.getItem("daily-reminders-enabled") !== "false";
 
     root.innerHTML = `
             <div class="animate-fade-in w-[98%] max-w-7xl mx-auto px-2 pb-32 md:px-8 space-y-6 mt-4 md:grid md:grid-cols-2 md:gap-8 md:space-y-0 md:items-start">
@@ -93,7 +95,7 @@ export const Settings = {
                                     </div>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <input type="checkbox" class="sr-only peer" ${isDailyNotifEnabled ? "checked" : ""} id="daily-notif-toggle">
                                     <div class="ios-toggle-bg border-none">
                                         <div class="ios-toggle-dot"></div>
                                     </div>
@@ -115,7 +117,6 @@ export const Settings = {
                     <!-- Rodapé -->
                     <section class="pt-4 flex flex-col items-center gap-2">
                         <p class="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em]">Organizer PWA v2.4.0</p>
-                        <button class="text-xs text-red-400/80 font-medium py-2 px-4">Limpar todos os dados</button>
                     </section>
                 </main>
             </div>
@@ -140,6 +141,12 @@ export const Settings = {
     const notifTime = document.getElementById("notif-time-input");
     if (notifTime) {
       notifTime.onchange = (e) => handlers.onChangeNotifTime(e.target.value);
+    }
+
+    const dailyNotifToggle = document.getElementById("daily-notif-toggle");
+    if (dailyNotifToggle) {
+      dailyNotifToggle.onchange = (e) =>
+        handlers.onToggleDailyReminders(e.target.checked);
     }
   },
 };

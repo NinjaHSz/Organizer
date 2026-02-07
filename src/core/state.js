@@ -10,7 +10,7 @@ export const state = {
     search: "",
     status: "all",
     priority: "all",
-    category: "all",
+    category: "upcoming",
     viewMode: localStorage.getItem("view-mode") || "list",
   },
   calendarDate: new Date(),

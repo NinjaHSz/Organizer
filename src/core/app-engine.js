@@ -11,6 +11,7 @@ import { Schedule } from "../pages/schedule.js";
 import { SubjectsConfig } from "../pages/subjects-config.js";
 import { Settings } from "../pages/settings.js";
 import { MobileNav } from "../components/mobile-nav.js";
+import { Notifications } from "./notifications.js";
 
 export class AppEngine {
   constructor() {
@@ -97,7 +98,16 @@ export class AppEngine {
       },
       onChangeNotifTime: (time) => {
         localStorage.setItem("notif-time", time);
+        Notifications.setupDailyReminder(); // Recalcula o lembrete
         // UI.notify(`Lembrete ajustado para ${time}`, "info");
+      },
+      onToggleDailyReminders: (enabled) => {
+        localStorage.setItem("daily-reminders-enabled", enabled);
+        if (enabled) {
+          Notifications.requestPermission();
+          Notifications.setupDailyReminder();
+        }
+        this.render();
       },
       onDeleteSubject: async (id) => {
         if (confirm("Tem certeza que deseja excluir esta matéria?")) {
@@ -120,6 +130,7 @@ export class AppEngine {
     this.bindStaticEvents();
     this.setupGlobalSearch();
     this.setupRealtime();
+    Notifications.init();
 
     // Listener para o botão de adicionar no mobile (via CustomEvent do MobileNav)
     document.addEventListener("open-new-task-modal", () => this.showTaskForm());
@@ -541,13 +552,13 @@ export class AppEngine {
         if (activeDot) activeDot.style.backgroundColor = "#fff";
         selectedSubId = chip.dataset.id === "null" ? null : chip.dataset.id;
 
-        // Sugestão de data baseada no cronograma
+        // Sugestão de data baseada no cronograma (apenas se o campo estiver vazio)
         if (selectedSubId && !task) {
           const sub = state.subjects.find((s) => s.id === selectedSubId);
           if (sub) {
             const nextDate = getNextClassDate(sub.name);
             const dateInput = document.getElementById("form-task-date");
-            if (nextDate && dateInput) {
+            if (nextDate && dateInput && !dateInput.value) {
               dateInput.value = nextDate;
               UI.notify(`Prazo sugerido: Próxima aula de ${sub.name}`, "info");
             }
