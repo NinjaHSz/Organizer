@@ -158,11 +158,19 @@ export const db = {
   async savePushSubscription(subscription, settings = {}) {
     const supabaseClient = getClient();
     if (!supabaseClient) return null;
+
+    const subJson =
+      typeof subscription.toJSON === "function"
+        ? subscription.toJSON()
+        : subscription;
+
+    console.log("[DB] Salvando nova inscrição:", subJson.endpoint);
+
     const { data, error } = await supabaseClient
       .from("push_subscriptions")
       .insert([
         {
-          subscription,
+          subscription: subJson,
           notif_time: settings.notifTime || "09:00",
           daily_enabled: settings.dailyEnabled !== false,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -178,13 +186,13 @@ export const db = {
     const supabaseClient = getClient();
     if (!supabaseClient) return null;
 
-    // Como não temos login, vamos assumir que queremos atualizar a inscrição deste navegador
-    // No sw.js podemos gerenciar melhor, mas aqui vamos atualizar todos os registros 'anon' por enquanto
-    // ou basear no endpoint da inscrição se disponível.
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.getSubscription();
 
     if (subscription) {
+      const endpoint = subscription.endpoint;
+      console.log("[DB] Atualizando ajustes para:", endpoint, settings);
+
       const { error } = await supabaseClient
         .from("push_subscriptions")
         .update({
@@ -192,8 +200,15 @@ export const db = {
           daily_enabled: settings.dailyEnabled,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         })
-        .filter("subscription->>endpoint", "eq", subscription.endpoint);
-      if (error) throw error;
+        .filter("subscription->>endpoint", "eq", endpoint);
+
+      if (error) {
+        console.error("[DB] Erro ao atualizar push_settings:", error);
+        throw error;
+      }
+      console.log("[DB] Ajustes de Push atualizados com sucesso.");
+    } else {
+      console.warn("[DB] Nenhuma inscrição encontrada para atualizar.");
     }
   },
 };

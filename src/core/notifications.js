@@ -61,10 +61,16 @@ export const Notifications = {
         console.log("[Notifications] Nova inscrição de Push criada.");
         await db.savePushSubscription(subscription, settings);
       } else {
-        console.log("[Notifications] Usuário já inscrito no Push.");
+        console.log(
+          "[Notifications] Usuário já inscrito. Sincronizando ajustes...",
+        );
+        await db.updatePushSettings(settings);
       }
     } catch (e) {
-      console.warn("[Notifications] Falha ao inscrever no Push:", e);
+      console.warn(
+        "[Notifications] Falha ao inscrever ou sincronizar Push:",
+        e,
+      );
     }
   },
 
