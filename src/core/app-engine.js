@@ -473,13 +473,13 @@ export class AppEngine {
 
     // Mapeamento do cronograma para sugestão de data inteligente
     const timetable = [
-      { aula: "1", dias: ["ING", "FIL", "ETC", "RED", "ESP"] },
-      { aula: "2", dias: ["BIO", "ED.FIS", "ING", "", "MAT"] },
-      { aula: "3", dias: ["QUI", "FIS", "GRAM", "FIS", "GEO"] },
-      { aula: "4", dias: ["QUI", "FIS", "GRAM", "HIST", "LIT"] },
-      { aula: "5", dias: ["MAT", "SOC", "GEO", "HIST", "LIT"] },
-      { aula: "6", dias: ["MAT", "MAT", "BIO", "MAT", "BIO"] },
-      { aula: "7", dias: ["", "ARTE", "", "", ""] },
+      { aula: "1", dias: ["ING", "LIT", "MAT", "QUI", "MAT"] },
+      { aula: "2", dias: ["BIO", "QUI", "SOC", "FIS", "MAT"] },
+      { aula: "3", dias: ["BIO", "QUI", "ETC", "FIS", "ESP"] },
+      { aula: "4", dias: ["MAT", "FIS", "ED.FIS", "GEO", "HIS"] },
+      { aula: "5", dias: ["ING", "FIL", "HIS", "GRAM", "BIO"] },
+      { aula: "6", dias: ["RED", "ART", "GEO", "GRAM", "LIT"] },
+      { aula: "7", dias: ["", "", "", "", ""] },
     ];
 
     const getNextClassDate = (subjectName) => {
@@ -493,7 +493,7 @@ export class AppEngine {
         "SÁBADO",
       ];
       const mapping = {
-        Artes: "ARTE",
+        Artes: "ART",
         Literatura: "LIT",
         Matemática: "MAT",
         Biologia: "BIO",
@@ -502,7 +502,7 @@ export class AppEngine {
         Inglês: "ING",
         Química: "QUI",
         Gramática: "GRAM",
-        História: "HIST",
+        História: "HIS",
         Redação: "RED",
         Física: "FIS",
         Sociologia: "SOC",

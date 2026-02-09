@@ -11,17 +11,17 @@ export const Schedule = {
       {
         aula: "1ª AULA",
         horario: ["07:10", "07:55"],
-        dias: ["ING", "FIL", "ETC", "RED", "ESP"],
+        dias: ["ING", "LIT", "MAT", "QUI", "MAT"],
       },
       {
         aula: "2ª AULA",
         horario: ["07:55", "08:40"],
-        dias: ["BIO", "ED.FIS", "ING", "", "MAT"],
+        dias: ["BIO", "QUI", "SOC", "FIS", "MAT"],
       },
       {
         aula: "3ª AULA",
         horario: ["08:40", "09:25"],
-        dias: ["QUI", "FIS", "GRAM", "FIS", "GEO"],
+        dias: ["BIO", "QUI", "ETC", "FIS", "ESP"],
       },
       {
         aula: "INTERVALO",
@@ -32,22 +32,22 @@ export const Schedule = {
       {
         aula: "4ª AULA",
         horario: ["09:45", "10:30"],
-        dias: ["QUI", "FIS", "GRAM", "HIST", "LIT"],
+        dias: ["MAT", "FIS", "ED.FIS", "GEO", "HIS"],
       },
       {
         aula: "5ª AULA",
         horario: ["10:30", "11:15"],
-        dias: ["MAT", "SOC", "GEO", "HIST", "LIT"],
+        dias: ["ING", "FIL", "HIS", "GRAM", "BIO"],
       },
       {
         aula: "6ª AULA",
         horario: ["11:15", "12:00"],
-        dias: ["MAT", "MAT", "BIO", "MAT", "BIO"],
+        dias: ["RED", "ART", "GEO", "GRAM", "LIT"],
       },
       {
         aula: "7ª AULA",
         horario: ["12:00", "12:45"],
-        dias: ["", "ARTE", "", "", ""],
+        dias: ["", "", "", "", ""],
       },
     ];
 
@@ -63,8 +63,8 @@ export const Schedule = {
       SOC: { name: "Sociologia", color: "#FF9800" },
       LIT: { name: "Literatura", color: "#E91E63" },
       GEO: { name: "Geografia", color: "#795548" },
-      HIST: { name: "História", color: "#FF5722" },
-      ARTE: { name: "Artes", color: "#FFC107" },
+      HIS: { name: "História", color: "#FF5722" },
+      ART: { name: "Artes", color: "#FFC107" },
       RED: { name: "Redação", color: "#F44336" },
       GRAM: { name: "Gramática", color: "#00BCD4" },
       // Disciplinas extras não listadas no SQL
