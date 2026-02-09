@@ -178,7 +178,14 @@ export const db = {
       ])
       .select()
       .single();
+
     if (error) throw error;
+
+    // Salva o ID localmente para atualizações rápidas e precisas
+    if (data && data.id) {
+      localStorage.setItem("ps_record_id", data.id);
+    }
+
     return data;
   },
 
@@ -191,24 +198,39 @@ export const db = {
 
     if (subscription) {
       const endpoint = subscription.endpoint;
-      console.log("[DB] Atualizando ajustes para:", endpoint, settings);
+      const recordId = localStorage.getItem("ps_record_id");
 
-      const { error } = await supabaseClient
-        .from("push_subscriptions")
-        .update({
-          notif_time: settings.notifTime,
-          daily_enabled: settings.dailyEnabled,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        })
-        .filter("subscription->>endpoint", "eq", endpoint);
+      const payload = {
+        notif_time: settings.notifTime,
+        daily_enabled: settings.dailyEnabled,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      };
+
+      console.log("[DB] Sincronizando ajustes:", payload);
+
+      let query = supabaseClient.from("push_subscriptions").update(payload);
+
+      if (recordId) {
+        // Usa o ID para uma atualização direta e atômica
+        query = query.eq("id", recordId);
+      } else {
+        // Fallback: Busca pelo endpoint no JSON
+        query = query.filter("subscription->>endpoint", "eq", endpoint);
+      }
+
+      const { data, error } = await query.select();
 
       if (error) {
-        console.error("[DB] Erro ao atualizar push_settings:", error);
+        console.error("[DB] Falha na sincronia:", error);
         throw error;
       }
-      console.log("[DB] Ajustes de Push atualizados com sucesso.");
-    } else {
-      console.warn("[DB] Nenhuma inscrição encontrada para atualizar.");
+
+      // Se atualizou mas não tínhamos o ID, salva agora
+      if (data && data.length > 0 && !recordId) {
+        localStorage.setItem("ps_record_id", data[0].id);
+      }
+
+      console.log("[DB] Sincronizado com sucesso.");
     }
   },
 };
