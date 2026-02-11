@@ -1,4 +1,4 @@
-const VERSION = "1.2.4";
+const VERSION = "1.2.6";
 const DB_NAME = "organizer-sw-db";
 const STORE_NAME = "config";
 
@@ -6,10 +6,25 @@ const CACHE_NAME = `organizer-cache-v${VERSION}`;
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
-  "/src/main.js",
-  "/src/styles/main.css",
   "/manifest.json",
   "/assets/div.ico",
+  "/src/main.js",
+  "/src/styles/main.css",
+  "/src/api/database.js",
+  "/src/components/mobile-nav.js",
+  "/src/components/ui.js",
+  "/src/core/app-engine.js",
+  "/src/core/nav-state.js",
+  "/src/core/notifications.js",
+  "/src/core/state.js",
+  "/src/core/utils.js",
+  "/src/pages/calendar.js",
+  "/src/pages/dashboard.js",
+  "/src/pages/schedule.js",
+  "/src/pages/settings.js",
+  "/src/pages/subjects-config.js",
+  "/src/pages/subjects.js",
+  "https://cdn.tailwindcss.com?plugins=forms,container-queries",
   "https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap",
   "https://unpkg.com/@supabase/supabase-js@2",
 ];
@@ -56,17 +71,32 @@ self.addEventListener("activate", (event) => {
   startBackgroundCheck();
 });
 
-// Estratégia Stale-While-Revalidate para Offline
+// Estratégia: Cache First para Ativos Estáticos, Network para API
 self.addEventListener("fetch", (event) => {
-  // Ignora chamadas para o Supabase (API) no cache estático do browser
-  // O tratamento de dados offline será feito no database.js
-  if (event.request.url.includes("supabase.co")) return;
+  const url = new URL(event.request.url);
+
+  // Se for API do Supabase, vai direto pra rede (offline handled in database.js)
+  if (url.href.includes("supabase.co")) return;
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request)
+      if (cachedResponse) {
+        // Se temos no cache, retorna imediatamente e tenta atualizar em background
+        fetch(event.request)
+          .then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              caches
+                .open(CACHE_NAME)
+                .then((cache) => cache.put(event.request, networkResponse));
+            }
+          })
+          .catch(() => {});
+        return cachedResponse;
+      }
+
+      // Se não tem no cache, busca na rede
+      return fetch(event.request)
         .then((networkResponse) => {
-          // Atualiza o cache com a versão nova se for bem sucedida
           if (networkResponse && networkResponse.status === 200) {
             const cacheCopy = networkResponse.clone();
             caches
@@ -76,11 +106,13 @@ self.addEventListener("fetch", (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // Se falhar a rede e não tiver cache, apenas retorna o que tiver
-          return cachedResponse;
+          // Fallback para navegação
+          if (event.request.mode === "navigate") {
+            return caches.match("/");
+          }
+          // Fallback para imagens/icones se necessário (opcional)
+          return new Response("Offline content not available", { status: 503 });
         });
-
-      return cachedResponse || fetchPromise;
     }),
   );
 });
