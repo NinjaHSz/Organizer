@@ -1,7 +1,18 @@
-// Organizer Service Worker - Background Engine V6
 const VERSION = "1.2.4";
 const DB_NAME = "organizer-sw-db";
 const STORE_NAME = "config";
+
+const CACHE_NAME = `organizer-cache-v${VERSION}`;
+const ASSETS_TO_CACHE = [
+  "/",
+  "/index.html",
+  "/src/main.js",
+  "/src/styles/main.css",
+  "/manifest.json",
+  "/assets/div.ico",
+  "https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap",
+  "https://unpkg.com/@supabase/supabase-js@2",
+];
 
 let lastFiredDateKey = null;
 
@@ -13,20 +24,65 @@ const startBackgroundCheck = () => {
   console.log(`[SW V${VERSION}] Verificação de fundo ativa.`);
   checkInterval = setInterval(async () => {
     // Versão 1.2.4 - Lógica local desativada em favor do Servidor (Web Push)
-    // Apenas sincroniza dados, não dispara mais notificações locais
-    // para evitar duplicidade com o servidor.
   }, 60000);
 };
 
 startBackgroundCheck();
 
 self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log("[SW] Pre-caching assets...");
+      return cache.addAll(ASSETS_TO_CACHE);
+    }),
+  );
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log("[SW] Cleaning old cache:", key);
+            return caches.delete(key);
+          }
+        }),
+      );
+    }),
+  );
   event.waitUntil(clients.claim());
   startBackgroundCheck();
+});
+
+// Estratégia Stale-While-Revalidate para Offline
+self.addEventListener("fetch", (event) => {
+  // Ignora chamadas para o Supabase (API) no cache estático do browser
+  // O tratamento de dados offline será feito no database.js
+  if (event.request.url.includes("supabase.co")) return;
+
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          // Atualiza o cache com a versão nova se for bem sucedida
+          if (networkResponse && networkResponse.status === 200) {
+            const cacheCopy = networkResponse.clone();
+            caches
+              .open(CACHE_NAME)
+              .then((cache) => cache.put(event.request, cacheCopy));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // Se falhar a rede e não tiver cache, apenas retorna o que tiver
+          return cachedResponse;
+        });
+
+      return cachedResponse || fetchPromise;
+    }),
+  );
 });
 
 // Acordado pelo Sistema Operacional

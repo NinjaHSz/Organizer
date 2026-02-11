@@ -40,13 +40,26 @@ export const db = {
   // TASKS
   async getTasks() {
     const supabaseClient = getClient();
-    if (!supabaseClient) return [];
-    const { data, error } = await supabaseClient
-      .from("tasks")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return data;
+    if (!supabaseClient) {
+      const cached = localStorage.getItem("cache_tasks");
+      return cached ? JSON.parse(cached) : [];
+    }
+
+    try {
+      const { data, error } = await supabaseClient
+        .from("tasks")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+
+      // Salva no cache para uso offline
+      localStorage.setItem("cache_tasks", JSON.stringify(data));
+      return data;
+    } catch (error) {
+      console.warn("[DB] Erro de rede em getTasks, usando cache local:", error);
+      const cached = localStorage.getItem("cache_tasks");
+      return cached ? JSON.parse(cached) : [];
+    }
   },
 
   async createTask(taskData) {
@@ -84,13 +97,29 @@ export const db = {
   // SUBJECTS
   async getSubjects() {
     const supabaseClient = getClient();
-    if (!supabaseClient) return [];
-    const { data, error } = await supabaseClient
-      .from("subjects")
-      .select("*")
-      .order("name", { ascending: true });
-    if (error) throw error;
-    return data;
+    if (!supabaseClient) {
+      const cached = localStorage.getItem("cache_subjects");
+      return cached ? JSON.parse(cached) : [];
+    }
+
+    try {
+      const { data, error } = await supabaseClient
+        .from("subjects")
+        .select("*")
+        .order("name", { ascending: true });
+      if (error) throw error;
+
+      // Salva no cache para uso offline
+      localStorage.setItem("cache_subjects", JSON.stringify(data));
+      return data;
+    } catch (error) {
+      console.warn(
+        "[DB] Erro de rede em getSubjects, usando cache local:",
+        error,
+      );
+      const cached = localStorage.getItem("cache_subjects");
+      return cached ? JSON.parse(cached) : [];
+    }
   },
 
   async createSubject(subjectData) {
