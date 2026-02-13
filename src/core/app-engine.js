@@ -428,7 +428,7 @@ export class AppEngine {
                           <span class="material-symbols-outlined text-[28px]">photo_camera</span>
                           <span class="sparkle material-symbols-outlined">auto_awesome</span>
                       </button>
-                      <input type="file" id="ai-capture-input" accept="image/*" capture="environment" class="hidden">
+                      <input type="file" id="ai-capture-input" accept="image/*" class="hidden">
                   </div>
               </div>
 
