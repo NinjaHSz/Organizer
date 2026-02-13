@@ -12,6 +12,7 @@ import { SubjectsConfig } from "../pages/subjects-config.js";
 import { Settings } from "../pages/settings.js";
 import { MobileNav } from "../components/mobile-nav.js";
 import { Notifications } from "./notifications.js";
+import { AIService } from "../api/ai-service.js";
 
 export class AppEngine {
   constructor() {
@@ -421,7 +422,14 @@ export class AppEngine {
           <div class="flex flex-col gap-6">
               <div class="flex flex-col gap-1">
                   <label class="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Título</label>
-                  <input type="text" id="form-task-title" placeholder="O que vamos fazer?" value="${task ? task.title : ""}" class="w-full text-xl font-bold bg-surface-card border-none rounded-xl px-5 py-4 text-text-primary outline-none focus:ring-0 shadow-sm">
+                  <div class="flex items-center gap-3">
+                      <input type="text" id="form-task-title" placeholder="O que vamos fazer?" value="${task ? task.title : ""}" class="flex-1 text-xl font-bold bg-surface-card border-none rounded-xl px-5 py-4 text-text-primary outline-none focus:ring-0 shadow-sm">
+                      <button id="ai-scan-trigger" type="button" class="ai-scan-minimal-btn size-14 shrink-0 shadow-sm" title="Preencher com IA">
+                          <span class="material-symbols-outlined text-[28px]">photo_camera</span>
+                          <span class="sparkle material-symbols-outlined">auto_awesome</span>
+                      </button>
+                      <input type="file" id="ai-capture-input" accept="image/*" capture="environment" class="hidden">
+                  </div>
               </div>
 
               <div class="flex flex-col gap-1">
@@ -636,6 +644,75 @@ export class AppEngine {
         }
       }
     };
+
+    // Lógica do Scanner IA
+    const aiInput = modal.querySelector("#ai-capture-input");
+    const aiTrigger = modal.querySelector("#ai-scan-trigger");
+
+    if (aiTrigger && aiInput) {
+      aiTrigger.onclick = () => aiInput.click();
+
+      aiInput.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+          // Feedback Visual
+          const originalContent = aiTrigger.innerHTML;
+          aiTrigger.disabled = true;
+          aiTrigger.classList.add("scanner-overlay");
+          aiTrigger.innerHTML = `
+            <span class="material-symbols-outlined animate-spin text-[28px]">sync</span>
+          `;
+
+          UI.notify("IA está lendo sua foto...", "info");
+
+          const base64 = await AIService.imageToBase64(file);
+          const result = await AIService.processImage(base64);
+
+          // Preencher campos
+          if (result.title)
+            document.getElementById("form-task-title").value = result.title;
+          if (result.description)
+            document.getElementById("form-task-desc").value =
+              result.description;
+          if (result.priority)
+            document.getElementById("form-task-priority").value =
+              result.priority;
+          if (result.due_date)
+            document.getElementById("form-task-date").value = result.due_date;
+
+          // Sugestão de Matéria
+          if (result.subject_suggestion) {
+            const subName = result.subject_suggestion.toLowerCase();
+            const sub = state.subjects.find(
+              (s) =>
+                s.name.toLowerCase().includes(subName) ||
+                subName.includes(s.name.toLowerCase()),
+            );
+            if (sub) {
+              const chip = modal.querySelector(
+                `.sub-chip[data-id="${sub.id}"]`,
+              );
+              if (chip) chip.click();
+            }
+          }
+
+          UI.notify("Campos preenchidos com sucesso! ✨", "success");
+
+          // Reset do botão
+          aiTrigger.classList.remove("scanner-overlay");
+          aiTrigger.innerHTML = originalContent;
+          aiTrigger.disabled = false;
+        } catch (error) {
+          console.error("Erro no Scanner IA:", error);
+          UI.notify(error.message || "Erro ao processar imagem", "error");
+          aiTrigger.classList.remove("scanner-overlay");
+          aiTrigger.innerHTML = originalContent;
+          aiTrigger.disabled = false;
+        }
+      };
+    }
   }
 
   showSubjectForm(subject = null) {

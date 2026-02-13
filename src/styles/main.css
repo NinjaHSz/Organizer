@@ -249,3 +249,99 @@ input:checked + .ios-toggle-bg .ios-toggle-dot {
 .group:hover .group-hover\:text-action-primary {
   color: var(--action-primary) !important;
 }
+
+/* AI Smart Scanner Styles */
+@keyframes ai-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.7);
+    filter: brightness(1);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px 10px rgba(66, 133, 244, 0.4);
+    filter: brightness(1.2);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(66, 133, 244, 0);
+    filter: brightness(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes sparkle-float {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2) rotate(20deg);
+    opacity: 1;
+  }
+}
+
+.ai-scan-minimal-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: rgba(66, 133, 244, 0.08);
+  border: 1.5px solid rgba(66, 133, 244, 0.4);
+  border-radius: 16px;
+  color: #4285f4;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
+}
+
+.ai-scan-minimal-btn:hover {
+  background: rgba(66, 133, 244, 0.15);
+  border-color: #4285f4;
+  box-shadow: 0 8px 20px -6px rgba(66, 133, 244, 0.3);
+  transform: translateY(-2px);
+}
+
+.ai-scan-minimal-btn:active {
+  transform: scale(0.92);
+}
+
+.ai-scan-minimal-btn .sparkle {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 14px !important;
+  color: #4285f4;
+  animation: sparkle-float 2.5s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes scanner-laser {
+  0% {
+    top: -2%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.scanner-overlay {
+  pointer-events: none;
+  filter: grayscale(0.2) brightness(0.9);
+  border-color: #fff !important;
+  box-shadow: 0 0 20px rgba(66, 133, 244, 0.4);
+}
+
+.scanner-overlay::after {
+  display: none;
+}

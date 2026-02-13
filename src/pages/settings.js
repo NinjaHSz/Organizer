@@ -2,6 +2,7 @@
  * Componente de Ajustes - Novo Design com Diagnóstico de Notificações
  */
 import { Notifications } from "../core/notifications.js";
+import { UI } from "../components/ui.js";
 
 export const Settings = {
   render(root, state, handlers) {
@@ -143,6 +144,37 @@ export const Settings = {
                         </div>
                     </section>
 
+
+                    <!-- Inteligência Artificial -->
+                    <section>
+                        <h2 class="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-3 ml-1">Inteligência Artificial</h2>
+                        <div class="bg-[var(--surface-card)] rounded-[var(--radius-xl)] overflow-hidden">
+                            <div class="p-5 space-y-4">
+                                <div class="flex items-center gap-4">
+                                    <span class="material-symbols-outlined text-blue-400">rocket_launch</span>
+                                    <div>
+                                        <p class="text-[var(--text-primary)] text-sm font-medium">OpenRouter API Key</p>
+                                        <p class="text-[var(--text-secondary)] text-[11px]">Acesso a múltiplos modelos de IA</p>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <input type="password" id="openrouter-key-input" 
+                                           class="w-full bg-white/5 border-none rounded-xl px-4 py-3 text-xs font-mono text-white/80 focus:ring-1 focus:ring-blue-500 transition-all"
+                                           placeholder="sk-or-v1-..."
+                                           value="${localStorage.getItem("openrouter_api_key") || "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"}">
+                                    <button class="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-all">
+                                        <span class="material-symbols-outlined text-sm">visibility</span>
+                                    </button>
+                                </div>
+                                <div class="p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                                   <p class="text-[10px] text-blue-300 leading-relaxed font-medium">
+                                       <span class="font-black uppercase">Dica:</span> Use o modelo <code class="bg-blue-900/40 px-1 rounded">gemini-2.0-flash</code> para melhor custo-benefício.
+                                   </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- Rodapé -->
                     <section class="pt-4 flex flex-col items-center gap-2">
                         <p class="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em]">Organizer PWA v2.6.0</p>
@@ -187,6 +219,28 @@ export const Settings = {
     const updateBtn = document.getElementById("force-update-sw-btn");
     if (updateBtn) {
       updateBtn.onclick = () => Notifications.updateSW();
+    }
+
+    const openrouterInput = document.getElementById("openrouter-key-input");
+    if (openrouterInput) {
+      openrouterInput.onchange = (e) => {
+        localStorage.setItem("openrouter_api_key", e.target.value.trim());
+        UI.notify("Chave do OpenRouter atualizada!", "success");
+      };
+
+      // Lógica de visibilidade
+      const toggleBtn = openrouterInput.nextElementSibling;
+      if (toggleBtn) {
+        toggleBtn.onclick = () => {
+          const type =
+            openrouterInput.getAttribute("type") === "password"
+              ? "text"
+              : "password";
+          openrouterInput.setAttribute("type", type);
+          toggleBtn.querySelector("span").textContent =
+            type === "password" ? "visibility" : "visibility_off";
+        };
+      }
     }
   },
 
