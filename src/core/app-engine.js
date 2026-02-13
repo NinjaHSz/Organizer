@@ -424,11 +424,13 @@ export class AppEngine {
                   <label class="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Título</label>
                   <div class="flex items-center gap-3">
                       <input type="text" id="form-task-title" placeholder="O que vamos fazer?" value="${task ? task.title : ""}" class="flex-1 text-xl font-bold bg-surface-card border-none rounded-xl px-5 py-4 text-text-primary outline-none focus:ring-0 shadow-sm">
-                      <button id="ai-scan-trigger" type="button" class="ai-scan-minimal-btn size-14 shrink-0 shadow-sm" title="Preencher com IA">
+                      <button id="ai-scan-trigger" type="button" class="ai-scan-minimal-btn size-14 shrink-0 shadow-sm" title="Scanner IA">
                           <span class="material-symbols-outlined text-[28px]">photo_camera</span>
                           <span class="sparkle material-symbols-outlined">auto_awesome</span>
                       </button>
-                      <input type="file" id="ai-capture-input" accept="image/*" class="hidden">
+                      <!-- Inputs escodidos para escolha explícita -->
+                      <input type="file" id="ai-capture-input-camera" accept="image/*" capture="environment" class="hidden">
+                      <input type="file" id="ai-capture-input-gallery" accept="image/*" class="hidden">
                   </div>
               </div>
 
@@ -646,14 +648,30 @@ export class AppEngine {
     };
 
     // Lógica do Scanner IA
-    const aiInput = modal.querySelector("#ai-capture-input");
+    // Lógica do Scanner IA (Dual Choice)
     const aiTrigger = modal.querySelector("#ai-scan-trigger");
+    const aiInputCamera = modal.querySelector("#ai-capture-input-camera");
+    const aiInputGallery = modal.querySelector("#ai-capture-input-gallery");
 
-    if (aiTrigger && aiInput) {
-      aiTrigger.onclick = () => aiInput.click();
+    if (aiTrigger) {
+      aiTrigger.onclick = () => {
+        UI.showActionSheet("Scanner Inteligente", [
+          {
+            icon: "photo_camera",
+            label: "Usar Câmera",
+            desc: "Tirar uma foto agora",
+            onClick: () => aiInputCamera.click(),
+          },
+          {
+            icon: "image",
+            label: "Galeria de Fotos",
+            desc: "Escolher imagem existente",
+            onClick: () => aiInputGallery.click(),
+          },
+        ]);
+      };
 
-      aiInput.onchange = async (e) => {
-        const file = e.target.files[0];
+      const handleAIFile = async (file) => {
         if (!file) return;
 
         try {
@@ -712,6 +730,9 @@ export class AppEngine {
           aiTrigger.disabled = false;
         }
       };
+
+      aiInputCamera.onchange = (e) => handleAIFile(e.target.files[0]);
+      aiInputGallery.onchange = (e) => handleAIFile(e.target.files[0]);
     }
   }
 

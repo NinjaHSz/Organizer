@@ -146,4 +146,61 @@ export const UI = {
 
     return { modal, close };
   },
+
+  showActionSheet(title, options) {
+    const sheet = document.createElement("div");
+    sheet.className =
+      "fixed inset-0 z-[110] flex flex-col justify-end bg-black/40 opacity-0 transition-opacity duration-300 pointer-events-auto";
+    sheet.innerHTML = `
+            <div class="bg-[var(--surface-card)] rounded-t-[var(--radius-2xl)] w-full max-w-lg mx-auto transform translate-y-full transition-transform duration-300 shadow-2xl overflow-hidden border-none text-[var(--text-primary)]">
+                <div class="px-6 py-4 border-b border-white/5 bg-white/5">
+                    <p class="text-[10px] font-black text-center text-[var(--text-secondary)] uppercase tracking-[0.2em]">${title}</p>
+                </div>
+                <div class="flex flex-col p-2">
+                    ${options
+                      .map(
+                        (opt, i) => `
+                        <button class="action-sheet-item flex items-center gap-4 w-full p-4 rounded-xl hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer text-left" data-index="${i}">
+                            <span class="material-symbols-outlined text-[var(--action-primary)]">${opt.icon}</span>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold">${opt.label}</span>
+                                <span class="text-[10px] text-[var(--text-secondary)]">${opt.desc}</span>
+                            </div>
+                        </button>
+                    `,
+                      )
+                      .join("")}
+                    <div class="h-2"></div>
+                    <button class="close-sheet w-full p-4 rounded-xl bg-white/5 text-sm font-black text-[var(--text-secondary)] uppercase tracking-widest border-none cursor-pointer mb-2">Cancelar</button>
+                </div>
+            </div>
+        `;
+
+    const container = document.getElementById("modal-container");
+    if (container) container.appendChild(sheet);
+
+    setTimeout(() => {
+      sheet.style.opacity = "1";
+      sheet.querySelector("div").style.transform = "translateY(0)";
+    }, 10);
+
+    const close = () => {
+      sheet.style.opacity = "0";
+      sheet.querySelector("div").style.transform = "translateY(100%)";
+      setTimeout(() => sheet.remove(), 300);
+    };
+
+    sheet.querySelectorAll(".action-sheet-item").forEach((item) => {
+      item.onclick = () => {
+        const index = item.dataset.index;
+        options[index].onClick();
+        close();
+      };
+    });
+
+    sheet.querySelector(".close-sheet").onclick = close;
+    sheet.onclick = (e) => {
+      if (e.target === sheet) close();
+    };
+  },
 };

@@ -345,3 +345,12 @@ input:checked + .ios-toggle-bg .ios-toggle-dot {
 .scanner-overlay::after {
   display: none;
 }
+
+.action-sheet-item:active {
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: scale(0.98);
+}
+
+.action-sheet-item {
+  -webkit-tap-highlight-color: transparent;
+}
