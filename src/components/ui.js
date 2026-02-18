@@ -32,9 +32,10 @@ export const UI = {
     }, 3000);
   },
 
-  renderTaskCard(task, subjects = []) {
+  renderTaskCard(task, subjects = [], isDoneOverride = null) {
     const subject = subjects.find((s) => s.id === task.subject_id) || null;
-    const isDone = task.status === "done";
+    const isDone =
+      isDoneOverride !== null ? isDoneOverride : task.status === "done";
 
     const priorityData = {
       high: { color: "var(--status-error)", label: "ALTA" },

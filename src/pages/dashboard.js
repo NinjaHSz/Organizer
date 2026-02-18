@@ -4,8 +4,8 @@ import { getFilteredTasks } from "../core/utils.js";
 export const Dashboard = {
   render(root, state, handlers) {
     const filteredTasks = getFilteredTasks(state);
-    const pendingCount = state.tasks.filter((t) => t.status !== "done").length;
-    const doneCount = state.tasks.length - pendingCount;
+    const doneCount = state.completedTaskIds.length;
+    const pendingCount = state.tasks.length - doneCount;
 
     root.innerHTML = `
             <div class="animate-fade-in flex flex-col w-[98%] max-w-7xl mx-auto px-2 pb-32 md:px-8">
@@ -91,7 +91,13 @@ export const Dashboard = {
                                   filteredTasks.length
                                     ? filteredTasks
                                         .map((t) =>
-                                          UI.renderTaskCard(t, state.subjects),
+                                          UI.renderTaskCard(
+                                            t,
+                                            state.subjects,
+                                            state.completedTaskIds.includes(
+                                              t.id,
+                                            ),
+                                          ),
                                         )
                                         .join("")
                                     : `
@@ -103,7 +109,7 @@ export const Dashboard = {
                                 }
                             </div>
                             `
-                            : this.renderKanbanHTML(filteredTasks)
+                            : this.renderKanbanHTML(filteredTasks, state)
                         }
                     </div>
                 </section>
@@ -113,7 +119,7 @@ export const Dashboard = {
     this.bindEvents(root, state, handlers);
   },
 
-  renderKanbanHTML(filteredTasks) {
+  renderKanbanHTML(filteredTasks, state) {
     const columns = [
       { id: "todo", title: "Para Fazer", icon: "assignment" },
       { id: "in_progress", title: "Andamento", icon: "sync" },
@@ -124,10 +130,15 @@ export const Dashboard = {
             <div class="flex gap-6 overflow-x-auto no-scrollbar pb-8">
                 ${columns
                   .map((col) => {
-                    const colTasks = filteredTasks.filter(
-                      (t) =>
-                        t.status === col.id || (col.id === "todo" && !t.status),
-                    );
+                    const colTasks = filteredTasks.filter((t) => {
+                      const isDone = state.completedTaskIds.includes(t.id);
+                      if (col.id === "done") return isDone;
+                      return (
+                        !isDone &&
+                        (t.status === col.id ||
+                          (col.id === "todo" && !t.status))
+                      );
+                    });
                     return `
                         <div class="flex-none w-[300px] flex flex-col gap-4">
                             <div class="flex items-center justify-between px-2">
@@ -138,7 +149,7 @@ export const Dashboard = {
                                 <span class="text-[10px] font-bold bg-surface-subtle px-2.5 py-1 rounded-lg text-text-muted">${colTasks.length}</span>
                             </div>
                             <div class="kanban-column flex flex-col gap-4 min-h-[450px]" data-status="${col.id}">
-                                ${colTasks.map((t) => `<div class="kanban-item cursor-grab border-none active:cursor-grabbing" draggable="true" data-id="${t.id}">${UI.renderTaskCard(t, [])}</div>`).join("")}
+                                ${colTasks.map((t) => `<div class="kanban-item cursor-grab border-none active:cursor-grabbing" draggable="true" data-id="${t.id}">${UI.renderTaskCard(t, [], state.completedTaskIds.includes(t.id))}</div>`).join("")}
                             </div>
                         </div>
                     `;

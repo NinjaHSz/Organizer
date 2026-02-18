@@ -13,15 +13,18 @@ export const getFilteredTasks = (state) => {
       const today = new Date().toISOString().split("T")[0];
 
       if (state.filters.category === "all") {
-        matchesCategory = true; // Mostra todas as tarefas
+        matchesCategory = true;
       } else if (state.filters.category === "upcoming") {
         matchesCategory =
-          (t.due_date >= today || !t.due_date) && t.status !== "done";
+          (t.due_date >= today || !t.due_date) &&
+          !state.completedTaskIds.includes(t.id);
       } else if (state.filters.category === "done") {
-        matchesCategory = t.status === "done";
+        matchesCategory = state.completedTaskIds.includes(t.id);
       } else if (state.filters.category === "overdue") {
         matchesCategory =
-          t.due_date && t.due_date < today && t.status !== "done";
+          t.due_date &&
+          t.due_date < today &&
+          !state.completedTaskIds.includes(t.id);
       } else if (state.filters.category === "tomorrow") {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);

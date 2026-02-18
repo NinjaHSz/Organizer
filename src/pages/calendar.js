@@ -162,7 +162,10 @@ export const CalendarModule = {
                                           const sub = state.subjects.find(
                                             (s) => s.id === t.subject_id,
                                           );
-                                          const isDone = t.status === "done";
+                                          const isDone =
+                                            state.completedTaskIds.includes(
+                                              t.id,
+                                            );
                                           return `
                                         <div class="p-5 rounded-xl bg-surface-subtle/30 hover:bg-surface-subtle transition-all border-none group cursor-pointer" onclick="document.querySelector('button[data-action=edit][data-id=${t.id}]')?.click()">
                                             <div class="flex items-center justify-between mb-2">

@@ -31,13 +31,16 @@ export class AppEngine {
         this.render();
       },
       onToggleTask: async (id, done) => {
-        const task = state.tasks.find((t) => t.id === id);
-        if (task) {
-          task.status = done ? "done" : "todo";
-          await db.updateTask(id, { status: task.status });
-          // UI.notify(done ? "Concluído! 🎉" : "Tarefa reaberta", "success");
-          this.render();
+        let completedIds = [...state.completedTaskIds];
+        if (done) {
+          if (!completedIds.includes(id)) completedIds.push(id);
+        } else {
+          completedIds = completedIds.filter((cid) => cid !== id);
         }
+
+        updateState("completedTaskIds", completedIds);
+        localStorage.setItem("completed_tasks", JSON.stringify(completedIds));
+        this.render();
       },
       onEditTask: (id) =>
         this.showTaskForm(state.tasks.find((t) => t.id === id)),
@@ -60,10 +63,14 @@ export class AppEngine {
 
         document.getElementById("confirm-delete").onclick = async () => {
           await db.deleteTask(id);
-          updateState(
-            "tasks",
-            state.tasks.filter((t) => t.id !== id),
+          const completedIds = state.completedTaskIds.filter(
+            (cid) => cid !== id,
           );
+          updateState({
+            tasks: state.tasks.filter((t) => t.id !== id),
+            completedTaskIds: completedIds,
+          });
+          localStorage.setItem("completed_tasks", JSON.stringify(completedIds));
           // UI.notify("Tarefa excluída com sucesso", "success");
           this.render();
           close();
@@ -230,7 +237,7 @@ export class AppEngine {
           resultsContainer.innerHTML = filtered
             .map((t) => {
               const sub = state.subjects.find((s) => s.id === t.subject_id);
-              const isDone = t.status === "done";
+              const isDone = state.completedTaskIds.includes(t.id);
               return `
                 <button class="search-item w-full text-left p-4 hover:bg-[var(--surface-subtle)] transition-colors border-b border-[var(--separator)] last:border-0 flex items-center justify-between group" data-id="${t.id}">
                     <div class="flex items-center gap-3">

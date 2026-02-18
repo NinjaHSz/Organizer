@@ -16,6 +16,7 @@ export const state = {
   calendarDate: new Date(),
   selectedCalendarDate: new Date().toISOString().split("T")[0],
   navStyle: localStorage.getItem("nav-style") || "docked",
+  completedTaskIds: JSON.parse(localStorage.getItem("completed_tasks") || "[]"),
 };
 
 export const updateState = (key, value) => {

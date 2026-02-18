@@ -161,7 +161,7 @@ export const Settings = {
                                     <input type="password" id="openrouter-key-input" 
                                            class="w-full bg-white/5 border-none rounded-xl px-4 py-3 text-xs font-mono text-white/80 focus:ring-1 focus:ring-blue-500 transition-all"
                                            placeholder="sk-or-v1-..."
-                                           value="${localStorage.getItem("openrouter_api_key") || "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"}">
+                                            value="${localStorage.getItem("openrouter_api_key") || "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"}">
                                     <button class="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-all">
                                         <span class="material-symbols-outlined text-sm">visibility</span>
                                     </button>
@@ -224,8 +224,14 @@ export const Settings = {
     const openrouterInput = document.getElementById("openrouter-key-input");
     if (openrouterInput) {
       openrouterInput.onchange = (e) => {
-        localStorage.setItem("openrouter_api_key", e.target.value.trim());
-        UI.notify("Chave do OpenRouter atualizada!", "success");
+        const val = e.target.value.trim();
+        if (val) {
+          localStorage.setItem("openrouter_api_key", val);
+          UI.notify("Chave do OpenRouter atualizada!", "success");
+        } else {
+          localStorage.removeItem("openrouter_api_key");
+          UI.notify("Usando chave padrão do sistema.", "info");
+        }
       };
 
       // Lógica de visibilidade

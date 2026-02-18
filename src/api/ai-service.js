@@ -5,13 +5,14 @@
 
 export const AIService = {
   async processImage(base64Image) {
-    const apiKey =
+    const apiKey = (
       localStorage.getItem("openrouter_api_key") ||
-      "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"; // User will provide this
+      "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"
+    ).trim();
 
-    if (!apiKey) {
+    if (!apiKey || apiKey === "") {
       throw new Error(
-        "API Key do OpenRouter não encontrada. Configure-a no menu de Ajustes.",
+        "Chave de API inválida ou vazia. Por favor, verifique seus Ajustes.",
       );
     }
 
@@ -43,11 +44,11 @@ export const AIService = {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer": window.location.origin,
+          "HTTP-Referer": "https://github.com/lucas-organizer-pwa", // Referer estático para evitar erro de "user not found"
           "X-Title": "Organizer PWA",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.0-flash-001", // Alta precisão e visão
+          model: "google/gemini-2.0-flash-001",
           messages: [
             {
               role: "system",
