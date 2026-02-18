@@ -39,6 +39,12 @@ const getClient = () => {
 export const db = {
   // TASKS
   async getTasks() {
+    if (!navigator.onLine) {
+      console.log("[DB] Offline detectado em getTasks, usando cache.");
+      const cached = localStorage.getItem("cache_tasks");
+      return cached ? JSON.parse(cached) : [];
+    }
+
     const supabaseClient = getClient();
     if (!supabaseClient) {
       const cached = localStorage.getItem("cache_tasks");
@@ -96,6 +102,12 @@ export const db = {
 
   // SUBJECTS
   async getSubjects() {
+    if (!navigator.onLine) {
+      console.log("[DB] Offline detectado em getSubjects, usando cache.");
+      const cached = localStorage.getItem("cache_subjects");
+      return cached ? JSON.parse(cached) : [];
+    }
+
     const supabaseClient = getClient();
     if (!supabaseClient) {
       const cached = localStorage.getItem("cache_subjects");

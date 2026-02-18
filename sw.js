@@ -1,4 +1,4 @@
-const VERSION = "1.2.6";
+const VERSION = "1.2.7";
 const DB_NAME = "organizer-sw-db";
 const STORE_NAME = "config";
 
@@ -11,6 +11,7 @@ const ASSETS_TO_CACHE = [
   "/src/main.js",
   "/src/styles/main.css",
   "/src/api/database.js",
+  "/src/api/ai-service.js",
   "/src/components/mobile-nav.js",
   "/src/components/ui.js",
   "/src/core/app-engine.js",
