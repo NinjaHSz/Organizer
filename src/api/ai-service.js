@@ -5,16 +5,33 @@
 
 export const AIService = {
   async processImage(base64Image) {
-    const apiKey = (
-      localStorage.getItem("openrouter_api_key") ||
-      "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"
-    ).trim();
+    const storedKey = localStorage.getItem("openrouter_api_key");
+    const apiKey =
+      storedKey &&
+      storedKey.trim() !== "" &&
+      storedKey !== "null" &&
+      storedKey !== "undefined"
+        ? storedKey.replace(/["']/g, "").trim()
+        : "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";
 
-    if (!apiKey || apiKey === "") {
-      throw new Error(
-        "Chave de API inválida ou vazia. Por favor, verifique seus Ajustes.",
-      );
+    if (!apiKey) {
+      throw new Error("Chave de API não encontrada.");
     }
+
+    // DEBUG: Verificando qual chave está sendo usada
+    console.log(
+      "[AI-DEBUG] Stored Key from localStorage:",
+      localStorage.getItem("openrouter_api_key"),
+    );
+    console.log(
+      "[AI-DEBUG] Final Key being used (prefix):",
+      apiKey.substring(0, 15),
+    );
+
+    // Sanity check: Remove any 'Bearer ' prefix or label if the user pasted it
+    const sanitizedKey = apiKey
+      .replace(/^(Bearer\s+|OpenRouter\s+API\s+Key:\s*)/i, "")
+      .trim();
 
     const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -39,12 +56,15 @@ export const AIService = {
     `;
 
     try {
+      console.log("[AI] Usando key (prefixo):", sanitizedKey.substring(0, 10));
+      console.log("[AI] Iniciando processamento com OpenRouter...");
+
       const response = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer": "https://github.com/lucas-organizer-pwa", // Referer estático para evitar erro de "user not found"
+          Authorization: "Bearer " + sanitizedKey,
+          "HTTP-Referer": "https://openrouter.ai",
           "X-Title": "Organizer PWA",
         },
         body: JSON.stringify({
@@ -61,7 +81,7 @@ export const AIService = {
                 {
                   type: "image_url",
                   image_url: {
-                    url: base64Image, // Inclui o prefixo data:image/jpeg;base64,...
+                    url: base64Image,
                   },
                 },
               ],
@@ -72,8 +92,15 @@ export const AIService = {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || "Erro na API do OpenRouter");
+        const errorData = await response.json();
+        console.error(
+          "OpenRouter Error Details:",
+          JSON.stringify(errorData, null, 2),
+        );
+        const errMsg = errorData.error?.message || "Erro desconhecido";
+        throw new Error(
+          `OpenRouter Error: ${errMsg} (Status: ${response.status})`,
+        );
       }
 
       const result = await response.json();

@@ -166,10 +166,15 @@ export const Settings = {
                                         <span class="material-symbols-outlined text-sm">visibility</span>
                                     </button>
                                 </div>
-                                <div class="p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
-                                   <p class="text-[10px] text-blue-300 leading-relaxed font-medium">
-                                       <span class="font-black uppercase">Dica:</span> Use o modelo <code class="bg-blue-900/40 px-1 rounded">gemini-2.0-flash</code> para melhor custo-benefício.
-                                   </p>
+                                <div class="flex gap-2">
+                                   <button id="clear-ai-key-btn" class="flex-1 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-[10px] font-bold hover:bg-red-500/20 transition-all border border-red-500/20">
+                                       Limpar Chave Salva
+                                   </button>
+                                   <div class="flex-1 p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                                      <p class="text-[10px] text-blue-300 leading-relaxed font-medium">
+                                          <span class="font-black uppercase">Dica:</span> Se der erro, use o botão ao lado.
+                                      </p>
+                                   </div>
                                 </div>
                             </div>
                         </div>
@@ -247,6 +252,14 @@ export const Settings = {
             type === "password" ? "visibility" : "visibility_off";
         };
       }
+    }
+    const clearBtn = document.getElementById("clear-ai-key-btn");
+    if (clearBtn) {
+      clearBtn.onclick = () => {
+        localStorage.removeItem("openrouter_api_key");
+        if (openrouterInput) openrouterInput.value = "";
+        UI.notify("Chave removida. O app usará o padrão do sistema.", "info");
+      };
     }
   },
 
