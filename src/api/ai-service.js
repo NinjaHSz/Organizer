@@ -5,33 +5,11 @@
 
 export const AIService = {
   async processImage(base64Image) {
-    const storedKey = localStorage.getItem("openrouter_api_key");
+    // Chave Mestre Fixa (Segurança: Usuários não podem alterar)
     const apiKey =
-      storedKey &&
-      storedKey.trim() !== "" &&
-      storedKey !== "null" &&
-      storedKey !== "undefined"
-        ? storedKey.replace(/["']/g, "").trim()
-        : "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";
+      "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";
 
-    if (!apiKey) {
-      throw new Error("Chave de API não encontrada.");
-    }
-
-    // DEBUG: Verificando qual chave está sendo usada
-    console.log(
-      "[AI-DEBUG] Stored Key from localStorage:",
-      localStorage.getItem("openrouter_api_key"),
-    );
-    console.log(
-      "[AI-DEBUG] Final Key being used (prefix):",
-      apiKey.substring(0, 15),
-    );
-
-    // Sanity check: Remove any 'Bearer ' prefix or label if the user pasted it
-    const sanitizedKey = apiKey
-      .replace(/^(Bearer\s+|OpenRouter\s+API\s+Key:\s*)/i, "")
-      .trim();
+    const sanitizedKey = apiKey.trim();
 
     const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 

@@ -145,40 +145,6 @@ export const Settings = {
                     </section>
 
 
-                    <!-- Inteligência Artificial -->
-                    <section>
-                        <h2 class="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-3 ml-1">Inteligência Artificial</h2>
-                        <div class="bg-[var(--surface-card)] rounded-[var(--radius-xl)] overflow-hidden">
-                            <div class="p-5 space-y-4">
-                                <div class="flex items-center gap-4">
-                                    <span class="material-symbols-outlined text-blue-400">rocket_launch</span>
-                                    <div>
-                                        <p class="text-[var(--text-primary)] text-sm font-medium">OpenRouter API Key</p>
-                                        <p class="text-[var(--text-secondary)] text-[11px]">Acesso a múltiplos modelos de IA</p>
-                                    </div>
-                                </div>
-                                <div class="relative">
-                                    <input type="password" id="openrouter-key-input" 
-                                           class="w-full bg-white/5 border-none rounded-xl px-4 py-3 text-xs font-mono text-white/80 focus:ring-1 focus:ring-blue-500 transition-all"
-                                           placeholder="sk-or-v1-..."
-                                            value="${localStorage.getItem("openrouter_api_key") || "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"}">
-                                    <button class="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-all">
-                                        <span class="material-symbols-outlined text-sm">visibility</span>
-                                    </button>
-                                </div>
-                                <div class="flex gap-2">
-                                   <button id="clear-ai-key-btn" class="flex-1 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-[10px] font-bold hover:bg-red-500/20 transition-all border border-red-500/20">
-                                       Limpar Chave Salva
-                                   </button>
-                                   <div class="flex-1 p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
-                                      <p class="text-[10px] text-blue-300 leading-relaxed font-medium">
-                                          <span class="font-black uppercase">Dica:</span> Se der erro, use o botão ao lado.
-                                      </p>
-                                   </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
 
                     <!-- Rodapé -->
                     <section class="pt-4 flex flex-col items-center gap-2">
@@ -224,42 +190,6 @@ export const Settings = {
     const updateBtn = document.getElementById("force-update-sw-btn");
     if (updateBtn) {
       updateBtn.onclick = () => Notifications.updateSW();
-    }
-
-    const openrouterInput = document.getElementById("openrouter-key-input");
-    if (openrouterInput) {
-      openrouterInput.onchange = (e) => {
-        const val = e.target.value.trim();
-        if (val) {
-          localStorage.setItem("openrouter_api_key", val);
-          UI.notify("Chave do OpenRouter atualizada!", "success");
-        } else {
-          localStorage.removeItem("openrouter_api_key");
-          UI.notify("Usando chave padrão do sistema.", "info");
-        }
-      };
-
-      // Lógica de visibilidade
-      const toggleBtn = openrouterInput.nextElementSibling;
-      if (toggleBtn) {
-        toggleBtn.onclick = () => {
-          const type =
-            openrouterInput.getAttribute("type") === "password"
-              ? "text"
-              : "password";
-          openrouterInput.setAttribute("type", type);
-          toggleBtn.querySelector("span").textContent =
-            type === "password" ? "visibility" : "visibility_off";
-        };
-      }
-    }
-    const clearBtn = document.getElementById("clear-ai-key-btn");
-    if (clearBtn) {
-      clearBtn.onclick = () => {
-        localStorage.removeItem("openrouter_api_key");
-        if (openrouterInput) openrouterInput.value = "";
-        UI.notify("Chave removida. O app usará o padrão do sistema.", "info");
-      };
     }
   },
 
