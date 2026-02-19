@@ -1,4 +1,4 @@
-const VERSION = "1.2.7";
+const VERSION = "1.3.0";
 const DB_NAME = "organizer-sw-db";
 const STORE_NAME = "config";
 
