@@ -43,7 +43,6 @@ export const AIService = {
           "Content-Type": "application/json",
           Authorization: "Bearer " + sanitizedKey,
           "HTTP-Referer": "https://openrouter.ai",
-          "X-Title": "Organizer PWA",
         },
         body: JSON.stringify({
           model: "google/gemini-2.0-flash-001",

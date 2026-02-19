@@ -6,9 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Registro do Service Worker para Notificações PWA
   if ("serviceWorker" in navigator) {
-    // 🧹 Limpeza definitiva da chave do localStorage (Migração para chave fixa no código)
-    localStorage.removeItem("openrouter_api_key");
-
     navigator.serviceWorker
       .register("/sw.js")
       .then((reg) => console.log("✅ Service Worker registrado:", reg.scope))
