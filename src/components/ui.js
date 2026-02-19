@@ -89,10 +89,46 @@ export const UI = {
 
                 <!-- Expanded Content (Hidden by default) -->
                 <div class="expand-content max-h-0 opacity-0 transition-all duration-300 pointer-events-none">
-                    <div class="pt-1 border-t border-white/5">
-                        <p class="text-[10px] text-[var(--text-secondary)] leading-tight whitespace-pre-line">
+                    <div class="pt-3 mt-3 border-t border-white/5 flex flex-col gap-3">
+                        <p class="text-[10px] text-[var(--text-secondary)] leading-tight whitespace-pre-line px-1">
                             ${task.description || "Nenhuma descrição adicional."}
                         </p>
+
+                        <!-- Attachments Area -->
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center justify-between px-1">
+                                <span class="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest">Anexos</span>
+                                <button class="upload-trigger-btn flex items-center gap-1 text-[9px] font-bold text-[var(--action-primary)] border-none bg-transparent cursor-pointer p-0" data-id="${task.id}">
+                                    <span class="material-symbols-outlined text-[14px]">add_circle</span>
+                                    Adicionar
+                                </button>
+                                <input type="file" class="task-file-input hidden" data-id="${task.id}">
+                            </div>
+                            
+                            <div class="attachments-list flex flex-wrap gap-2">
+                                ${
+                                  task.attachments && task.attachments.length
+                                    ? task.attachments
+                                        .map(
+                                          (file, idx) => `
+                                    <div class="attachment-chip flex items-center gap-2 bg-white/5 px-2 py-1.5 rounded-lg group/file max-w-full" title="${file.name}">
+                                        <span class="material-symbols-outlined text-[16px] text-[var(--text-muted)]">
+                                            ${file.type?.includes("image") ? "image" : "description"}
+                                        </span>
+                                        <a href="${file.url}" target="_blank" class="text-[10px] font-medium text-[var(--text-secondary)] truncate hover:text-[var(--action-primary)] transition-colors no-underline">
+                                            ${file.name}
+                                        </a>
+                                        <button class="delete-attachment-btn opacity-0 group-hover/file:opacity-100 p-0.5 text-[var(--text-muted)] hover:text-[var(--status-error)] transition-all border-none bg-transparent cursor-pointer" data-id="${task.id}" data-index="${idx}">
+                                            <span class="material-symbols-outlined text-[14px]">close</span>
+                                        </button>
+                                    </div>
+                                `,
+                                        )
+                                        .join("")
+                                    : `<p class="text-[9px] text-[var(--text-muted)] italic px-1">Nenhum arquivo anexado.</p>`
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -13,6 +13,7 @@ import { Settings } from "../pages/settings.js";
 import { MobileNav } from "../components/mobile-nav.js";
 import { Notifications } from "./notifications.js";
 import { AIService } from "../api/ai-service.js";
+import { storage } from "../api/storage.js";
 
 export class AppEngine {
   constructor() {
@@ -127,6 +128,61 @@ export class AppEngine {
       onEditSubject: (id) =>
         this.showSubjectForm(state.subjects.find((s) => s.id === id)),
       onTestNotifications: () => Notifications.test(),
+      onUploadAttachment: async (taskId, file) => {
+        try {
+          UI.notify("Enviando arquivo...", "info");
+          const attachment = await storage.uploadFile(file, taskId);
+
+          const task = state.tasks.find((t) => t.id === taskId);
+          const attachments = [...(task.attachments || []), attachment];
+
+          await db.updateTask(taskId, { attachments });
+          await this.loadData();
+          this.render();
+          UI.notify("Arquivo anexado com sucesso!", "success");
+        } catch (error) {
+          console.error("Upload error:", error);
+          UI.notify("Erro ao enviar arquivo.", "error");
+        }
+      },
+      onDeleteAttachment: async (taskId, attachmentIndex) => {
+        try {
+          const task = state.tasks.find((t) => t.id === taskId);
+          const attachment = task.attachments[attachmentIndex];
+
+          const { close } = UI.showModal(
+            "Excluir Anexo",
+            `<p class="text-text-secondary">Deseja remover o anexo <strong>"${attachment.name}"</strong>?</p>`,
+            `
+              <button id="confirm-delete-att" class="w-full bg-status-error text-white py-3 rounded-xl font-bold border-none">Excluir</button>
+              <button id="cancel-delete-att" class="w-full bg-surface-subtle text-text-secondary py-3 rounded-xl font-bold border-none">Cancelar</button>
+            `,
+          );
+
+          document.getElementById("confirm-delete-att").onclick = async () => {
+            try {
+              UI.notify("Removendo...", "info");
+              await storage.deleteFile(attachment.path);
+
+              const attachments = task.attachments.filter(
+                (_, i) => i !== attachmentIndex,
+              );
+              await db.updateTask(taskId, { attachments });
+              await this.loadData();
+              this.render();
+              UI.notify("Anexo removido.", "success");
+              close();
+            } catch (err) {
+              console.error("Delete attachment error:", err);
+              UI.notify("Erro ao remover anexo.", "error");
+            }
+          };
+
+          document.getElementById("cancel-delete-att").onclick = close;
+        } catch (error) {
+          console.error("Delete attachment modal error:", error);
+        }
+      },
     };
   }
 

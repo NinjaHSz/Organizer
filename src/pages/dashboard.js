@@ -234,7 +234,34 @@ export const Dashboard = {
           handlers.onToggleTask(id, checkbox.checked);
           return;
         }
+
+        // Attachments
+        if (e.target.closest(".upload-trigger-btn")) {
+          e.stopPropagation();
+          const btn = e.target.closest(".upload-trigger-btn");
+          const input = btn.parentElement.querySelector(".task-file-input");
+          input.click();
+          return;
+        }
+
+        if (e.target.closest(".delete-attachment-btn")) {
+          e.stopPropagation();
+          const btn = e.target.closest(".delete-attachment-btn");
+          const index = parseInt(btn.dataset.index);
+          handlers.onDeleteAttachment(id, index);
+          return;
+        }
       };
+
+      const fileInput = card.querySelector(".task-file-input");
+      if (fileInput) {
+        fileInput.onchange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            handlers.onUploadAttachment(id, file);
+          }
+        };
+      }
     });
   },
 };
