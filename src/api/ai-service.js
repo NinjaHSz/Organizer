@@ -23,7 +23,7 @@ export const AIService = {
       REGRAS DE FORMATAÇÃO DA DESCRIÇÃO:
       - Use quebras de linha reais (\\n) para separar parágrafos e itens.
       - Use pontos (•) no início de cada linha para criar listas de subtópicos.
-      - Se houver datas ou horários extras na imagem, coloque-os na descrição em uma linha separada.
+      - Se houver datas ou horários extras na imagem, coloque-os na descrição em uma linha separada (Use sempre o ano 2026 como padrão para datas).
       - Mantenha o texto bem estruturado e legível.
 
       Estrutura esperada:
