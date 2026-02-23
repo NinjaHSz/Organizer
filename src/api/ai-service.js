@@ -36,7 +36,7 @@ export const AIService = {
       Estrutura esperada:
       {
         "title": "Título curto da tarefa",
-        "description": "Detalhes extras encontrados (formatados com quebras de linha)",
+        "description": "Detalhes extras encontrados (formatados com quebras de linha) (não inclua a data na descrição)",
         "priority": "low | medium | high",
         "due_date": "YYYY-MM-DD" | null,
         "subject_suggestion": "Nome da matéria"
