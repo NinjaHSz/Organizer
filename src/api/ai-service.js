@@ -22,8 +22,9 @@ export const AIService = {
       
       REGRAS DE FORMATAÇÃO DA DESCRIÇÃO:
       - Use quebras de linha reais (\\n) para separar parágrafos e itens.
-      - Identifique EXPLICITAMENTE todas as questões/exercícios (Ex: "1.", "Questão 1", "Q1", "Ex 1").
-      - Formate cada questão em uma nova linha como: "Questão X: [Enunciado/Descrição]".
+      - Identifique as questões e inicie cada uma em uma nova linha com seu identificador original (Ex: "1.", "2.", "Q1.").
+      - Se a questão começar com uma letra (Ex: "a)", "b)"), mantenha a letra na descrição como identificador.
+      - NÃO adicione o prefixo "Questão X:" se a imagem contiver apenas o número. Use apenas o número encontrado (Ex: "1. [Texto]").
       - Use pontos (•) para subtópicos ou itens dentro de uma questão.
       - Se houver datas ou horários extras na imagem, coloque-os na descrição em uma linha separada (Use sempre o ano 2026 como padrão para datas).
       - Mantenha o texto bem estruturado e legível.
