@@ -556,34 +556,49 @@ export class AppEngine {
     ];
 
     const getNextClassDate = (subjectName) => {
-      const dayMap = [
-        "DOMINGO",
-        "SEGUNDA",
-        "TERÇA",
-        "QUARTA",
-        "QUINTA",
-        "SEXTA",
-        "SÁBADO",
-      ];
+      if (!subjectName) return null;
+
+      const normalizedInput = subjectName
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
       const mapping = {
         Artes: "ART",
         Literatura: "LIT",
-        Matemática: "MAT",
+        Matematica: "MAT",
         Biologia: "BIO",
         Geografia: "GEO",
         Filosofia: "FIL",
-        Inglês: "ING",
-        Química: "QUI",
-        Gramática: "GRAM",
-        História: "HIS",
-        Redação: "RED",
-        Física: "FIS",
+        Ingles: "ING",
+        Quimica: "QUI",
+        Gramatica: "GRAM",
+        Historia: "HIS",
+        Redacao: "RED",
+        Reedacao: "RED", // Tratamento de erro comum do usuário
+        Fisica: "FIS",
         Sociologia: "SOC",
         Espanhol: "ESP",
-        "Ed. Física": "ED.FIS",
+        "Ed. Fisica": "ED.FIS",
       };
 
-      const sigla = mapping[subjectName];
+      // Busca a sigla de forma mais flexível
+      let sigla = null;
+      for (const [key, value] of Object.entries(mapping)) {
+        const normalizedKey = key
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+        if (
+          normalizedInput.includes(normalizedKey) ||
+          normalizedKey.includes(normalizedInput)
+        ) {
+          sigla = value;
+          break;
+        }
+      }
+
       if (!sigla) return null;
 
       const daysWithClass = [];
@@ -599,7 +614,10 @@ export class AppEngine {
       const now = new Date();
       let nextDate = new Date();
 
+      // Busca o próximo dia da semana que tem essa aula (incluindo hoje se o horário ainda não passou)
+      // Para simplificar e garantir a sugestão de "próxima aula", começamos de amanhã ou verificamos os próximos 7 dias
       for (let i = 1; i <= 7; i++) {
+        nextDate = new Date();
         nextDate.setDate(now.getDate() + i);
         if (daysWithClass.includes(nextDate.getDay())) {
           return nextDate.toISOString().split("T")[0];

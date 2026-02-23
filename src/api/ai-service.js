@@ -25,6 +25,11 @@ export const AIService = {
       - Use pontos (•) no início de cada linha para criar listas de subtópicos.
       - Se houver datas ou horários extras na imagem, coloque-os na descrição em uma linha separada (Use sempre o ano 2026 como padrão para datas).
       - Mantenha o texto bem estruturado e legível.
+      - Se houver números de questões (Ex: 1. Questão 1, 2. Questão 2, etc), coloque-os em cada questão.
+
+      REGRAS DE CONTEÚDO:
+      - "due_date": SÓ preencha se houver uma data de entrega EXPLICITAMENTE escrita na imagem. Caso contrário, retorne null. NUNCA tente adivinhar a data.
+      - "subject_suggestion": Sugira o nome da matéria com base no contexto do texto.
 
       Estrutura esperada:
       {
