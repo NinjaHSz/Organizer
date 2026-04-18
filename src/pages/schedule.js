@@ -11,38 +11,38 @@ export const Schedule = {
       {
         aula: "1ª AULA",
         horario: ["07:10", "07:55"],
-        dias: ["ING", "LIT", "MAT", "QUI", "MAT"],
+        dias: ["MAT", "BIO", "ED.FIS", "FIS", "QUIM"],
       },
       {
         aula: "2ª AULA",
         horario: ["07:55", "08:40"],
-        dias: ["BIO", "QUI", "SOC", "FIS", "MAT"],
+        dias: ["ING", "ING", "GRAM", "FIS", "QUIM"],
       },
       {
         aula: "3ª AULA",
         horario: ["08:40", "09:25"],
-        dias: ["BIO", "QUI", "ETC", "FIS", "ESP"],
+        dias: ["FIL", "MAT", "ETC", "GEO", "LIT"],
+      },
+      {
+        aula: "4ª AULA",
+        horario: ["09:25", "10:10"],
+        dias: ["RED", "MAT", "GEO", "GRAM", "LIT"],
       },
       {
         aula: "INTERVALO",
-        horario: ["09:25", "09:45"],
+        horario: ["10:10", "10:30"],
         dias: ["INTERVALO", "INTERVALO", "INTERVALO", "INTERVALO", "INTERVALO"],
         isInterval: true,
       },
       {
-        aula: "4ª AULA",
-        horario: ["09:45", "10:30"],
-        dias: ["MAT", "FIS", "ED.FIS", "GEO", "HIS"],
-      },
-      {
         aula: "5ª AULA",
         horario: ["10:30", "11:15"],
-        dias: ["ING", "FIL", "HIS", "GRAM", "BIO"],
+        dias: ["BIO", "SOCIO", "HIS", "ESP", "FIS"],
       },
       {
         aula: "6ª AULA",
         horario: ["11:15", "12:00"],
-        dias: ["RED", "ART", "GEO", "GRAM", "LIT"],
+        dias: ["ART", "QUIM", "BIO", "MAT", "HIS"],
       },
       {
         aula: "7ª AULA",
