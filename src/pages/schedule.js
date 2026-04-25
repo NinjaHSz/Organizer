@@ -11,12 +11,12 @@ export const Schedule = {
       {
         aula: "1ª AULA",
         horario: ["07:10", "07:55"],
-        dias: ["MAT", "BIO", "ED.FIS", "FIS", "QUIM"],
+        dias: ["MAT", "BIO", "ED.FIS", "FIS", "QUI"],
       },
       {
         aula: "2ª AULA",
         horario: ["07:55", "08:40"],
-        dias: ["ING", "ING", "GRAM", "FIS", "QUIM"],
+        dias: ["ING", "ING", "GRAM", "FIS", "QUI"],
       },
       {
         aula: "3ª AULA",
@@ -37,12 +37,12 @@ export const Schedule = {
       {
         aula: "5ª AULA",
         horario: ["10:30", "11:15"],
-        dias: ["BIO", "SOCIO", "HIS", "ESP", "FIS"],
+        dias: ["BIO", "SOC", "HIS", "ESP", "FIS"],
       },
       {
         aula: "6ª AULA",
         horario: ["11:15", "12:00"],
-        dias: ["ART", "QUIM", "BIO", "MAT", "HIS"],
+        dias: ["ART", "QUI", "BIO", "MAT", "HIS"],
       },
       {
         aula: "7ª AULA",
