@@ -8,9 +8,10 @@ export interface AIParsedTask {
 
 export const aiService = {
   async processImage(base64Image: string): Promise<AIParsedTask> {
-    const apiKey =
-      (import.meta.env.VITE_OPENROUTER_API_KEY as string) ||
-      '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';
+    const apiKey = (import.meta.env.VITE_OPENROUTER_API_KEY as string) || '';
+    if (!apiKey) {
+      throw new Error('Chave de API do OpenRouter não configurada. Defina VITE_OPENROUTER_API_KEY no arquivo .env');
+    }
     const primaryModel =
       (import.meta.env.VITE_OPENROUTER_MODEL as string) || 'google/gemini-2.5-flash';
     const fallbackModel = 'google/gemini-2.5-flash-lite';

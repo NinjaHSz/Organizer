@@ -32,13 +32,15 @@ export const SettingsPage: React.FC = () => {
   const [supabaseUrl, setSupabaseUrl] = useState<string>(() => {
     return (
       localStorage.getItem('supabase_url') ||
-      'https://sywueeqbijwdjjleyzbo.supabase.co'
+      import.meta.env.VITE_SUPABASE_URL ||
+      ''
     );
   });
   const [supabaseKey, setSupabaseKey] = useState<string>(() => {
     return (
       localStorage.getItem('supabase_key') ||
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5d3VlZXFiaWp3ZGpqbGV5emJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NTYwMTksImV4cCI6MjA4NDIzMjAxOX0.LtUDmZ5MIxTAuf8L9TZFvYKo8HY6TngiJyVRouln85Q'
+      import.meta.env.VITE_SUPABASE_ANON_KEY ||
+      ''
     );
   });
 

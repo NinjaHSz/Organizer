@@ -2,11 +2,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Task } from '../types/task';
 import { Subject } from '../types/subject';
 
-const DEFAULT_SUPABASE_URL =
-  import.meta.env.VITE_SUPABASE_URL || 'https://sywueeqbijwdjjleyzbo.supabase.co';
-const DEFAULT_SUPABASE_KEY =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5d3VlZXFiaWp3ZGpqbGV5emJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NTYwMTksImV4cCI6MjA4NDIzMjAxOX0.LtUDmZ5MIxTAuf8L9TZFvYKo8HY6TngiJyVRouln85Q';
+const DEFAULT_SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const DEFAULT_SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 let clientInstance: SupabaseClient | null = null;
 
