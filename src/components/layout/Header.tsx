@@ -50,7 +50,7 @@ export const Header: React.FC = () => {
   const pageInfo = getPageInfo();
 
   return (
-    <header className="sticky top-0 z-30 bg-[var(--surface-page)]/85 ios-blur border-b border-[var(--border-subtle)] px-4 md:px-8 py-3.5 transition-all">
+    <header className="sticky top-0 z-30 bg-[var(--surface-page)]/85 ios-blur px-4 md:px-8 py-3.5 transition-all">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         {/* Title or Mobile Search Input */}
         {!isSearchOpen ? (
@@ -160,7 +160,7 @@ export const Header: React.FC = () => {
               {/* Quick AI Scanner (Desktop + Tablet) */}
               <button
                 onClick={openAIScannerModal}
-                className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)] text-[var(--action-primary)] border border-[var(--border-subtle)] text-xs font-bold transition-all shadow-sm active:scale-95"
+                className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)] text-[var(--action-primary)] text-xs font-bold transition-all shadow-sm active:scale-95"
               >
                 <Sparkles size={15} />
                 <span>Escanear IA</span>

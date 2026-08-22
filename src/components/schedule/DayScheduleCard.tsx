@@ -31,7 +31,7 @@ export const DayScheduleCard: React.FC = () => {
               className={`flex-1 py-2.5 px-3 rounded-2xl text-xs font-bold transition-all duration-200 shrink-0 text-center relative ${
                 isSelected
                   ? 'bg-[var(--action-primary)] text-white shadow-md shadow-[var(--action-primary)]/20 scale-105'
-                  : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]'
+                  : 'bg-[var(--surface-card)] text-[var(--text-secondary)]'
               }`}
             >
               <div>{abbr}</div>
@@ -73,7 +73,7 @@ export const DayScheduleCard: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-between"
+                className="p-3.5 rounded-lg bg-amber-500/10 flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
                   <div className="size-9 rounded-md bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
@@ -102,10 +102,10 @@ export const DayScheduleCard: React.FC = () => {
           return (
             <div
               key={idx}
-              className={`p-4 rounded-lg bg-[var(--surface-card)] border transition-all ${
+              className={`p-4 rounded-lg bg-[var(--surface-card)] transition-all ${
                 isActive
-                  ? 'border-[var(--action-primary)] ring-2 ring-[var(--action-primary)]/20 shadow-md shadow-[var(--action-primary)]/10 scale-[1.01]'
-                  : 'border-[var(--border-subtle)] shadow-xs'
+                  ? 'ring-2 ring-[var(--action-primary)]/40 shadow-md shadow-[var(--action-primary)]/10 scale-[1.01]'
+                  : 'shadow-xs'
               }`}
             >
               <div className="flex items-center justify-between">

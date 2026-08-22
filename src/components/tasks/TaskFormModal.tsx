@@ -167,7 +167,7 @@ export const TaskFormModal: React.FC = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ex: Exercícios de Matemática pág. 42"
-              className="flex-1 min-w-0 bg-[var(--surface-subtle)] text-[var(--text-primary)] px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold outline-none border border-[var(--border-subtle)] focus:border-[var(--action-primary)] focus:bg-[var(--surface-card)] transition-all"
+              className="flex-1 min-w-0 bg-[var(--surface-subtle)] text-[var(--text-primary)] px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold outline-none border border-transparent focus:border-[var(--action-primary)] focus:bg-[var(--surface-card)] transition-all"
             />
             <button
               type="button"
@@ -175,7 +175,7 @@ export const TaskFormModal: React.FC = () => {
                 closeTaskModal();
                 openAIScannerModal();
               }}
-              className="p-2 sm:p-2.5 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--action-primary)]/15 text-[var(--action-primary)] border border-[var(--border-subtle)] hover:border-[var(--action-primary)]/40 transition-all flex items-center justify-center shrink-0 active:scale-95 shadow-xs cursor-pointer"
+              className="p-2 sm:p-2.5 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--action-primary)]/15 text-[var(--action-primary)] transition-all flex items-center justify-center shrink-0 active:scale-95 shadow-xs cursor-pointer"
               title="Escanear com IA (Foto do Caderno / Quadro)"
             >
               <Camera size={17} className="stroke-[2.2]" />
@@ -193,7 +193,7 @@ export const TaskFormModal: React.FC = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Detalhes adicionais, itens de checklist, questões ou orientações..."
-            className="w-full bg-[var(--surface-subtle)] text-[var(--text-primary)] px-3.5 py-2 rounded-xl text-xs outline-none border border-[var(--border-subtle)] focus:border-[var(--action-primary)] focus:bg-[var(--surface-card)] transition-all resize-none max-h-16"
+            className="w-full bg-[var(--surface-subtle)] text-[var(--text-primary)] px-3.5 py-2 rounded-xl text-xs outline-none border border-transparent focus:border-[var(--action-primary)] focus:bg-[var(--surface-card)] transition-all resize-none max-h-16"
           />
         </div>
 
@@ -270,10 +270,10 @@ export const TaskFormModal: React.FC = () => {
                   type="button"
                   key={p.id}
                   onClick={() => setPriority(p.id)}
-                  className={`py-1.5 px-2.5 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`py-1.5 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     isSelected
-                      ? 'border-[var(--action-primary)] bg-[var(--action-primary)]/10 text-[var(--text-primary)] shadow-xs'
-                      : 'border-[var(--border-subtle)] bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-card)]'
+                      ? 'bg-[var(--action-primary)]/15 text-[var(--action-primary)] shadow-xs ring-2 ring-[var(--action-primary)]/30'
+                      : 'bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]/80'
                   }`}
                 >
                   <span className={`size-2 rounded-full ${p.color}`} />
@@ -334,7 +334,7 @@ export const TaskFormModal: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="p-2 rounded-lg border border-dashed border-[var(--border-subtle)] text-center text-[11px] text-[var(--text-muted)]">
+            <div className="p-2 rounded-lg bg-[var(--surface-subtle)]/40 text-center text-[11px] text-[var(--text-muted)]">
               Nenhum arquivo anexado
             </div>
           )}

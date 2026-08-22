@@ -66,7 +66,7 @@ export const CalendarGrid: React.FC = () => {
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-7 border border-[var(--border-subtle)] shadow-xs">
+    <div className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-7 shadow-xs">
       {/* Month & Navigation Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -128,10 +128,10 @@ export const CalendarGrid: React.FC = () => {
               <button
                 key={`${rowIdx}-${colIdx}`}
                 onClick={() => setSelectedCalendarDate(dateStr)}
-                className={`h-14 sm:h-20 rounded-2xl p-1.5 sm:p-2 flex flex-col items-center justify-between transition-all relative border ${
+                className={`h-14 sm:h-20 rounded-2xl p-1.5 sm:p-2 flex flex-col items-center justify-between transition-all relative outline-none focus-visible:ring-2 focus-visible:ring-[var(--action-primary)] ${
                   isSelected
-                    ? 'border-[var(--action-primary)] bg-[var(--action-primary)]/10 shadow-md ring-2 ring-[var(--action-primary)]/20'
-                    : 'border-transparent hover:bg-[var(--surface-subtle)]/70'
+                    ? 'bg-[var(--action-primary)]/10 shadow-md ring-2 ring-[var(--action-primary)]/40'
+                    : 'hover:bg-[var(--surface-subtle)]/70'
                 }`}
               >
                 {/* Day number */}

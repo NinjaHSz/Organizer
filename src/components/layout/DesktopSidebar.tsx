@@ -49,7 +49,7 @@ export const DesktopSidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-[var(--surface-card)] shrink-0 z-40 border-r border-[var(--border-subtle)] h-screen sticky top-0">
+    <aside className="hidden lg:flex flex-col w-64 bg-[var(--surface-card)] shrink-0 z-40 h-screen sticky top-0">
       {/* Brand */}
       <div className="p-6 flex items-center gap-3">
         <div className="size-10 rounded-xl bg-[var(--action-primary)]/15 flex items-center justify-center text-[var(--action-primary)] shrink-0 shadow-inner">
@@ -121,7 +121,7 @@ export const DesktopSidebar: React.FC = () => {
       </nav>
 
       {/* AI Scanner Banner in Sidebar */}
-      <div className="p-4 m-4 rounded-xl bg-gradient-to-br from-[var(--action-primary)]/10 to-[var(--action-primary)]/5 border border-[var(--action-primary)]/20">
+      <div className="p-4 m-4 rounded-xl bg-gradient-to-br from-[var(--action-primary)]/10 to-[var(--action-primary)]/5">
         <div className="flex items-center gap-2 text-[var(--action-primary)] font-bold text-xs mb-1">
           <Sparkles size={15} />
           <span>Scanner com IA</span>

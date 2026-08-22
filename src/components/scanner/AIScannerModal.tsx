@@ -146,7 +146,7 @@ export const AIScannerModal: React.FC = () => {
       {!imagePreview ? (
         /* Upload Area */
         <div className="space-y-4">
-          <div className="border-2 border-dashed border-[var(--border-subtle)] hover:border-[var(--action-primary)] rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-colors bg-[var(--surface-subtle)]/30 group">
+          <div className="rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-colors bg-[var(--surface-subtle)]/50 group">
             <h4 className="text-base font-bold text-[var(--text-primary)] mb-1">
               Envie uma foto do seu caderno ou quadro
             </h4>
@@ -171,7 +171,7 @@ export const AIScannerModal: React.FC = () => {
               </label>
 
               {/* Upload from Gallery */}
-              <label className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] text-xs font-bold hover:bg-[var(--surface-subtle)] active:scale-95 transition-all cursor-pointer shadow-xs text-center">
+              <label className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[var(--surface-card)] text-[var(--text-primary)] text-xs font-bold hover:bg-[var(--surface-subtle)] active:scale-95 transition-all cursor-pointer shadow-xs text-center">
                 <UploadCloud size={16} />
                 <span>Escolher da Galeria</span>
                 <input
@@ -208,7 +208,7 @@ export const AIScannerModal: React.FC = () => {
       ) : parsedResult ? (
         /* Parsed Result Review & Edit */
         <div className="space-y-4 animate-fade-in">
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
             <div className="flex items-center gap-2">
               <CheckCircle size={16} />
               <span>Tarefa extraída com sucesso! Revise os detalhes abaixo:</span>

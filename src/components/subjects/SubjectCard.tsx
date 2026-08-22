@@ -48,7 +48,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
   const subjectAbbr = (subject.name || 'MAT').trim().substring(0, 3).toUpperCase();
 
   return (
-    <div className="group relative bg-[var(--surface-card)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--action-primary)]/35 shadow-xs hover:shadow-card transition-all duration-200 overflow-hidden">
+    <div className="group relative bg-[var(--surface-card)] rounded-lg shadow-xs hover:shadow-card transition-all duration-200 overflow-hidden">
       {/* Left Subject Color Indicator Pill (2px offset) */}
       <div
         className="absolute left-[2px] top-1.5 bottom-1.5 w-1 rounded-full transition-colors duration-200"
@@ -117,7 +117,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
 
         {/* Expandable Subtask Details Section */}
         {isExpanded && (
-          <div className="mt-2.5 pt-2.5 border-t border-[var(--separator)] animate-fade-in space-y-2">
+          <div className="mt-2.5 pt-2.5 animate-fade-in space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[10px] sm:text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                 Tarefas da matéria ({subjectTasks.length})
@@ -142,7 +142,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
                   return (
                     <div
                       key={t.id}
-                      className="flex items-center gap-2.5 p-2 rounded-lg bg-[var(--surface-subtle)]/60 hover:bg-[var(--surface-subtle)] border border-[var(--border-subtle)]/60 transition-colors"
+                      className="flex items-center gap-2.5 p-2 rounded-lg bg-[var(--surface-subtle)]/60 hover:bg-[var(--surface-subtle)] transition-colors"
                     >
                       <button
                         type="button"
@@ -150,10 +150,10 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
                           e.stopPropagation();
                           toggleTaskDone(t.id);
                         }}
-                        className={`size-5 rounded-full border-[1.5px] flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                        className={`size-5 rounded-full flex items-center justify-center transition-all shrink-0 cursor-pointer ${
                           isDone
-                            ? 'bg-emerald-500 border-emerald-500 text-white ring-1 ring-emerald-500/20'
-                            : 'border-[var(--border-subtle)] hover:border-[var(--action-primary)]'
+                            ? 'bg-emerald-500 text-white ring-1 ring-emerald-500/20'
+                            : 'bg-[var(--surface-subtle)] hover:bg-[var(--surface-subtle)]/80 text-transparent'
                         }`}
                       >
                         {isDone && <Check size={11} className="stroke-[3.5]" />}

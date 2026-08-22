@@ -67,7 +67,7 @@ export const TaskFilters: React.FC = () => {
   return (
     <div className="mb-4 space-y-3 w-full max-w-md">
       {/* KPI Card: Porcentagem de Conclusão */}
-      <div className="p-3.5 sm:p-4 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xs">
+      <div className="p-3.5 sm:p-4 rounded-lg bg-[var(--surface-card)] shadow-xs">
         <div className="flex items-center justify-between gap-3 mb-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="size-8 rounded-md bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
@@ -102,7 +102,7 @@ export const TaskFilters: React.FC = () => {
       </div>
 
       {/* 3-Segment Grid Filter Control */}
-      <div className="grid grid-cols-3 gap-1 p-1 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] w-full overflow-hidden shadow-xs">
+      <div className="grid grid-cols-3 gap-1 p-1 rounded-lg bg-[var(--surface-card)] w-full overflow-hidden shadow-xs">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = filters.category === tab.id;

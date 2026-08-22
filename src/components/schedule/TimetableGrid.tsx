@@ -20,12 +20,12 @@ export const TimetableGrid: React.FC = () => {
   }, []);
 
   return (
-    <div className="hidden md:block bg-[var(--surface-card)] rounded-lg border border-[var(--border-subtle)] shadow-xs overflow-hidden">
+    <div className="hidden md:block bg-[var(--surface-card)] rounded-lg shadow-xs overflow-hidden">
       <div className="overflow-x-auto no-scrollbar">
         <table className="w-full text-left border-collapse min-w-[700px]">
           {/* Table Header */}
           <thead>
-            <tr className="border-b border-[var(--separator)] bg-[var(--surface-subtle)]/50">
+            <tr className="bg-[var(--surface-subtle)]/50">
               <th className="py-4 px-5 text-[11px] font-black uppercase tracking-widest text-[var(--text-muted)] w-28">
                 Horário
               </th>
@@ -53,7 +53,7 @@ export const TimetableGrid: React.FC = () => {
           </thead>
 
           {/* Table Body */}
-          <tbody className="divide-y divide-[var(--separator)]">
+          <tbody>
             {TIMETABLE_DATA.map((row, rowIdx) => {
               const isActiveSlot = isTimeInRange(row.horario);
 
@@ -120,14 +120,13 @@ export const TimetableGrid: React.FC = () => {
                         }`}
                       >
                         <div
-                          className={`p-2.5 rounded-xl border flex flex-col gap-0.5 transition-all ${
+                          className={`p-2.5 rounded-xl flex flex-col gap-0.5 transition-all ${
                             isLive
                               ? 'ring-2 ring-[var(--action-primary)] shadow-md scale-105'
                               : ''
                           }`}
                           style={{
                             backgroundColor: `${meta?.color || '#888'}15`,
-                            borderColor: `${meta?.color || '#888'}35`,
                           }}
                         >
                           <div className="flex items-center justify-between">

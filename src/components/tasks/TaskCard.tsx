@@ -107,17 +107,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
   return (
     <div
-      className={`group relative bg-[var(--surface-card)] rounded-lg border transition-all duration-200 overflow-hidden shadow-xs hover:shadow-card ${
-        isDone
-          ? 'border-[var(--border-subtle)] bg-[var(--surface-card)]/50 opacity-60'
-          : 'border-[var(--border-subtle)] hover:border-[var(--action-primary)]/35'
+      className={`group relative bg-[var(--surface-card)] rounded-lg transition-all duration-200 overflow-hidden shadow-xs hover:shadow-card ${
+        isDone ? 'bg-[var(--surface-card)]/50 opacity-60' : ''
       }`}
     >
-      {/* Left Priority Indicator (2px distance offset from outer border) */}
+      {/* Left Priority Indicator (2px distance offset from left) */}
       <div
         className="absolute left-[2px] top-1.5 bottom-1.5 w-1 rounded-full transition-colors duration-200"
         style={{
-          backgroundColor: isDone ? 'var(--border-subtle)' : priorityColor,
+          backgroundColor: isDone ? 'var(--text-muted)' : priorityColor,
         }}
       />
 
@@ -131,10 +129,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               e.stopPropagation();
               toggleTaskDone(task.id);
             }}
-            className={`size-7 rounded-full border-[1.8px] flex items-center justify-center transition-all duration-200 shrink-0 shadow-2xs active:scale-90 cursor-pointer ${
+            className={`size-7 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 shadow-2xs active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--action-primary)] outline-none ${
               isDone
-                ? 'bg-emerald-500 border-emerald-500 text-white ring-2 ring-emerald-500/20'
-                : 'border-[var(--border-subtle)] bg-transparent hover:border-[var(--action-primary)]'
+                ? 'bg-emerald-500 text-white ring-2 ring-emerald-500/20'
+                : 'bg-[var(--surface-subtle)] hover:bg-[var(--surface-subtle)]/80 text-transparent'
             }`}
             title={isDone ? 'Marcar como pendente' : 'Concluir tarefa'}
           >
@@ -230,7 +228,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
         {/* Expandable Details Section */}
         {isExpanded && (
-          <div className="mt-2.5 pt-2.5 border-t border-[var(--separator)] animate-fade-in space-y-2 pl-8">
+          <div className="mt-2.5 pt-2.5 animate-fade-in space-y-2 pl-8">
             {/* Full Formatted Description */}
             {task.description ? (
               <p className="text-xs text-[var(--text-secondary)] whitespace-pre-line leading-relaxed">

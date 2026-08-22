@@ -20,7 +20,7 @@ export const QuickActionFAB: React.FC = () => {
               setIsOpen(false);
               openAIScannerModal();
             }}
-            className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[var(--surface-card)] text-[var(--text-primary)] shadow-xl border border-[var(--border-subtle)] hover:bg-[var(--surface-subtle)] active:scale-95 transition-all text-xs font-bold group"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[var(--surface-card)] text-[var(--text-primary)] shadow-xl hover:bg-[var(--surface-subtle)] active:scale-95 transition-all text-xs font-bold group"
           >
             <span className="text-[var(--text-primary)]">Escanear Caderno com IA</span>
             <div className="size-9 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 text-white flex items-center justify-center shadow-md">
@@ -34,7 +34,7 @@ export const QuickActionFAB: React.FC = () => {
               setIsOpen(false);
               openNewTaskModal();
             }}
-            className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[var(--surface-card)] text-[var(--text-primary)] shadow-xl border border-[var(--border-subtle)] hover:bg-[var(--surface-subtle)] active:scale-95 transition-all text-xs font-bold group"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[var(--surface-card)] text-[var(--text-primary)] shadow-xl hover:bg-[var(--surface-subtle)] active:scale-95 transition-all text-xs font-bold group"
           >
             <span className="text-[var(--text-primary)]">Nova Tarefa Manual</span>
             <div className="size-9 rounded-xl bg-[var(--action-primary)] text-white flex items-center justify-center shadow-md">
@@ -48,7 +48,7 @@ export const QuickActionFAB: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`size-14 rounded-full bg-[var(--action-primary)] text-white shadow-xl shadow-[var(--action-primary)]/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300 ${
-          isOpen ? 'rotate-45 bg-[var(--surface-card)] !text-[var(--text-primary)] border border-[var(--border-subtle)]' : ''
+          isOpen ? 'rotate-45 bg-[var(--surface-card)] !text-[var(--text-primary)]' : ''
         }`}
         title={isOpen ? 'Fechar' : 'Adicionar'}
       >

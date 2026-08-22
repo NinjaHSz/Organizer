@@ -150,7 +150,7 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
       {/* Trigger Button */}
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between gap-2.5 bg-[var(--surface-subtle)] text-[var(--text-primary)] font-medium outline-none border border-[var(--border-subtle)] hover:border-[var(--action-primary)]/40 focus:border-[var(--action-primary)] transition-all cursor-pointer shadow-xs select-none ${sizeClasses} ${
+        className={`w-full flex items-center justify-between gap-2.5 bg-[var(--surface-subtle)] text-[var(--text-primary)] font-medium outline-none border border-transparent focus:border-[var(--action-primary)] transition-all cursor-pointer shadow-xs select-none ${sizeClasses} ${
           isOpen ? 'ring-2 ring-[var(--action-primary)]/20 border-[var(--action-primary)]' : ''
         }`}
       >
@@ -189,9 +189,9 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
 
       {/* Floating Interactive Date Picker Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1.5 z-50 bg-[var(--surface-card)]/95 ios-blur border border-[var(--border-subtle)] rounded-xl shadow-2xl p-3.5 w-72 sm:w-80 animate-scale-in">
+        <div className="absolute top-full left-0 mt-1.5 z-50 bg-[var(--surface-card)]/95 ios-blur rounded-xl shadow-2xl p-3.5 w-72 sm:w-80 animate-scale-in">
           {/* Quick Shortcuts */}
-          <div className="flex items-center gap-1.5 pb-2.5 mb-2.5 border-b border-[var(--separator)] overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1.5 pb-2.5 mb-2.5 overflow-x-auto no-scrollbar">
             <button
               type="button"
               onClick={() => selectQuickDate(0)}

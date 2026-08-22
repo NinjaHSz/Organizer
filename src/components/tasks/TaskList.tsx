@@ -105,7 +105,7 @@ export const TaskList: React.FC = () => {
           </button>
           <button
             onClick={openAIScannerModal}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--surface-card)] text-[var(--action-primary)] border border-[var(--border-subtle)] text-xs font-bold hover:bg-[var(--surface-subtle)] active:scale-95 transition-all shadow-xs"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--surface-card)] text-[var(--action-primary)] text-xs font-bold hover:bg-[var(--surface-subtle)] active:scale-95 transition-all shadow-xs"
           >
             <Sparkles size={15} />
             <span>Escanear com IA</span>

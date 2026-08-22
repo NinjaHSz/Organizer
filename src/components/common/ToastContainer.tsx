@@ -29,7 +29,7 @@ export const ToastContainer: React.FC = () => {
               };
             default:
               return {
-                bg: 'bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-subtle)]',
+                bg: 'bg-[var(--surface-card)] text-[var(--text-primary)]',
                 icon: <Info size={18} className="text-[var(--action-primary)] shrink-0" />,
               };
           }

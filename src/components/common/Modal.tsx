@@ -41,13 +41,13 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* Modal Card */}
       <div
-        className={`relative w-full ${maxWidth} bg-[var(--surface-card)] rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden z-10 animate-slide-up sm:animate-scale-in border border-[var(--border-subtle)] max-h-[92vh] flex flex-col`}
+        className={`relative w-full ${maxWidth} bg-[var(--surface-card)] rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden z-10 animate-slide-up sm:animate-scale-in max-h-[92vh] flex flex-col`}
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[var(--separator)] shrink-0">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 shrink-0">
           <div>
             <h3 className="text-lg font-bold text-[var(--text-primary)]">{title}</h3>
             {subtitle && (

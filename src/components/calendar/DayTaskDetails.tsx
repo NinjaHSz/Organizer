@@ -21,9 +21,9 @@ export const DayTaskDetails: React.FC = () => {
     new Date().toISOString().split('T')[0] === selectedCalendarDate;
 
   return (
-    <div className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-7 border border-[var(--border-subtle)] shadow-xs flex flex-col h-full">
+    <div className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-7 shadow-xs flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 mb-4 border-b border-[var(--separator)]">
+      <div className="flex items-center justify-between pb-4 mb-4">
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] capitalize">

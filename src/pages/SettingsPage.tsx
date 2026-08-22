@@ -81,7 +81,7 @@ export const SettingsPage: React.FC = () => {
         {/* Left Column */}
         <div className="space-y-6">
           {/* Aparência */}
-          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs">
+          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 shadow-xs">
             <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-secondary)] mb-4 flex items-center gap-2">
               <Moon size={15} />
               <span>Aparência</span>
@@ -113,7 +113,7 @@ export const SettingsPage: React.FC = () => {
           </section>
 
           {/* Personalização / Cores de Destaque */}
-          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs">
+          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 shadow-xs">
             <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-secondary)] mb-4 flex items-center gap-2">
               <Palette size={15} />
               <span>Cor de Destaque (Accent Color)</span>
@@ -149,7 +149,7 @@ export const SettingsPage: React.FC = () => {
         {/* Right Column */}
         <div className="space-y-6">
           {/* Notificações PWA */}
-          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs">
+          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 shadow-xs">
             <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-secondary)] mb-4 flex items-center gap-2">
               <Bell size={15} />
               <span>Notificações & Lembretes</span>
@@ -181,7 +181,7 @@ export const SettingsPage: React.FC = () => {
               </div>
 
               {/* Time Selector */}
-              <div className="pt-2 border-t border-[var(--separator)] flex items-center justify-between">
+              <div className="pt-2 flex items-center justify-between">
                 <span className="text-xs font-bold text-[var(--text-primary)]">
                   Horário do Resumo Matinal
                 </span>
@@ -189,14 +189,14 @@ export const SettingsPage: React.FC = () => {
                   type="time"
                   value={notifTime}
                   onChange={(e) => handleNotifTimeChange(e.target.value)}
-                  className="bg-[var(--surface-subtle)] text-[var(--text-primary)] px-3 py-1.5 rounded-xl text-xs font-bold outline-none border border-[var(--border-subtle)] cursor-pointer"
+                  className="bg-[var(--surface-subtle)] text-[var(--text-primary)] px-3 py-1.5 rounded-xl text-xs font-bold outline-none border border-transparent focus:border-[var(--action-primary)] cursor-pointer"
                 />
               </div>
 
               {/* Test Button */}
               <button
                 onClick={handleTestNotification}
-                className="w-full py-2.5 px-4 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-subtle)]/80 text-[var(--text-primary)] text-xs font-bold transition-all flex items-center justify-center gap-2 border border-[var(--border-subtle)]"
+                className="w-full py-2.5 px-4 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-subtle)]/80 text-[var(--text-primary)] text-xs font-bold transition-all flex items-center justify-center gap-2"
               >
                 <Send size={14} />
                 <span>Testar Notificação Agora</span>
@@ -205,7 +205,7 @@ export const SettingsPage: React.FC = () => {
           </section>
 
           {/* Manutenção de Cache & Dados Locais */}
-          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs">
+          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 shadow-xs">
             <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-secondary)] mb-4 flex items-center gap-2">
               <Trash2 size={15} />
               <span>Armazenamento & Cache Offline</span>
@@ -217,7 +217,7 @@ export const SettingsPage: React.FC = () => {
 
             <button
               onClick={handleClearCache}
-              className="py-2.5 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-xs font-bold transition-colors flex items-center gap-2 border border-rose-500/20"
+              className="py-2.5 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-xs font-bold transition-colors flex items-center gap-2"
             >
               <Trash2 size={14} />
               <span>Limpar Cache Offline</span>
@@ -225,7 +225,7 @@ export const SettingsPage: React.FC = () => {
           </section>
 
           {/* Informações da Aplicação */}
-          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs">
+          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 shadow-xs">
             <div className="flex items-center gap-3">
               <div className="size-10 rounded-2xl bg-[var(--action-primary)]/10 text-[var(--action-primary)] flex items-center justify-center">
                 <Info size={20} />

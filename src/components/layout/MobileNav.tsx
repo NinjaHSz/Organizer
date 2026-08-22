@@ -14,7 +14,7 @@ export const MobileNav: React.FC = () => {
   const pendingCount = tasks.length - completedTaskIds.length;
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-card)]/90 ios-blur border-t border-[var(--border-subtle)] pb-safe">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-card)]/90 ios-blur pb-safe">
       <nav className="flex items-center justify-between px-3 py-1.5 max-w-lg mx-auto">
         {/* Início / Dashboard */}
         <button
@@ -31,7 +31,7 @@ export const MobileNav: React.FC = () => {
               className={activePage === 'dashboard' ? 'stroke-[2.5]' : 'stroke-2'}
             />
             {pendingCount > 0 && (
-              <span className="absolute -top-1 -right-2 size-4 bg-[var(--action-primary)] text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-[var(--surface-card)]">
+              <span className="absolute -top-1 -right-2 size-4 bg-[var(--action-primary)] text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-xs">
                 {pendingCount > 9 ? '9+' : pendingCount}
               </span>
             )}
@@ -65,7 +65,7 @@ export const MobileNav: React.FC = () => {
         <div className="flex-1 flex items-center justify-center -translate-y-2">
           <button
             onClick={() => openNewTaskModal()}
-            className="size-11 rounded-full bg-[var(--action-primary)] text-white shadow-lg shadow-[var(--action-primary)]/35 flex items-center justify-center active:scale-90 hover:scale-105 transition-all border-2 border-[var(--surface-card)] cursor-pointer"
+            className="size-11 rounded-full bg-[var(--action-primary)] text-white shadow-lg shadow-[var(--action-primary)]/35 flex items-center justify-center active:scale-90 hover:scale-105 transition-all cursor-pointer"
             title="Adicionar Nova Tarefa"
           >
             <Plus size={24} className="stroke-[3]" />
