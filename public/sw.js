@@ -1,147 +1,127 @@
-const VERSION = "1.3.0";
-const DB_NAME = "organizer-sw-db";
-const STORE_NAME = "config";
+// Organizer Service Worker - High-Performance Auto-Updating PWA
+const BUILD_ID = '__SW_BUILD_ID__';
+const VERSION = BUILD_ID.startsWith('__') ? '2.0.0-dev' : BUILD_ID;
+const CACHE_NAME = `organizer-cache-${VERSION}`;
+const DB_NAME = 'organizer-sw-db';
+const STORE_NAME = 'config';
 
-const CACHE_NAME = `organizer-cache-v${VERSION}`;
-const ASSETS_TO_CACHE = [
-  "/",
-  "/index.html",
-  "/manifest.json",
-  "/assets/div.ico",
-  "/src/main.js",
-  "/src/styles/main.css",
-  "/src/api/database.js",
-  "/src/api/ai-service.js",
-  "/src/components/mobile-nav.js",
-  "/src/components/ui.js",
-  "/src/core/app-engine.js",
-  "/src/core/nav-state.js",
-  "/src/core/notifications.js",
-  "/src/core/state.js",
-  "/src/core/utils.js",
-  "/src/pages/calendar.js",
-  "/src/pages/dashboard.js",
-  "/src/pages/schedule.js",
-  "/src/pages/settings.js",
-  "/src/pages/subjects-config.js",
-  "/src/pages/subjects.js",
-  "https://cdn.tailwindcss.com?plugins=forms,container-queries",
-  "https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap",
-  "https://unpkg.com/@supabase/supabase-js@2",
-];
-
-let lastFiredDateKey = null;
-
-// 1. Inicialização Global do Timer (Curto prazo enquanto ativo)
-let checkInterval = null;
-
-const startBackgroundCheck = () => {
-  if (checkInterval) clearInterval(checkInterval);
-  console.log(`[SW V${VERSION}] Verificação de fundo ativa.`);
-  checkInterval = setInterval(async () => {
-    // Versão 1.2.4 - Lógica local desativada em favor do Servidor (Web Push)
-  }, 60000);
-};
-
-startBackgroundCheck();
-
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("[SW] Pre-caching assets...");
-      return cache.addAll(ASSETS_TO_CACHE);
-    }),
-  );
+// 1. Install Event: Skip waiting immediately to activate new version without user intervention
+self.addEventListener('install', (event) => {
+  console.log(`[SW ${VERSION}] Instalando nova versão...`);
   self.skipWaiting();
 });
 
-self.addEventListener("activate", (event) => {
+// 2. Activate Event: Delete old caches & take control of open clients immediately
+self.addEventListener('activate', (event) => {
+  console.log(`[SW ${VERSION}] Ativando nova versão e limpando caches antigos...`);
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log("[SW] Cleaning old cache:", key);
-            return caches.delete(key);
-          }
-        }),
-      );
-    }),
-  );
-  event.waitUntil(clients.claim());
-  startBackgroundCheck();
-});
-
-// Estratégia: Cache First para Ativos Estáticos, Network para API
-self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
-
-  // Se for API do Supabase, vai direto pra rede (offline handled in database.js)
-  if (url.href.includes("supabase.co")) return;
-
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Se temos no cache, retorna imediatamente e tenta atualizar em background
-        fetch(event.request)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              caches
-                .open(CACHE_NAME)
-                .then((cache) => cache.put(event.request, networkResponse));
+    caches
+      .keys()
+      .then((keys) => {
+        return Promise.all(
+          keys.map((key) => {
+            if (key !== CACHE_NAME) {
+              console.log('[SW] Removendo cache antigo:', key);
+              return caches.delete(key);
             }
           })
-          .catch(() => {});
-        return cachedResponse;
-      }
+        );
+      })
+      .then(() => self.clients.claim())
+  );
+});
 
-      // Se não tem no cache, busca na rede
-      return fetch(event.request)
+// 3. Fetch Event: Smart Routing Strategies
+self.addEventListener('fetch', (event) => {
+  const request = event.request;
+
+  // Only handle GET requests
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+
+  // Skip Supabase API and external dynamic endpoints
+  if (url.hostname.includes('supabase.co')) return;
+
+  // A. Navigation / Document Requests (HTML) -> NETWORK FIRST
+  // This guarantees user always gets latest commit/HTML on refresh or page load
+  const isNavigation =
+    request.mode === 'navigate' ||
+    request.destination === 'document' ||
+    (request.headers.get('accept') && request.headers.get('accept').includes('text/html'));
+
+  if (isNavigation) {
+    event.respondWith(
+      fetch(request)
         .then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const cacheCopy = networkResponse.clone();
-            caches
-              .open(CACHE_NAME)
-              .then((cache) => cache.put(event.request, cacheCopy));
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, cacheCopy));
           }
           return networkResponse;
         })
         .catch(() => {
-          // Fallback para navegação
-          if (event.request.mode === "navigate") {
-            return caches.match("/");
-          }
-          // Fallback para imagens/icones se necessário (opcional)
-          return new Response("Offline content not available", { status: 503 });
-        });
-    }),
-  );
-});
+          // Offline fallback
+          return caches.match(request).then((cached) => {
+            return cached || caches.match('/index.html') || caches.match('/');
+          });
+        })
+    );
+    return;
+  }
 
-// Acordado pelo Sistema Operacional
-self.addEventListener("periodicsync", (event) => {
-  if (event.tag === "daily-check") {
-    // A lógica de verificação diária foi removida na V1.2.4
-    // Agora as notificações são gerenciadas 100% pelo servidor (Web Push)
-    // para garantir funcionamento com app fechado e evitar duplicidade.
-    console.log(
-      "[SW] PeriodicSync 'daily-check' acionado, mas a lógica local foi desativada.",
+  // B. Vite Hashed Assets (/assets/index-[hash].js, .css) -> CACHE FIRST
+  // Immutable chunks with content hashes can be served from cache safely
+  const isHashedAsset = url.pathname.includes('/assets/') && /\.[a-f0-9]{8,}\.(js|css)$/i.test(url.pathname);
+
+  if (isHashedAsset) {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        if (cachedResponse) return cachedResponse;
+        return fetch(request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const cacheCopy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, cacheCopy));
+          }
+          return networkResponse;
+        });
+      })
+    );
+    return;
+  }
+
+  // C. Other Static Assets (manifest, icons, fonts) -> STALE WHILE REVALIDATE
+  const isStaticSameOrigin = url.origin === self.location.origin;
+  const isGoogleFont = url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com');
+
+  if (isStaticSameOrigin || isGoogleFont) {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        const fetchPromise = fetch(request)
+          .then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              const cacheCopy = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, cacheCopy));
+            }
+            return networkResponse;
+          })
+          .catch(() => cachedResponse);
+
+        return cachedResponse || fetchPromise;
+      })
     );
   }
 });
 
-// O disparo de notificações locais foi removido na V1.2.4
-// Agora as notificações são gerenciadas 100% pelo servidor (Web Push)
-// para garantir funcionamento com app fechado e evitar duplicidade.
-
-// IndexedDB Helpers
+// 4. IndexedDB Helpers for Sync
 const openDB = () => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
     request.onupgradeneeded = (e) => {
       const db = e.target.result;
-      if (!db.objectStoreNames.contains(STORE_NAME))
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME);
+      }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -150,7 +130,7 @@ const openDB = () => {
 
 const getData = (db, key) => {
   return new Promise((resolve) => {
-    const trans = db.transaction(STORE_NAME, "readonly");
+    const trans = db.transaction(STORE_NAME, 'readonly');
     const req = trans.objectStore(STORE_NAME).get(key);
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => resolve(null);
@@ -159,53 +139,45 @@ const getData = (db, key) => {
 
 const setData = (db, key, val) => {
   return new Promise((resolve) => {
-    const trans = db.transaction(STORE_NAME, "readwrite");
+    const trans = db.transaction(STORE_NAME, 'readwrite');
     const req = trans.objectStore(STORE_NAME).put(val, key);
     req.onsuccess = () => resolve();
   });
 };
 
-const getLocalDateString = (date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-const showNotification = (title, options) => {
-  return self.registration.showNotification(title, {
-    icon: "/assets/div.ico",
-    badge: "/assets/div.ico",
-    vibrate: [200, 100, 200],
-    ...options,
-  });
-};
-
-self.addEventListener("message", async (event) => {
+// 5. Message Listener
+self.addEventListener('message', async (event) => {
   const data = event.data;
+  if (!data) return;
+
+  if (data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+    return;
+  }
+
+  if (data.type === 'CLEAR_CACHE') {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((k) => caches.delete(k)));
+    console.log('[SW] Todos os caches foram limpos.');
+    return;
+  }
+
   const db = await openDB();
 
-  if (data.type === "SYNC_DATA") {
-    await setData(db, "tasks", data.tasks);
-    await setData(db, "settings", data.settings);
-    await setData(db, "lastSync", new Date().getTime());
-    console.log("[SW] Dados Sincronizados");
-    startBackgroundCheck();
+  if (data.type === 'SYNC_DATA') {
+    await setData(db, 'tasks', data.tasks);
+    await setData(db, 'settings', data.settings);
+    await setData(db, 'lastSync', Date.now());
+    console.log('[SW] Dados sincronizados no IndexedDB');
   }
 
-  if (data.type === "FORCE_TEST") {
-    await setData(db, "lastDailyNotif", "reset");
-    const tasks = (await getData(db, "tasks")) || [];
-    await checkNotifications();
-  }
-
-  if (data.type === "GET_SW_STATUS") {
-    const tasks = (await getData(db, "tasks")) || [];
-    const lastSync = await getData(db, "lastSync");
+  if (data.type === 'GET_SW_STATUS') {
+    const tasks = (await getData(db, 'tasks')) || [];
+    const lastSync = await getData(db, 'lastSync');
 
     event.source.postMessage({
-      type: "SW_STATUS_RESPONSE",
-      status: "active",
+      type: 'SW_STATUS_RESPONSE',
+      status: 'active',
       version: VERSION,
       lastSync: lastSync,
       taskCount: tasks.length,
@@ -213,33 +185,41 @@ self.addEventListener("message", async (event) => {
   }
 });
 
-// Listener de Push do Servidor (Supabase Edge Function)
-self.addEventListener("push", (event) => {
-  console.log("[SW] Mensagem de Push recebida!");
+// 6. Push Notifications (Server Web Push)
+const showNotification = (title, options) => {
+  return self.registration.showNotification(title, {
+    icon: '/assets/div.ico',
+    badge: '/assets/div.ico',
+    vibrate: [200, 100, 200],
+    ...options,
+  });
+};
 
+self.addEventListener('push', (event) => {
+  console.log('[SW] Mensagem de Push recebida!');
   if (event.data) {
     try {
       const payload = event.data.json();
-      const promise = showNotification(payload.title || "Organizer", {
-        body: payload.body || "Você tem novidades no seu organizador.",
-        tag: payload.tag || "push-notification",
-        data: { url: payload.url || "/" },
+      const promise = showNotification(payload.title || 'Organizer', {
+        body: payload.body || 'Você tem novidades no seu organizador.',
+        tag: payload.tag || 'push-notification',
+        data: { url: payload.url || '/' },
       });
       event.waitUntil(promise);
     } catch (e) {
-      console.error("[SW] Erro ao processar payload de push:", e);
+      console.error('[SW] Erro ao processar payload de push:', e);
     }
   }
 });
 
-self.addEventListener("notificationclick", (event) => {
+self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
     clients
-      .matchAll({ type: "window", includeUncontrolled: true })
+      .matchAll({ type: 'window', includeUncontrolled: true })
       .then((list) => {
         if (list.length > 0) return list[0].focus();
-        return clients.openWindow("/");
-      }),
+        return clients.openWindow('/');
+      })
   );
 });

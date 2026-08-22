@@ -8,10 +8,12 @@ import {
   CheckCircle,
   Info,
   Send,
+  RefreshCw,
 } from 'lucide-react';
 import { useTheme, ACCENT_COLORS } from '../context/ThemeContext';
 import { useApp } from '../context/AppContext';
 import { notificationService } from '../services/notificationService';
+import { checkForAppUpdates, forceUpdateAndClearCache } from '../services/pwaManager';
 
 export const SettingsPage: React.FC = () => {
   const { theme, toggleTheme, accentColor, setAccentColor } = useTheme();
@@ -68,11 +70,33 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
-  const handleClearCache = () => {
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+
+  const handleCheckUpdate = async () => {
+    setIsCheckingUpdate(true);
+    showToast('Verificando se há atualizações...', 'info');
+    try {
+      const found = await checkForAppUpdates();
+      if (found) {
+        showToast('Nova versão encontrada! Atualizando...', 'success');
+      } else {
+        showToast('Você já está na versão mais recente!', 'success');
+      }
+    } catch {
+      showToast('Erro ao verificar atualizações.', 'error');
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  };
+
+  const handleClearCache = async () => {
     localStorage.removeItem('cache_tasks');
     localStorage.removeItem('cache_subjects');
     refreshData();
-    showToast('Cache offline limpo com sucesso!', 'info');
+    showToast('Limpando todos os caches e recarregando...', 'info');
+    setTimeout(() => {
+      forceUpdateAndClearCache();
+    }, 500);
   };
 
   return (
@@ -204,24 +228,35 @@ export const SettingsPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Manutenção de Cache & Dados Locais */}
+          {/* Manutenção de Cache & Atualizações */}
           <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 shadow-xs">
             <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-secondary)] mb-4 flex items-center gap-2">
-              <Trash2 size={15} />
-              <span>Armazenamento & Cache Offline</span>
+              <RefreshCw size={15} />
+              <span>Atualizações & Cache PWA</span>
             </h3>
 
             <p className="text-xs text-[var(--text-secondary)] mb-4 leading-relaxed">
-              O Organizer mantém uma cópia das tarefas e matérias em cache local para permitir o uso contínuo mesmo sem conexão de internet.
+              O Organizer atualiza automaticamente sempre que novas alterações são publicadas. Você também pode verificar manualmente ou limpar o cache local.
             </p>
 
-            <button
-              onClick={handleClearCache}
-              className="py-2.5 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-xs font-bold transition-colors flex items-center gap-2"
-            >
-              <Trash2 size={14} />
-              <span>Limpar Cache Offline</span>
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2.5">
+              <button
+                onClick={handleCheckUpdate}
+                disabled={isCheckingUpdate}
+                className="py-2.5 px-4 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--action-primary)]/15 text-[var(--text-primary)] hover:text-[var(--action-primary)] text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+              >
+                <RefreshCw size={14} className={isCheckingUpdate ? 'animate-spin' : ''} />
+                <span>{isCheckingUpdate ? 'Verificando...' : 'Buscar Atualizações'}</span>
+              </button>
+
+              <button
+                onClick={handleClearCache}
+                className="py-2.5 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Trash2 size={14} />
+                <span>Limpar Todo Cache & Recarregar</span>
+              </button>
+            </div>
           </section>
 
           {/* Informações da Aplicação */}

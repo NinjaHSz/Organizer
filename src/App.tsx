@@ -13,6 +13,8 @@ import { SchedulePage } from './pages/SchedulePage';
 import { SubjectsPage } from './pages/SubjectsPage';
 import { SettingsPage } from './pages/SettingsPage';
 
+import { initPwaManager } from './services/pwaManager';
+
 // Modals
 import { TaskFormModal } from './components/tasks/TaskFormModal';
 import { AIScannerModal } from './components/scanner/AIScannerModal';
@@ -22,13 +24,8 @@ export const App: React.FC = () => {
   const { activePage } = useApp();
 
   useEffect(() => {
-    // Register Service Worker for PWA
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/sw.js')
-        .then((reg) => console.log('✅ Service Worker registrado:', reg.scope))
-        .catch((err) => console.warn('⚠️ Service Worker registro:', err));
-    }
+    // Initialize PWA auto-update manager & service worker
+    initPwaManager();
   }, []);
 
   const renderActivePage = () => {
