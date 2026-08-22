@@ -4,17 +4,14 @@ import {
   Sun,
   Palette,
   Bell,
-  Database,
   Trash2,
   CheckCircle,
-  Save,
   Info,
   Send,
 } from 'lucide-react';
 import { useTheme, ACCENT_COLORS } from '../context/ThemeContext';
 import { useApp } from '../context/AppContext';
 import { notificationService } from '../services/notificationService';
-import { resetSupabaseClient } from '../services/supabase';
 
 export const SettingsPage: React.FC = () => {
   const { theme, toggleTheme, accentColor, setAccentColor } = useTheme();
@@ -26,22 +23,6 @@ export const SettingsPage: React.FC = () => {
   });
   const [notifTime, setNotifTime] = useState<string>(() => {
     return localStorage.getItem('notif-time') || '09:00';
-  });
-
-  // Supabase Custom Config
-  const [supabaseUrl, setSupabaseUrl] = useState<string>(() => {
-    return (
-      localStorage.getItem('supabase_url') ||
-      import.meta.env.VITE_SUPABASE_URL ||
-      ''
-    );
-  });
-  const [supabaseKey, setSupabaseKey] = useState<string>(() => {
-    return (
-      localStorage.getItem('supabase_key') ||
-      import.meta.env.VITE_SUPABASE_ANON_KEY ||
-      ''
-    );
   });
 
   const handleToggleDailyNotif = async () => {
@@ -85,14 +66,6 @@ export const SettingsPage: React.FC = () => {
       });
       showToast('Notificação de teste enviada!', 'success');
     }
-  };
-
-  const handleSaveSupabaseConfig = () => {
-    localStorage.setItem('supabase_url', supabaseUrl.trim());
-    localStorage.setItem('supabase_key', supabaseKey.trim());
-    resetSupabaseClient();
-    refreshData();
-    showToast('Credenciais do Supabase salvas e reconectadas!', 'success');
   };
 
   const handleClearCache = () => {
@@ -171,7 +144,10 @@ export const SettingsPage: React.FC = () => {
               })}
             </div>
           </section>
+        </div>
 
+        {/* Right Column */}
+        <div className="space-y-6">
           {/* Notificações PWA */}
           <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs">
             <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-secondary)] mb-4 flex items-center gap-2">
@@ -225,53 +201,6 @@ export const SettingsPage: React.FC = () => {
                 <Send size={14} />
                 <span>Testar Notificação Agora</span>
               </button>
-            </div>
-          </section>
-        </div>
-
-        {/* Right Column */}
-        <div className="space-y-6">
-          {/* Conexão com Banco de Dados Supabase */}
-          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs">
-            <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-secondary)] mb-4 flex items-center gap-2">
-              <Database size={15} />
-              <span>Banco de Dados & Supabase</span>
-            </h3>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
-                  Supabase Project URL
-                </label>
-                <input
-                  type="text"
-                  value={supabaseUrl}
-                  onChange={(e) => setSupabaseUrl(e.target.value)}
-                  className="w-full bg-[var(--surface-subtle)] text-[var(--text-primary)] px-3.5 py-2.5 rounded-xl text-xs font-mono outline-none border border-transparent focus:border-[var(--action-primary)] transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
-                  Supabase Anon Key
-                </label>
-                <textarea
-                  rows={2}
-                  value={supabaseKey}
-                  onChange={(e) => setSupabaseKey(e.target.value)}
-                  className="w-full bg-[var(--surface-subtle)] text-[var(--text-primary)] px-3.5 py-2 rounded-xl text-[11px] font-mono outline-none border border-transparent focus:border-[var(--action-primary)] transition-all resize-none"
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={handleSaveSupabaseConfig}
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-[var(--action-primary)] text-white text-xs font-bold shadow-md hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
-                >
-                  <Save size={14} />
-                  <span>Salvar & Reconectar</span>
-                </button>
-              </div>
             </div>
           </section>
 
