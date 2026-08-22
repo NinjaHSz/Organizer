@@ -163,7 +163,7 @@ export const TaskFormModal: React.FC = () => {
             <input
               type="text"
               required
-              autoFocus
+              autoFocus={!editingTask}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ex: Exercícios de Matemática pág. 42"
