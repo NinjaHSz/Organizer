@@ -46,6 +46,34 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     document.documentElement.style.setProperty('--action-primary', accentColor);
     localStorage.setItem('accent-color', accentColor);
+
+    // Update <meta name="theme-color"> for mobile browser status bar and header tint
+    const metaThemeColors = document.querySelectorAll('meta[name="theme-color"]');
+    if (metaThemeColors.length > 0) {
+      metaThemeColors.forEach((meta) => meta.setAttribute('content', accentColor));
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      meta.content = accentColor;
+      document.head.appendChild(meta);
+    }
+
+    // Update msapplication-navbutton-color & TileColor fallback
+    let metaMsNav = document.querySelector('meta[name="msapplication-navbutton-color"]');
+    if (!metaMsNav) {
+      metaMsNav = document.createElement('meta');
+      metaMsNav.setAttribute('name', 'msapplication-navbutton-color');
+      document.head.appendChild(metaMsNav);
+    }
+    metaMsNav.setAttribute('content', accentColor);
+
+    let metaTile = document.querySelector('meta[name="msapplication-TileColor"]');
+    if (!metaTile) {
+      metaTile = document.createElement('meta');
+      metaTile.setAttribute('name', 'msapplication-TileColor');
+      document.head.appendChild(metaTile);
+    }
+    metaTile.setAttribute('content', accentColor);
   }, [accentColor]);
 
   const toggleTheme = () => {
