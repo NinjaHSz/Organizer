@@ -198,19 +198,19 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-0.5 shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
               onClick={() => openEditTaskModal(task)}
-              className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--action-primary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer"
+              className="size-10 sm:size-11 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--action-primary)] hover:bg-[var(--surface-subtle)] transition-all duration-200 shrink-0 active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--action-primary)] outline-none"
               title="Editar"
             >
-              <Edit2 size={15} />
+              <Edit2 size={18} />
             </button>
             <button
               type="button"
               onClick={handleDeleteClick}
-              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+              className={`size-10 sm:size-11 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-rose-500 outline-none ${
                 isConfirmingDelete
                   ? 'bg-rose-500 text-white shadow-xs font-black ring-2 ring-rose-500/30 animate-pulse scale-105'
                   : 'text-[var(--text-muted)] hover:text-rose-500 hover:bg-rose-500/10'
@@ -218,9 +218,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               title={isConfirmingDelete ? 'Clique novamente para confirmar exclusão' : 'Excluir tarefa'}
             >
               {isConfirmingDelete ? (
-                <HelpCircle size={15} className="stroke-[2.8]" />
+                <HelpCircle size={18} className="stroke-[2.8]" />
               ) : (
-                <Trash2 size={15} />
+                <Trash2 size={18} />
               )}
             </button>
           </div>
