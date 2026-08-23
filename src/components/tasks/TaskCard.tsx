@@ -122,14 +122,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
       <div className="py-3.5 px-3.5 sm:px-4 pl-4 sm:pl-4.5">
         {/* Main Row */}
         <div className="flex items-center gap-3">
-          {/* Tactile Compact Checkbox */}
+          {/* Tactile Checkbox sized to match title + subject height */}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               toggleTaskDone(task.id);
             }}
-            className={`size-7.5 sm:size-8 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 shadow-2xs active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--action-primary)] outline-none ${
+            className={`size-10 sm:size-11 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 shadow-2xs active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--action-primary)] outline-none ${
               isDone
                 ? 'bg-emerald-500 text-white ring-2 ring-emerald-500/20'
                 : 'bg-[var(--surface-subtle)] hover:bg-[var(--surface-subtle)]/80 text-transparent'
@@ -137,7 +137,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             title={isDone ? 'Marcar como pendente' : 'Concluir tarefa'}
           >
             <Check
-              size={16}
+              size={20}
               className={`stroke-[3.5] transition-all duration-150 ${
                 isDone ? 'scale-100 opacity-100 text-white' : 'scale-50 opacity-0'
               }`}
