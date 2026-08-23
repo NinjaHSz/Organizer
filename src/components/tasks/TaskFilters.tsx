@@ -65,16 +65,16 @@ export const TaskFilters: React.FC = () => {
   ];
 
   return (
-    <div className="mb-4 space-y-3 w-full max-w-md">
+    <div className="mb-6 flex flex-col md:flex-row items-stretch gap-3 sm:gap-4 w-full">
       {/* KPI Card: Porcentagem de Conclusão */}
-      <div className="p-3.5 sm:p-4 rounded-lg bg-[var(--surface-card)] shadow-xs">
+      <div className="w-full md:w-80 lg:w-96 p-3.5 sm:p-4 rounded-xl bg-[var(--surface-card)] shadow-xs flex flex-col justify-between shrink-0">
         <div className="flex items-center justify-between gap-3 mb-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="size-8 rounded-md bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+            <div className="size-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
               <TrendingUp size={16} className="stroke-[2.5]" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-xs font-bold text-[var(--text-primary)] truncate">
+              <h3 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] truncate">
                 Conclusão de Tarefas
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] truncate">
@@ -93,7 +93,7 @@ export const TaskFilters: React.FC = () => {
         </div>
 
         {/* Dynamic Progress Bar */}
-        <div className="h-1.5 w-full bg-[var(--surface-subtle)] rounded-full overflow-hidden">
+        <div className="h-2 w-full bg-[var(--surface-subtle)] rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${percentage}%` }}
@@ -102,7 +102,7 @@ export const TaskFilters: React.FC = () => {
       </div>
 
       {/* 3-Segment Grid Filter Control */}
-      <div className="grid grid-cols-3 gap-1 p-1 rounded-lg bg-[var(--surface-card)] w-full overflow-hidden shadow-xs">
+      <div className="w-full md:flex-1 p-1 sm:p-1.5 rounded-xl bg-[var(--surface-card)] shadow-xs grid grid-cols-3 gap-1 sm:gap-1.5 items-center">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = filters.category === tab.id;
@@ -111,19 +111,19 @@ export const TaskFilters: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setCategory(tab.id)}
-              className={`min-w-0 w-full flex items-center justify-center gap-1 sm:gap-1.5 py-2 px-1.5 sm:px-2.5 rounded-md text-xs font-bold transition-all cursor-pointer select-none ${
+              className={`min-w-0 h-full flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-2 sm:px-3 rounded-lg text-xs sm:text-sm font-bold transition-all duration-150 cursor-pointer select-none ${
                 isActive
                   ? tab.activeClass
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]'
               }`}
             >
               <Icon
-                size={13}
+                size={15}
                 className={`shrink-0 ${isActive ? 'text-white' : 'text-[var(--text-muted)]'}`}
               />
               <span className="truncate">{tab.label}</span>
               <span
-                className={`shrink-0 text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                className={`shrink-0 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-black ${
                   isActive
                     ? tab.badgeActive
                     : 'bg-[var(--surface-subtle)] text-[var(--text-muted)]'

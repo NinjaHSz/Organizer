@@ -17,14 +17,14 @@ function pwaVersionPlugin(): Plugin {
         console.log(`\n📦 [PWA] Service Worker compilado com versão única: ${buildId}\n`);
       }
     },
-    // In development mode: serve sw.js with dev timestamp & no-cache headers
+    // In development mode: serve sw.js with a stable dev version & no-cache headers
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         if (req.url === '/sw.js') {
           const publicSw = path.resolve(__dirname, 'public/sw.js');
           if (fs.existsSync(publicSw)) {
             let content = fs.readFileSync(publicSw, 'utf-8');
-            content = content.replace(/__SW_BUILD_ID__/g, 'dev-' + Date.now());
+            content = content.replace(/__SW_BUILD_ID__/g, 'dev-local');
             res.setHeader('Content-Type', 'application/javascript');
             res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
             return res.end(content);

@@ -17,9 +17,9 @@ export const DayScheduleCard: React.FC = () => {
   const todayDayIndex = new Date().getDay() >= 1 && new Date().getDay() <= 5 ? new Date().getDay() - 1 : null;
 
   return (
-    <div className="md:hidden space-y-4">
+    <div className="md:hidden space-y-3">
       {/* Day Selector Pills */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 sticky top-[65px] bg-[var(--surface-page)]/90 ios-blur py-2 z-20">
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pt-2 pb-2.5 sticky top-0 bg-[var(--surface-page)]/95 ios-blur z-20 -mx-4 px-4 sm:mx-0 sm:px-0">
         {dayAbbreviations.map((abbr, idx) => {
           const isSelected = selectedDayIndex === idx;
           const isToday = todayDayIndex === idx;
@@ -28,10 +28,10 @@ export const DayScheduleCard: React.FC = () => {
             <button
               key={abbr}
               onClick={() => setSelectedDayIndex(idx)}
-              className={`flex-1 py-2.5 px-3 rounded-2xl text-xs font-bold transition-all duration-200 shrink-0 text-center relative ${
+              className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold transition-all duration-200 shrink-0 text-center relative cursor-pointer ${
                 isSelected
-                  ? 'bg-[var(--action-primary)] text-white shadow-md shadow-[var(--action-primary)]/20 scale-105'
-                  : 'bg-[var(--surface-card)] text-[var(--text-secondary)]'
+                  ? 'bg-[var(--action-primary)] text-white shadow-md shadow-[var(--action-primary)]/20'
+                  : 'bg-[var(--surface-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <div>{abbr}</div>

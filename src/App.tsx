@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import { useApp } from './context/AppContext';
-import { DesktopSidebar } from './components/layout/DesktopSidebar';
+import { DesktopDock } from './components/layout/DesktopDock';
 import { MobileNav } from './components/layout/MobileNav';
 import { Header } from './components/layout/Header';
-import { QuickActionFAB } from './components/layout/QuickActionFAB';
 import { ToastContainer } from './components/common/ToastContainer';
 
 // Pages
@@ -47,17 +46,14 @@ export const App: React.FC = () => {
 
   return (
     <div className="flex min-h-screen w-full bg-[var(--surface-page)] text-[var(--text-primary)]">
-      {/* Lateral Desktop Sidebar */}
-      <DesktopSidebar />
-
       {/* Main Content Surface */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         <Header />
         <main className="flex-1 overflow-y-auto">{renderActivePage()}</main>
       </div>
 
-      {/* Floating Speed-Dial FAB */}
-      <QuickActionFAB />
+      {/* Desktop Floating Glassmorphic Dock */}
+      <DesktopDock />
 
       {/* Mobile Navigation Dock */}
       <MobileNav />

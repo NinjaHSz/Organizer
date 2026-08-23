@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Sparkles, Plus, RefreshCw, X, FolderPlus } from 'lucide-react';
+import { Search, RefreshCw, X, FolderPlus } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const Header: React.FC = () => {
@@ -7,8 +7,6 @@ export const Header: React.FC = () => {
     activePage,
     filters,
     setSearch,
-    openNewTaskModal,
-    openAIScannerModal,
     openNewSubjectModal,
     refreshData,
     isLoading,
@@ -147,7 +145,7 @@ export const Header: React.FC = () => {
           </button>
 
           {/* Contextual Actions based on Active Page */}
-          {activePage === 'subjects' ? (
+          {activePage === 'subjects' && (
             <button
               onClick={openNewSubjectModal}
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--action-primary)] text-white text-xs font-bold shadow-md shadow-[var(--action-primary)]/20 hover:opacity-95 active:scale-95 transition-all"
@@ -155,26 +153,6 @@ export const Header: React.FC = () => {
               <FolderPlus size={16} />
               <span>Nova Matéria</span>
             </button>
-          ) : (
-            <>
-              {/* Quick AI Scanner (Desktop + Tablet) */}
-              <button
-                onClick={openAIScannerModal}
-                className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)] text-[var(--action-primary)] text-xs font-bold transition-all shadow-sm active:scale-95"
-              >
-                <Sparkles size={15} />
-                <span>Escanear IA</span>
-              </button>
-
-              {/* New Task (Desktop + Tablet) */}
-              <button
-                onClick={() => openNewTaskModal()}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--action-primary)] text-white text-xs font-bold shadow-md shadow-[var(--action-primary)]/20 hover:opacity-95 active:scale-95 transition-all"
-              >
-                <Plus size={16} className="stroke-[3]" />
-                <span>Nova Tarefa</span>
-              </button>
-            </>
           )}
         </div>
       </div>

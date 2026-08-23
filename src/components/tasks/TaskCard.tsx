@@ -107,19 +107,19 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
   return (
     <div
-      className={`group relative bg-[var(--surface-card)] rounded-lg transition-all duration-200 overflow-hidden shadow-xs hover:shadow-card ${
+      className={`group relative bg-[var(--surface-card)] rounded-xl transition-all duration-200 overflow-hidden shadow-xs hover:shadow-card border border-transparent hover:border-[var(--action-primary)]/20 ${
         isDone ? 'bg-[var(--surface-card)]/50 opacity-60' : ''
       }`}
     >
       {/* Left Priority Indicator (2px distance offset from left) */}
       <div
-        className="absolute left-[2px] top-1.5 bottom-1.5 w-1 rounded-full transition-colors duration-200"
+        className="absolute left-[2px] top-2 bottom-2 w-1 rounded-full transition-colors duration-200"
         style={{
           backgroundColor: isDone ? 'var(--text-muted)' : priorityColor,
         }}
       />
 
-      <div className="py-2.5 px-3 sm:px-4 pl-4 sm:pl-4.5">
+      <div className="py-3 px-3.5 sm:px-4 pl-4 sm:pl-4.5">
         {/* Main Row */}
         <div className="flex items-center gap-2.5">
           {/* Tactile Compact Checkbox */}
@@ -159,7 +159,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             </h4>
 
             {/* Sub-row: Subject + Due Date + Attachments (Below Title) */}
-            <div className="flex items-center gap-2.5 mt-0.5 text-[10px] sm:text-[11px]">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-0.5 text-[10px] sm:text-[11px]">
               {/* Subject (3-letter abbreviation with colored dot) */}
               {subject && (
                 <span
@@ -202,7 +202,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             <button
               type="button"
               onClick={() => openEditTaskModal(task)}
-              className="p-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--action-primary)] hover:bg-[var(--surface-subtle)] transition-colors"
+              className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--action-primary)] hover:bg-[var(--surface-subtle)] transition-colors"
               title="Editar"
             >
               <Edit2 size={13} />
@@ -210,7 +210,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             <button
               type="button"
               onClick={handleDeleteClick}
-              className={`p-1 rounded-lg transition-all cursor-pointer ${
+              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
                 isConfirmingDelete
                   ? 'bg-rose-500 text-white shadow-xs font-black ring-2 ring-rose-500/30 animate-pulse scale-105'
                   : 'text-[var(--text-muted)] hover:text-rose-500 hover:bg-rose-500/10'
@@ -228,7 +228,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
         {/* Expandable Details Section */}
         {isExpanded && (
-          <div className="mt-2.5 pt-2.5 animate-fade-in space-y-2 pl-8">
+          <div className="mt-2.5 pt-2.5 border-t border-[var(--surface-subtle)] animate-fade-in space-y-2 pl-2 sm:pl-8">
             {/* Full Formatted Description */}
             {task.description ? (
               <p className="text-xs text-[var(--text-secondary)] whitespace-pre-line leading-relaxed">

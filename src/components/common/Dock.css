@@ -1,0 +1,148 @@
+/* React Bits Dock - Glassmorphic Round Design (Border-free) */
+
+.dock-outer {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  display: flex;
+  max-width: 100%;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.dock-panel {
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: fit-content;
+  gap: 0.6rem;
+  border-radius: 9999px;
+  background: rgba(18, 15, 23, 0.72);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: none;
+  padding: 0 0.7rem 0.45rem;
+  box-shadow: 
+    0 18px 45px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+  transition: box-shadow 0.25s ease;
+}
+
+.dock-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px; /* Round buttons */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: none;
+  box-shadow:
+    0 6px 14px -3px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  outline: none;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.dock-item:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border: none;
+  box-shadow:
+    0 10px 22px -3px rgba(0, 0, 0, 0.35),
+    0 0 15px rgba(255, 255, 255, 0.12),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.dock-item.active {
+  background: var(--action-primary, #4285f4);
+  border: none;
+  color: #ffffff !important;
+  box-shadow:
+    0 8px 24px -2px rgba(66, 133, 244, 0.45),
+    0 0 16px var(--action-primary, #4285f4),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.dock-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: var(--action-primary, #4285f4);
+  box-shadow: 0 0 8px var(--action-primary, #4285f4);
+}
+
+.dock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.dock-label {
+  position: absolute;
+  top: -2.2rem;
+  left: 50%;
+  width: fit-content;
+  white-space: pre;
+  border-radius: 0.65rem;
+  border: none;
+  background: rgba(18, 15, 23, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 0.25rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #ffffff;
+  transform: translateX(-50%);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Light Theme overrides for Glassmorphism (Border-free) */
+html.light .dock-panel {
+  background: rgba(255, 255, 255, 0.78);
+  border: none;
+  box-shadow: 
+    0 20px 45px -10px rgba(0, 0, 0, 0.12),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+html.light .dock-item {
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  color: #374151;
+  box-shadow:
+    0 4px 12px -2px rgba(0, 0, 0, 0.06),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+html.light .dock-item:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+html.light .dock-item.active {
+  background: var(--action-primary, #4285f4);
+  border: none;
+  color: #ffffff !important;
+}
+
+html.light .dock-label {
+  background: rgba(255, 255, 255, 0.94);
+  color: #111827;
+  border: none;
+  box-shadow: 0 10px 22px -5px rgba(0, 0, 0, 0.15);
+}

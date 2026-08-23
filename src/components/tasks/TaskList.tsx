@@ -116,7 +116,7 @@ export const TaskList: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col space-y-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5 items-start">
       {filteredTasks.map((task) => (
         <TaskCard key={task.id} task={task} />
       ))}

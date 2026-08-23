@@ -4,7 +4,6 @@ import {
   Clock,
   FolderOpen,
   Settings as SettingsIcon,
-  Sparkles,
   CheckCircle2,
   Plus,
 } from 'lucide-react';
@@ -18,7 +17,6 @@ export const DesktopSidebar: React.FC = () => {
     subjects,
     completedTaskIds,
     openNewTaskModal,
-    openAIScannerModal,
   } = useApp();
 
   const pendingCount = tasks.length - completedTaskIds.length;
@@ -119,24 +117,6 @@ export const DesktopSidebar: React.FC = () => {
           );
         })}
       </nav>
-
-      {/* AI Scanner Banner in Sidebar */}
-      <div className="p-4 m-4 rounded-xl bg-gradient-to-br from-[var(--action-primary)]/10 to-[var(--action-primary)]/5">
-        <div className="flex items-center gap-2 text-[var(--action-primary)] font-bold text-xs mb-1">
-          <Sparkles size={15} />
-          <span>Scanner com IA</span>
-        </div>
-        <p className="text-[11px] text-[var(--text-secondary)] mb-3 leading-relaxed">
-          Tire foto do seu caderno ou quadro para a IA extrair tarefas instantaneamente.
-        </p>
-        <button
-          onClick={openAIScannerModal}
-          className="w-full py-2 px-3 rounded-lg bg-[var(--action-primary)] text-white text-xs font-bold shadow hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <Sparkles size={13} />
-          Escanear com IA
-        </button>
-      </div>
     </aside>
   );
 };

@@ -11,7 +11,21 @@ export const initPwaManager = (onUpdateAvailable?: () => void) => {
   // 1. Setup Chunk Load Error Recovery (Vite dynamic import hash changes)
   setupChunkErrorRecovery();
 
+  // In development mode: unregister any existing service workers to avoid HMR interference and reload loops
+  if (import.meta.env.DEV) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const reg of registrations) {
+        reg.unregister().then(() => {
+          console.log('🧹 [PWA] Service Worker desregistrado em modo de desenvolvimento.');
+        });
+      }
+    });
+    return;
+  }
+
   // 2. Register Service Worker with cache disabled for the SW script itself
+  let hadPreviousController = !!navigator.serviceWorker.controller;
+
   navigator.serviceWorker
     .register('/sw.js', { updateViaCache: 'none' })
     .then((reg) => {
@@ -65,9 +79,13 @@ export const initPwaManager = (onUpdateAvailable?: () => void) => {
       console.warn('⚠️ [PWA] Falha ao registrar Service Worker:', err);
     });
 
-  // 3. Listen for controller change -> Seamlessly reload so latest code runs
+  // 3. Listen for controller change -> Seamlessly reload so latest code runs (only on update, not initial install)
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (isRefreshing) return;
+    if (!hadPreviousController) {
+      hadPreviousController = true;
+      return;
+    }
     isRefreshing = true;
     console.log('🔄 [PWA] Novo Service Worker assumiu o controle. Recarregando aplicação...');
     window.location.reload();
