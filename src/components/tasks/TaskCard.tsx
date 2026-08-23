@@ -93,7 +93,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     }
     if (isTomorrow) {
       return {
-        label: `Amanhã (${formatted})`,
+        label: formatted,
         className: 'text-amber-500 font-semibold',
       };
     }
