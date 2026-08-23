@@ -137,13 +137,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Synchronize completedTaskIds with loaded tasks
       const doneIds = fetchedTasks.filter((t) => t.status === 'done').map((t) => t.id);
       setCompletedTaskIds((prev) => {
-        const combined = Array.from(new Set([...prev, ...doneIds]));
-        const validDoneIds = combined.filter((id) => {
-          const task = fetchedTasks.find((t) => t.id === id);
-          return !task || task.status === 'done';
-        });
-        localStorage.setItem('completed_tasks', JSON.stringify(validDoneIds));
-        return validDoneIds;
+        // Keep offline-created completed task IDs that aren't in fetchedTasks yet
+        const offlineDone = prev.filter((id) => !fetchedTasks.some((t) => t.id === id));
+        const allDoneIds = Array.from(new Set([...doneIds, ...offlineDone]));
+        localStorage.setItem('completed_tasks', JSON.stringify(allDoneIds));
+        return allDoneIds;
       });
     } catch (err) {
       console.error('Failed to load data:', err);
@@ -289,7 +287,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCompletedTaskIds(newCompleted);
     localStorage.setItem('completed_tasks', JSON.stringify(newCompleted));
 
-    const newStatus = isNowDone ? 'done' : 'pending';
+    const newStatus: Task['status'] = isNowDone ? 'done' : 'todo';
 
     // Synchronously update in-memory tasks state
     setTasks((prev) =>

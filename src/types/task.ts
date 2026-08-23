@@ -19,7 +19,7 @@ export interface Task {
   priority: Priority;
   due_date?: string | null; // YYYY-MM-DD
   subject_id?: string | null;
-  status?: 'pending' | 'done';
+  status?: 'todo' | 'pending' | 'done';
   created_at?: string;
   attachments?: TaskAttachment[] | null;
 }

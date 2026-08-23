@@ -121,8 +121,8 @@ export const CalendarGrid: React.FC = () => {
             const isSelected = dateStr === selectedCalendarDate;
 
             const dayTasks = tasks.filter((t) => t.due_date === dateStr);
-            const pendingTasks = dayTasks.filter((t) => !completedTaskIds.includes(t.id));
-            const doneTasks = dayTasks.filter((t) => completedTaskIds.includes(t.id));
+            const pendingTasks = dayTasks.filter((t) => !completedTaskIds.includes(t.id) && t.status !== 'done');
+            const doneTasks = dayTasks.filter((t) => completedTaskIds.includes(t.id) || t.status === 'done');
 
             return (
               <button

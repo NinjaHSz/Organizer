@@ -51,7 +51,10 @@ export const dbService = {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      const tasks = (data || []) as Task[];
+      const tasks = ((data || []) as Task[]).map((t) => ({
+        ...t,
+        status: (t.status === 'done' ? 'done' : 'todo') as Task['status'],
+      }));
       localStorage.setItem('cache_tasks', JSON.stringify(tasks));
       return tasks;
     } catch (err) {
@@ -63,8 +66,17 @@ export const dbService = {
   async createTask(taskData: Omit<Task, 'id' | 'created_at'>): Promise<Task> {
     const client = getSupabaseClient();
     const tempId = 'task_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+
+    // Normalize status for database check constraint ('todo' | 'done')
+    const dbStatus = taskData.status === 'done' ? 'done' : 'todo';
+    const dbPayload = {
+      ...taskData,
+      status: dbStatus,
+    };
+
     const newTask: Task = {
       ...taskData,
+      status: dbStatus,
       id: tempId,
       created_at: new Date().toISOString(),
     };
@@ -79,16 +91,16 @@ export const dbService = {
       try {
         const { data, error } = await client
           .from('tasks')
-          .insert([taskData])
-          .select()
-          .single();
+          .insert([dbPayload])
+          .select();
 
         if (error) throw error;
-        if (data) {
+        if (data && data.length > 0) {
+          const createdTask = data[0] as Task;
           // Replace temp task with real data
-          const updated = list.map((t) => (t.id === tempId ? (data as Task) : t));
+          const updated = list.map((t) => (t.id === tempId ? createdTask : t));
           localStorage.setItem('cache_tasks', JSON.stringify(updated));
-          return data as Task;
+          return createdTask;
         }
       } catch (err) {
         console.warn('[DB] Supabase error in createTask, saved locally:', err);
@@ -99,10 +111,16 @@ export const dbService = {
   },
 
   async updateTask(id: string, updates: Partial<Task>): Promise<Task | null> {
+    // Normalize status for database check constraint ('todo' | 'done')
+    const dbUpdates: any = { ...updates };
+    if (dbUpdates.status) {
+      dbUpdates.status = dbUpdates.status === 'done' ? 'done' : 'todo';
+    }
+
     // Update local cache
     const cached = localStorage.getItem('cache_tasks');
     let list: Task[] = cached ? JSON.parse(cached) : [];
-    list = list.map((t) => (t.id === id ? { ...t, ...updates } : t));
+    list = list.map((t) => (t.id === id ? { ...t, ...updates, ...(dbUpdates.status ? { status: dbUpdates.status } : {}) } : t));
     localStorage.setItem('cache_tasks', JSON.stringify(list));
 
     const client = getSupabaseClient();
@@ -110,13 +128,14 @@ export const dbService = {
       try {
         const { data, error } = await client
           .from('tasks')
-          .update(updates)
+          .update(dbUpdates)
           .eq('id', id)
-          .select()
-          .single();
+          .select();
 
         if (error) throw error;
-        return data as Task;
+        if (data && data.length > 0) {
+          return data[0] as Task;
+        }
       } catch (err) {
         console.warn('[DB] Supabase error in updateTask:', err);
       }

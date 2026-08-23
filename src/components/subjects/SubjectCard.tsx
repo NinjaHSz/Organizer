@@ -41,8 +41,12 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
   };
 
   const subjectTasks = tasks.filter((t) => t.subject_id === subject.id);
-  const pendingTasks = subjectTasks.filter((t) => !completedTaskIds.includes(t.id));
-  const doneTasks = subjectTasks.filter((t) => completedTaskIds.includes(t.id));
+  const pendingTasks = subjectTasks.filter(
+    (t) => !completedTaskIds.includes(t.id) && t.status !== 'done'
+  );
+  const doneTasks = subjectTasks.filter(
+    (t) => completedTaskIds.includes(t.id) || t.status === 'done'
+  );
 
   // Extract 3-letter uppercase subject identifier
   const subjectAbbr = (subject.name || 'MAT').trim().substring(0, 3).toUpperCase();
@@ -138,7 +142,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
             {subjectTasks.length > 0 ? (
               <div className="space-y-1.5">
                 {subjectTasks.map((t) => {
-                  const isDone = completedTaskIds.includes(t.id);
+                  const isDone = completedTaskIds.includes(t.id) || t.status === 'done';
                   return (
                     <div
                       key={t.id}
