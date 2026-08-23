@@ -39,7 +39,7 @@ export const DesktopDock: React.FC = () => {
       icon: <Plus size={22} className="stroke-[3] text-white" />,
       label: 'Nova Tarefa',
       onClick: () => openNewTaskModal(),
-      className: '!bg-[var(--action-primary)] !text-white shadow-lg shadow-[var(--action-primary)]/30 hover:scale-105',
+      className: '!bg-[var(--action-primary)] !text-white shadow-md shadow-black/25 hover:scale-105',
     },
     {
       icon: <Settings size={20} className={activePage === 'settings' ? 'text-white' : ''} />,

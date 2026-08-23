@@ -11,6 +11,7 @@
   align-items: flex-end;
   justify-content: center;
   pointer-events: none;
+  overflow: visible;
 }
 
 .dock-panel {
@@ -30,6 +31,7 @@
     0 18px 45px -10px rgba(0, 0, 0, 0.5),
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
   transition: box-shadow 0.25s ease;
+  overflow: visible;
 }
 
 .dock-item {
@@ -49,15 +51,15 @@
   outline: none;
   color: var(--text-primary);
   transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+  overflow: visible;
 }
 
 .dock-item:hover {
   background: rgba(255, 255, 255, 0.18);
   border: none;
   box-shadow:
-    0 10px 22px -3px rgba(0, 0, 0, 0.35),
-    0 0 15px rgba(255, 255, 255, 0.12),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.3);
+    0 8px 18px -3px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .dock-item.active {
@@ -65,9 +67,8 @@
   border: none;
   color: #ffffff !important;
   box-shadow:
-    0 8px 24px -2px rgba(66, 133, 244, 0.45),
-    0 0 16px var(--action-primary, #4285f4),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.4);
+    0 6px 16px -2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .dock-item.active::after {
@@ -80,13 +81,14 @@
   height: 4px;
   border-radius: 9999px;
   background-color: var(--action-primary, #4285f4);
-  box-shadow: 0 0 8px var(--action-primary, #4285f4);
 }
 
 .dock-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
 

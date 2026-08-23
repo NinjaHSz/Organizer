@@ -140,7 +140,7 @@ export const TimetableGrid: React.FC = () => {
                               <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
                             )}
                           </div>
-                          <span className="text-[10px] text-[var(--text-muted)] font-medium">
+                          <span className="text-[11px] text-[var(--text-muted)] font-semibold">
                             {code}
                           </span>
                         </div>

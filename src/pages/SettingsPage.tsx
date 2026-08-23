@@ -6,7 +6,6 @@ import {
   Bell,
   Trash2,
   CheckCircle,
-  Info,
   Send,
   RefreshCw,
 } from 'lucide-react';
@@ -21,26 +20,46 @@ export const SettingsPage: React.FC = () => {
 
   // Notification States
   const [dailyNotif, setDailyNotif] = useState<boolean>(() => {
-    return localStorage.getItem('daily-reminders-enabled') !== 'false';
+    const isSavedEnabled = localStorage.getItem('daily-reminders-enabled') === 'true';
+    if (typeof Notification !== 'undefined') {
+      return isSavedEnabled && Notification.permission === 'granted';
+    }
+    return false;
   });
   const [notifTime, setNotifTime] = useState<string>(() => {
     return localStorage.getItem('notif-time') || '09:00';
   });
 
   const handleToggleDailyNotif = async () => {
-    const nextVal = !dailyNotif;
-    setDailyNotif(nextVal);
-    localStorage.setItem('daily-reminders-enabled', String(nextVal));
+    if (!dailyNotif) {
+      if (!('Notification' in window)) {
+        showToast('Seu navegador não suporta notificações.', 'error');
+        return;
+      }
 
-    if (nextVal) {
-      const perm = await notificationService.requestPermission();
+      let perm = Notification.permission;
+      if (perm !== 'granted') {
+        perm = await Notification.requestPermission();
+      }
+
       if (perm === 'granted') {
-        showToast('Notificações diárias ativadas!', 'success');
+        setDailyNotif(true);
+        localStorage.setItem('daily-reminders-enabled', 'true');
+        showToast('Lembretes diários ativados!', 'success');
+        notificationService.subscribeToPush();
+      } else if (perm === 'denied') {
+        setDailyNotif(false);
+        localStorage.setItem('daily-reminders-enabled', 'false');
+        showToast('Notificações bloqueadas nas permissões do navegador.', 'error');
       } else {
-        showToast('Permissão de notificações não concedida no navegador', 'warning');
+        setDailyNotif(false);
+        localStorage.setItem('daily-reminders-enabled', 'false');
+        showToast('Permissão de notificações não concedida.', 'warning');
       }
     } else {
-      showToast('Notificações diárias desativadas', 'info');
+      setDailyNotif(false);
+      localStorage.setItem('daily-reminders-enabled', 'false');
+      showToast('Lembretes diários desativados.', 'info');
     }
   };
 
@@ -50,23 +69,24 @@ export const SettingsPage: React.FC = () => {
     showToast(`Horário de lembrete definido para ${time}`, 'info');
   };
 
-  const handleTestNotification = () => {
-    if (Notification.permission !== 'granted') {
-      notificationService.requestPermission().then((perm) => {
-        if (perm === 'granted') {
-          notificationService.showLocalNotification('Organizer Notificações', {
-            body: 'Tudo pronto! Suas notificações de tarefas estão funcionando.',
-          });
-          showToast('Notificação enviada!', 'success');
-        } else {
-          showToast('Permissão de notificação negada', 'error');
-        }
-      });
-    } else {
+  const handleTestNotification = async () => {
+    if (!('Notification' in window)) {
+      showToast('Seu navegador não suporta notificações.', 'error');
+      return;
+    }
+
+    let perm = Notification.permission;
+    if (perm !== 'granted') {
+      perm = await Notification.requestPermission();
+    }
+
+    if (perm === 'granted') {
       notificationService.showLocalNotification('Organizer Notificações', {
-        body: 'Tudo pronto! Suas notificações de tarefas estão funcionando.',
+        body: 'Tudo pronto! Suas notificações de tarefas estão funcionando perfeitamente. 🎉',
       });
       showToast('Notificação de teste enviada!', 'success');
+    } else {
+      showToast('Permissão de notificação negada no navegador.', 'error');
     }
   };
 
@@ -197,8 +217,11 @@ export const SettingsPage: React.FC = () => {
 
                 <button
                   type="button"
+                  role="switch"
+                  aria-checked={dailyNotif}
                   onClick={handleToggleDailyNotif}
-                  className={`ios-toggle ${dailyNotif ? 'active' : ''}`}
+                  className={`ios-toggle cursor-pointer ${dailyNotif ? 'active' : ''}`}
+                  title={dailyNotif ? 'Desativar lembretes diários' : 'Ativar lembretes diários'}
                 >
                   <div className="ios-toggle-dot" />
                 </button>
@@ -235,10 +258,6 @@ export const SettingsPage: React.FC = () => {
               <span>Atualizações & Cache PWA</span>
             </h3>
 
-            <p className="text-xs text-[var(--text-secondary)] mb-4 leading-relaxed">
-              O Organizer atualiza automaticamente sempre que novas alterações são publicadas. Você também pode verificar manualmente ou limpar o cache local.
-            </p>
-
             <div className="flex flex-col sm:flex-row gap-2.5">
               <button
                 onClick={handleCheckUpdate}
@@ -256,21 +275,6 @@ export const SettingsPage: React.FC = () => {
                 <Trash2 size={14} />
                 <span>Limpar Todo Cache & Recarregar</span>
               </button>
-            </div>
-          </section>
-
-          {/* Informações da Aplicação */}
-          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 shadow-xs">
-            <div className="flex items-center gap-3">
-              <div className="size-10 rounded-2xl bg-[var(--action-primary)]/10 text-[var(--action-primary)] flex items-center justify-center">
-                <Info size={20} />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-[var(--text-primary)]">Organizer 2.0 (React)</h4>
-                <p className="text-xs text-[var(--text-secondary)]">
-                  Construído com React 19, TypeScript, Tailwind CSS, Gemini 2.0 & Supabase.
-                </p>
-              </div>
             </div>
           </section>
         </div>

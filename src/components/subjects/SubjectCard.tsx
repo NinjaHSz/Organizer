@@ -55,27 +55,27 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
         style={{ backgroundColor: subject.color }}
       />
 
-      <div className="py-2.5 px-3 sm:px-4 pl-4 sm:pl-4.5">
+      <div className="py-3 px-3.5 sm:px-4 pl-4 sm:pl-4.5">
         {/* Main Row */}
         <div className="flex items-center justify-between gap-3">
           {/* Info Area (Click to Expand) */}
           <div
-            className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer select-none"
+            className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer select-none"
             onClick={() => setIsExpanded(!isExpanded)}
           >
             {/* Subject Color Badge Icon */}
             <div
-              className="size-7 rounded-md flex items-center justify-center font-black text-[10px] shrink-0 shadow-xs text-white"
+              className="size-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 shadow-xs text-white"
               style={{ backgroundColor: subject.color }}
             >
               {subjectAbbr}
             </div>
 
             <div className="flex-1 min-w-0">
-              <h4 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] truncate leading-snug">
+              <h4 className="text-sm sm:text-base font-bold text-[var(--text-primary)] truncate leading-snug">
                 {subject.name}
               </h4>
-              <div className="flex items-center gap-2 mt-0.5 text-[10px] sm:text-[11px] text-[var(--text-secondary)]">
+              <div className="flex items-center gap-2 mt-0.5 text-xs text-[var(--text-secondary)]">
                 <span>{pendingTasks.length} pendentes</span>
                 <span>•</span>
                 <span className="text-emerald-500 font-medium">{doneTasks.length} concluídas</span>
@@ -91,15 +91,15 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
                 e.stopPropagation();
                 openEditSubjectModal(subject);
               }}
-              className="p-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--action-primary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--action-primary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer"
               title="Editar Matéria"
             >
-              <Edit2 size={13} />
+              <Edit2 size={15} />
             </button>
             <button
               type="button"
               onClick={handleDeleteClick}
-              className={`p-1 rounded-lg transition-all cursor-pointer ${
+              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
                 isConfirmingDelete
                   ? 'bg-rose-500 text-white shadow-xs font-black ring-2 ring-rose-500/30 animate-pulse scale-105'
                   : 'text-[var(--text-muted)] hover:text-rose-500 hover:bg-rose-500/10'
@@ -107,9 +107,9 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
               title={isConfirmingDelete ? 'Clique novamente para confirmar exclusão' : 'Excluir matéria'}
             >
               {isConfirmingDelete ? (
-                <HelpCircle size={13} className="stroke-[2.8]" />
+                <HelpCircle size={15} className="stroke-[2.8]" />
               ) : (
-                <Trash2 size={13} />
+                <Trash2 size={15} />
               )}
             </button>
           </div>
@@ -117,9 +117,9 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
 
         {/* Expandable Subtask Details Section */}
         {isExpanded && (
-          <div className="mt-2.5 pt-2.5 animate-fade-in space-y-2">
+          <div className="mt-3 pt-3 border-t border-[var(--surface-subtle)] animate-fade-in space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] sm:text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
                 Tarefas da matéria ({subjectTasks.length})
               </span>
               <button
@@ -128,21 +128,21 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
                   e.stopPropagation();
                   openNewTaskModal();
                 }}
-                className="text-[11px] font-bold text-[var(--action-primary)] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-[var(--action-primary)] hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <Plus size={12} />
+                <Plus size={13} />
                 <span>Nova Tarefa</span>
               </button>
             </div>
 
             {subjectTasks.length > 0 ? (
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 {subjectTasks.map((t) => {
                   const isDone = completedTaskIds.includes(t.id);
                   return (
                     <div
                       key={t.id}
-                      className="flex items-center gap-2.5 p-2 rounded-lg bg-[var(--surface-subtle)]/60 hover:bg-[var(--surface-subtle)] transition-colors"
+                      className="flex items-center gap-2.5 p-2.5 rounded-lg bg-[var(--surface-subtle)]/60 hover:bg-[var(--surface-subtle)] transition-colors"
                     >
                       <button
                         type="button"
@@ -150,23 +150,23 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
                           e.stopPropagation();
                           toggleTaskDone(t.id);
                         }}
-                        className={`size-5 rounded-full flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                        className={`size-6 rounded-full flex items-center justify-center transition-all shrink-0 cursor-pointer ${
                           isDone
                             ? 'bg-emerald-500 text-white ring-1 ring-emerald-500/20'
                             : 'bg-[var(--surface-subtle)] hover:bg-[var(--surface-subtle)]/80 text-transparent'
                         }`}
                       >
-                        {isDone && <Check size={11} className="stroke-[3.5]" />}
+                        {isDone && <Check size={13} className="stroke-[3.5]" />}
                       </button>
                       <span
-                        className={`text-xs font-semibold text-[var(--text-primary)] flex-1 truncate ${
+                        className={`text-sm font-semibold text-[var(--text-primary)] flex-1 truncate ${
                           isDone ? 'line-through opacity-50' : ''
                         }`}
                       >
                         {t.title}
                       </span>
                       {t.due_date && (
-                        <span className="text-[10px] text-[var(--text-muted)] shrink-0 font-medium">
+                        <span className="text-xs text-[var(--text-muted)] shrink-0 font-medium">
                           {new Date(t.due_date + 'T12:00:00').toLocaleDateString('pt-BR', {
                             day: '2-digit',
                             month: '2-digit',
@@ -178,7 +178,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
                 })}
               </div>
             ) : (
-              <p className="text-[11px] text-[var(--text-muted)] italic py-1 text-center">
+              <p className="text-xs text-[var(--text-muted)] italic py-1.5 text-center">
                 Nenhuma tarefa vinculada a esta matéria ainda.
               </p>
             )}

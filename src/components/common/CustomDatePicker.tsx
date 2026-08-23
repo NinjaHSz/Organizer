@@ -187,56 +187,56 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         ) : null}
       </div>
 
-      {/* Floating Interactive Date Picker Dropdown */}
+      {/* Floating Interactive Date Picker Dropdown (Exact Match to Field Width, Opens Downwards) */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1.5 z-50 bg-[var(--surface-card)]/95 ios-blur rounded-xl shadow-2xl p-3.5 w-72 sm:w-80 animate-scale-in">
+        <div className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-[var(--surface-card)]/98 ios-blur rounded-xl shadow-2xl border border-[var(--surface-subtle)] p-2.5 sm:p-3 w-full animate-scale-in">
           {/* Quick Shortcuts */}
-          <div className="flex items-center gap-1.5 pb-2.5 mb-2.5 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1 pb-1.5 mb-1.5 border-b border-[var(--surface-subtle)]/70 overflow-x-auto no-scrollbar">
             <button
               type="button"
               onClick={() => selectQuickDate(0)}
-              className="px-2.5 py-1 rounded-lg bg-[var(--surface-subtle)] hover:bg-[var(--action-primary)]/10 hover:text-[var(--action-primary)] text-[11px] font-bold text-[var(--text-secondary)] transition-all shrink-0 outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+              className="flex-1 min-w-0 py-1 px-1.5 rounded-lg bg-[var(--surface-subtle)] hover:bg-[var(--action-primary)]/10 hover:text-[var(--action-primary)] text-[10px] sm:text-[11px] font-bold text-[var(--text-secondary)] transition-all text-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none cursor-pointer truncate"
             >
               Hoje
             </button>
             <button
               type="button"
               onClick={() => selectQuickDate(1)}
-              className="px-2.5 py-1 rounded-lg bg-[var(--surface-subtle)] hover:bg-[var(--action-primary)]/10 hover:text-[var(--action-primary)] text-[11px] font-bold text-[var(--text-secondary)] transition-all shrink-0 outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+              className="flex-1 min-w-0 py-1 px-1.5 rounded-lg bg-[var(--surface-subtle)] hover:bg-[var(--action-primary)]/10 hover:text-[var(--action-primary)] text-[10px] sm:text-[11px] font-bold text-[var(--text-secondary)] transition-all text-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none cursor-pointer truncate"
             >
               Amanhã
             </button>
             <button
               type="button"
               onClick={() => selectQuickDate(7)}
-              className="px-2.5 py-1 rounded-lg bg-[var(--surface-subtle)] hover:bg-[var(--action-primary)]/10 hover:text-[var(--action-primary)] text-[11px] font-bold text-[var(--text-secondary)] transition-all shrink-0 outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+              className="flex-1 min-w-0 py-1 px-1.5 rounded-lg bg-[var(--surface-subtle)] hover:bg-[var(--action-primary)]/10 hover:text-[var(--action-primary)] text-[10px] sm:text-[11px] font-bold text-[var(--text-secondary)] transition-all text-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none cursor-pointer truncate"
             >
               +7 Dias
             </button>
           </div>
 
           {/* Month & Year Navigation Header */}
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xs font-bold text-[var(--text-primary)]">
+          <div className="flex items-center justify-between mb-1.5 px-0.5">
+            <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">
               {MONTH_NAMES[month]} {year}
             </h4>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5 shrink-0">
               <button
                 type="button"
                 onClick={prevMonth}
-                className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-colors"
+                className="p-1 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer"
                 title="Mês Anterior"
               >
-                <ChevronLeft size={15} />
+                <ChevronLeft size={14} />
               </button>
               <button
                 type="button"
                 onClick={nextMonth}
-                className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-colors"
+                className="p-1 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer"
                 title="Próximo Mês"
               >
-                <ChevronRight size={15} />
+                <ChevronRight size={14} />
               </button>
             </div>
           </div>
@@ -267,9 +267,9 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                     onChange(d.dateStr);
                     setIsOpen(false);
                   }}
-                  className={`size-8.5 rounded-lg text-xs font-semibold flex items-center justify-center transition-all cursor-pointer relative ${
+                  className={`w-full aspect-square rounded-lg text-xs font-semibold flex items-center justify-center transition-all cursor-pointer relative select-none ${
                     isSelected
-                      ? 'bg-[var(--action-primary)] text-white font-black shadow-sm shadow-[var(--action-primary)]/30'
+                      ? 'bg-[var(--action-primary)] text-white font-black shadow-sm shadow-[var(--action-primary)]/25 scale-[1.02]'
                       : isToday
                       ? 'bg-[var(--action-primary)]/15 text-[var(--action-primary)] font-bold'
                       : d.isCurrentMonth
@@ -279,7 +279,7 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                 >
                   <span>{d.dayNum}</span>
                   {isToday && !isSelected && (
-                    <span className="absolute bottom-1 size-1 rounded-full bg-[var(--action-primary)]" />
+                    <span className="absolute bottom-0.5 size-1 rounded-full bg-[var(--action-primary)]" />
                   )}
                 </button>
               );

@@ -17,21 +17,21 @@ export const notificationService = {
   async requestPermission(): Promise<NotificationPermission> {
     if (!('Notification' in window)) return 'denied';
     const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
+    if (permission === 'granted' && VAPID_PUBLIC_KEY) {
       await this.subscribeToPush();
     }
     return permission;
   },
 
   async subscribeToPush(): Promise<boolean> {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !VAPID_PUBLIC_KEY) return false;
 
     try {
       const registration = await navigator.serviceWorker.ready;
       let subscription = await registration.pushManager.getSubscription();
 
       const settings = {
-        dailyEnabled: localStorage.getItem('daily-reminders-enabled') !== 'false',
+        dailyEnabled: localStorage.getItem('daily-reminders-enabled') === 'true',
         notifTime: localStorage.getItem('notif-time') || '09:00',
       };
 

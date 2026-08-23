@@ -80,16 +80,16 @@ export const DayScheduleCard: React.FC = () => {
                     <Coffee size={18} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wide">
+                    <h4 className="text-sm font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wide">
                       {row.aula}
                     </h4>
-                    <p className="text-[11px] text-amber-600/80 dark:text-amber-400/80 font-medium">
+                    <p className="text-xs text-amber-600/80 dark:text-amber-400/80 font-medium">
                       {row.horario[0]} às {row.horario[1]}
                     </p>
                   </div>
                 </div>
                 {isActive && (
-                  <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-500 text-white uppercase tracking-wider animate-pulse">
+                  <span className="text-[11px] font-black px-2.5 py-1 rounded-full bg-amber-500 text-white uppercase tracking-wider animate-pulse">
                     Agora
                   </span>
                 )}
@@ -112,7 +112,7 @@ export const DayScheduleCard: React.FC = () => {
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Subject Color Pill */}
                   <div
-                    className="size-10 rounded-lg flex items-center justify-center font-black text-xs shrink-0 shadow-inner"
+                    className="size-10 rounded-lg flex items-center justify-center font-black text-xs sm:text-sm shrink-0 shadow-inner"
                     style={{
                       backgroundColor: `${meta?.color || '#4285F4'}20`,
                       color: meta?.color || '#4285F4',
@@ -123,24 +123,24 @@ export const DayScheduleCard: React.FC = () => {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                      <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
                         {row.aula}
                       </span>
                       {isActive && (
-                        <span className="text-[9px] font-black px-2 py-0.2 rounded-full bg-emerald-500 text-white uppercase animate-pulse">
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500 text-white uppercase animate-pulse">
                           Ao Vivo
                         </span>
                       )}
                     </div>
-                    <h4 className="text-sm font-bold text-[var(--text-primary)] truncate mt-0.5">
+                    <h4 className="text-base font-bold text-[var(--text-primary)] truncate mt-0.5">
                       {meta?.name || subjectCode}
                     </h4>
                   </div>
                 </div>
 
                 {/* Horário */}
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)] shrink-0 pl-2">
-                  <Clock size={13} className="text-[var(--text-muted)]" />
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)] shrink-0 pl-2">
+                  <Clock size={15} className="text-[var(--text-muted)]" />
                   <span>
                     {row.horario[0]} - {row.horario[1]}
                   </span>

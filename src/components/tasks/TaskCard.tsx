@@ -119,9 +119,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         }}
       />
 
-      <div className="py-3 px-3.5 sm:px-4 pl-4 sm:pl-4.5">
+      <div className="py-3.5 px-3.5 sm:px-4 pl-4 sm:pl-4.5">
         {/* Main Row */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           {/* Tactile Compact Checkbox */}
           <button
             type="button"
@@ -129,7 +129,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               e.stopPropagation();
               toggleTaskDone(task.id);
             }}
-            className={`size-7 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 shadow-2xs active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--action-primary)] outline-none ${
+            className={`size-7.5 sm:size-8 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 shadow-2xs active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--action-primary)] outline-none ${
               isDone
                 ? 'bg-emerald-500 text-white ring-2 ring-emerald-500/20'
                 : 'bg-[var(--surface-subtle)] hover:bg-[var(--surface-subtle)]/80 text-transparent'
@@ -137,7 +137,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             title={isDone ? 'Marcar como pendente' : 'Concluir tarefa'}
           >
             <Check
-              size={15}
+              size={16}
               className={`stroke-[3.5] transition-all duration-150 ${
                 isDone ? 'scale-100 opacity-100 text-white' : 'scale-50 opacity-0'
               }`}
@@ -151,7 +151,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           >
             {/* Task Title */}
             <h4
-              className={`text-xs sm:text-sm font-bold text-[var(--text-primary)] leading-snug ${
+              className={`text-sm sm:text-base font-bold text-[var(--text-primary)] leading-snug ${
                 isExpanded ? 'break-words' : 'truncate'
               } ${isDone ? 'line-through text-[var(--text-muted)]' : ''}`}
             >
@@ -159,16 +159,16 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             </h4>
 
             {/* Sub-row: Subject + Due Date + Attachments (Below Title) */}
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-0.5 text-[10px] sm:text-[11px]">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs">
               {/* Subject (3-letter abbreviation with colored dot) */}
               {subject && (
                 <span
-                  className="font-bold flex items-center gap-1 shrink-0 uppercase tracking-wider"
+                  className="font-bold flex items-center gap-1.5 shrink-0 uppercase tracking-wider"
                   style={{ color: subject.color }}
                   title={subject.name}
                 >
                   <span
-                    className="size-1.5 rounded-full shrink-0"
+                    className="size-2 rounded-full shrink-0"
                     style={{ backgroundColor: subject.color }}
                   />
                   <span>{subject.name.substring(0, 3).toUpperCase()}</span>
@@ -177,11 +177,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
               {/* Due Date */}
               {dueStatus && (
-                <span className={`flex items-center gap-1 shrink-0 ${dueStatus.className}`}>
+                <span className={`flex items-center gap-1.5 shrink-0 ${dueStatus.className}`}>
                   {dueStatus.isOverdue ? (
-                    <AlertCircle size={11} className="shrink-0 text-rose-500" />
+                    <AlertCircle size={13} className="shrink-0 text-rose-500" />
                   ) : (
-                    <Calendar size={11} className="shrink-0" />
+                    <Calendar size={13} className="shrink-0" />
                   )}
                   <span className="whitespace-nowrap">{dueStatus.label}</span>
                 </span>
@@ -189,8 +189,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
               {/* Attachments Icon */}
               {task.attachments && task.attachments.length > 0 && (
-                <span className="text-[10px] text-[var(--text-muted)] flex items-center gap-1 shrink-0">
-                  <Paperclip size={10} />
+                <span className="text-xs text-[var(--text-muted)] flex items-center gap-1 shrink-0">
+                  <Paperclip size={12} />
                   <span>{task.attachments.length}</span>
                 </span>
               )}
@@ -202,10 +202,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             <button
               type="button"
               onClick={() => openEditTaskModal(task)}
-              className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--action-primary)] hover:bg-[var(--surface-subtle)] transition-colors"
+              className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--action-primary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer"
               title="Editar"
             >
-              <Edit2 size={13} />
+              <Edit2 size={15} />
             </button>
             <button
               type="button"
@@ -218,9 +218,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               title={isConfirmingDelete ? 'Clique novamente para confirmar exclusão' : 'Excluir tarefa'}
             >
               {isConfirmingDelete ? (
-                <HelpCircle size={13} className="stroke-[2.8]" />
+                <HelpCircle size={15} className="stroke-[2.8]" />
               ) : (
-                <Trash2 size={13} />
+                <Trash2 size={15} />
               )}
             </button>
           </div>
@@ -228,23 +228,23 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
         {/* Expandable Details Section */}
         {isExpanded && (
-          <div className="mt-2.5 pt-2.5 border-t border-[var(--surface-subtle)] animate-fade-in space-y-2 pl-2 sm:pl-8">
+          <div className="mt-3 pt-3 border-t border-[var(--surface-subtle)] animate-fade-in space-y-2.5 pl-2 sm:pl-9">
             {/* Full Formatted Description */}
             {task.description ? (
-              <p className="text-xs text-[var(--text-secondary)] whitespace-pre-line leading-relaxed">
+              <p className="text-sm text-[var(--text-secondary)] whitespace-pre-line leading-relaxed">
                 {task.description}
               </p>
             ) : (
-              <p className="text-[11px] text-[var(--text-muted)] italic">
+              <p className="text-xs text-[var(--text-muted)] italic">
                 Sem descrição detalhada.
               </p>
             )}
 
             {/* Attachments Section */}
             {task.attachments && task.attachments.length > 0 && (
-              <div className="space-y-1 pt-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1">
-                  <Paperclip size={11} />
+              <div className="space-y-1.5 pt-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
+                  <Paperclip size={13} />
                   <span>Anexos ({task.attachments.length})</span>
                 </span>
 
@@ -255,11 +255,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                       href={att.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-1.5 text-xs text-[var(--action-primary)] hover:underline font-medium"
+                      className="flex items-center gap-1.5 text-sm text-[var(--action-primary)] hover:underline font-medium"
                     >
-                      <Paperclip size={11} />
+                      <Paperclip size={13} />
                       <span className="truncate max-w-[180px]">{att.name}</span>
-                      <ExternalLink size={10} className="shrink-0 opacity-70" />
+                      <ExternalLink size={12} className="shrink-0 opacity-70" />
                     </a>
                   ))}
                 </div>
@@ -268,8 +268,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
             {/* Created Timestamp */}
             {task.created_at && (
-              <div className="flex items-center gap-1 text-[10px] text-[var(--text-muted)] font-medium pt-1">
-                <Clock3 size={10} />
+              <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] font-medium pt-1">
+                <Clock3 size={12} />
                 <span>
                   Cadastrada em {new Date(task.created_at).toLocaleDateString('pt-BR')} às{' '}
                   {new Date(task.created_at).toLocaleTimeString('pt-BR', {

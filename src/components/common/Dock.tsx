@@ -1,4 +1,4 @@
-import React, { Children, cloneElement, isValidElement, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Children, cloneElement, isValidElement, useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, MotionValue, SpringOptions } from 'motion/react';
 
 import './Dock.css';
@@ -150,32 +150,21 @@ export default function Dock({
   magnification = 68,
   distance = 150,
   panelHeight = 60,
-  dockHeight,
   baseItemSize = 44,
 }: DockProps) {
   const mouseX = useMotionValue(Infinity);
-  const isHovered = useMotionValue(0);
-
-  const calculatedMaxHeight = useMemo(
-    () => dockHeight ?? Math.max(panelHeight, magnification + 14),
-    [magnification, panelHeight, dockHeight]
-  );
-  const heightRow = useTransform(isHovered, [0, 1], [panelHeight, calculatedMaxHeight]);
-  const height = useSpring(heightRow, spring);
 
   return (
-    <motion.div style={{ height, scrollbarWidth: 'none' }} className="dock-outer">
-      <motion.div
+    <div style={{ height: panelHeight, scrollbarWidth: 'none' }} className="dock-outer">
+      <div
         onMouseMove={({ pageX }) => {
-          isHovered.set(1);
           mouseX.set(pageX);
         }}
         onMouseLeave={() => {
-          isHovered.set(0);
           mouseX.set(Infinity);
         }}
         className={`dock-panel ${className}`}
-        style={{ height }}
+        style={{ height: panelHeight }}
         role="toolbar"
         aria-label="Application dock"
       >
@@ -196,7 +185,7 @@ export default function Dock({
             <DockLabel>{item.label}</DockLabel>
           </DockItem>
         ))}
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
