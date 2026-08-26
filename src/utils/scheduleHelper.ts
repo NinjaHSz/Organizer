@@ -1,4 +1,5 @@
 import { TIMETABLE_DATA, SUBJECT_METADATA } from '../components/schedule/scheduleData';
+import { getSubjectCode } from './subjectMatcher';
 
 export interface NextClassSuggestion {
   subjectCode: string;
@@ -18,40 +19,11 @@ export function getNextClassForSubject(
 ): NextClassSuggestion | null {
   if (!subjectNameOrCode) return null;
 
-  const normalized = subjectNameOrCode
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+  // 1. Find matching subject code using robust matcher
+  const matchedCode = getSubjectCode(subjectNameOrCode);
+  if (!matchedCode || !SUBJECT_METADATA[matchedCode]) return null;
 
-  // 1. Find matching subject code in metadata
-  let matchedCode: string | null = null;
-  let matchedName = subjectNameOrCode;
-
-  for (const [code, meta] of Object.entries(SUBJECT_METADATA)) {
-    const metaNormalized = meta.name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-    const codeNormalized = code
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
-    if (
-      normalized === codeNormalized ||
-      normalized === metaNormalized ||
-      normalized.includes(codeNormalized) ||
-      metaNormalized.includes(normalized) ||
-      normalized.substring(0, 3) === codeNormalized.substring(0, 3)
-    ) {
-      matchedCode = code;
-      matchedName = meta.name;
-      break;
-    }
-  }
-
-  if (!matchedCode) return null;
+  const matchedName = SUBJECT_METADATA[matchedCode].name;
 
   // 2. Find all day-indexes (0 = Seg, 1 = Ter, 2 = Qua, 3 = Qui, 4 = Sex) where this subject occurs
   const classDays: { dayIndex: number; timeRange: [string, string] }[] = [];

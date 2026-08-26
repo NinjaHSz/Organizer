@@ -15,6 +15,7 @@ import { useApp } from '../../context/AppContext';
 import { aiService, AIParsedTask } from '../../services/aiService';
 import { Priority } from '../../types/task';
 import { getNextClassForSubject } from '../../utils/scheduleHelper';
+import { findBestMatchingSubject } from '../../utils/subjectMatcher';
 
 export const AIScannerModal: React.FC = () => {
   const { isAIScannerOpen, closeAIScannerModal, subjects, createTask, showToast } = useApp();
@@ -88,15 +89,18 @@ export const AIScannerModal: React.FC = () => {
       setPriority(result.priority || 'medium');
       setDueDate(result.due_date || '');
 
-      // Try to find matching subject by name
+      // Try to find matching subject by name using robust matcher
       if (result.subject_suggestion && subjects.length > 0) {
-        const found = subjects.find(
-          (s) =>
-            s.name.toLowerCase().includes(result.subject_suggestion!.toLowerCase()) ||
-            result.subject_suggestion!.toLowerCase().includes(s.name.toLowerCase())
-        );
+        const found = findBestMatchingSubject(subjects, result.subject_suggestion);
         if (found) {
           setSubjectId(found.id);
+          // If no due date came from the image, suggest next class date for this subject
+          if (!result.due_date) {
+            const suggestion = getNextClassForSubject(found.name);
+            if (suggestion) {
+              setDueDate(suggestion.dateStr);
+            }
+          }
         } else {
           setSubjectId(subjects[0].id);
         }

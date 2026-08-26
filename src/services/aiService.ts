@@ -33,7 +33,10 @@ export const aiService = {
 
       REGRAS DE CONTEÚDO:
       - "due_date": SÓ preencha se houver uma data de entrega EXPLICITAMENTE escrita na imagem no formato YYYY-MM-DD. Caso contrário, retorne null. NUNCA tente adivinhar a data.
-      - "subject_suggestion": Sugira o nome da matéria com base no contexto do texto (ex: Matemática, Física, Biologia, Química, História, Geografia, Português, Inglês, etc).
+      - "subject_suggestion": Sugira o nome exato da matéria escolar com base no contexto do texto.
+        * ATENÇÃO: Diferencie claramente "Física" (cinemática, termodinâmica, óptica, ondas, forças, circuitos) de "Ed. Física" (exercícios corporais, esportes, atletismo, jogos, anatomia esportiva).
+        * Diferencie "Gramática", "Literatura" e "Redação" (ou Português).
+        * Outras matérias: Matemática, Biologia, Química, História, Geografia, Filosofia, Sociologia, Inglês, Espanhol, Artes.
 
       Estrutura JSON esperada:
       {
