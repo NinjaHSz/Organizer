@@ -55,19 +55,30 @@ export const notificationService = {
   showLocalNotification(title: string, options?: NotificationOptions) {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
 
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.ready.then((reg) => {
-        reg.showNotification(title, {
-          icon: '/assets/div.ico',
-          badge: '/assets/div.ico',
-          ...options,
+    const notifOptions: NotificationOptions = {
+      icon: '/assets/div.ico',
+      badge: '/assets/div.ico',
+      ...options,
+    };
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready
+        .then((reg) => {
+          reg.showNotification(title, notifOptions);
+        })
+        .catch(() => {
+          try {
+            new Notification(title, notifOptions);
+          } catch (e) {
+            console.warn('[Notifications] Error showing local notification:', e);
+          }
         });
-      });
     } else {
-      new Notification(title, {
-        icon: '/assets/div.ico',
-        ...options,
-      });
+      try {
+        new Notification(title, notifOptions);
+      } catch (e) {
+        console.warn('[Notifications] Error showing fallback notification:', e);
+      }
     }
   },
 };

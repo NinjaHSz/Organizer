@@ -22,7 +22,7 @@ export const TaskList: React.FC = () => {
         }
 
         // Category filter (Atrasadas, Próximas, Concluídas)
-        const isDone = completedTaskIds.includes(task.id) || task.status === 'done';
+        const isDone = completedTaskIds.includes(task.id);
 
         if (filters.category === 'overdue') {
           if (isDone || !task.due_date || task.due_date >= today) return false;

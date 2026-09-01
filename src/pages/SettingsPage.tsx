@@ -45,6 +45,7 @@ export const SettingsPage: React.FC = () => {
       if (perm === 'granted') {
         setDailyNotif(true);
         localStorage.setItem('daily-reminders-enabled', 'true');
+        localStorage.removeItem('last-daily-notif-date');
         showToast('Lembretes diários ativados!', 'success');
         notificationService.subscribeToPush();
       } else if (perm === 'denied') {
@@ -66,6 +67,8 @@ export const SettingsPage: React.FC = () => {
   const handleNotifTimeChange = (time: string) => {
     setNotifTime(time);
     localStorage.setItem('notif-time', time);
+    localStorage.removeItem('last-daily-notif-date');
+    notificationService.subscribeToPush();
     showToast(`Horário de lembrete definido para ${time}`, 'info');
   };
 

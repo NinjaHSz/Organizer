@@ -11,7 +11,7 @@ import { useApp } from '../../context/AppContext';
 export const MobileNav: React.FC = () => {
   const { activePage, setActivePage, tasks, completedTaskIds, openNewTaskModal } = useApp();
 
-  const pendingCount = tasks.length - completedTaskIds.length;
+  const pendingCount = tasks.filter((t) => !completedTaskIds.includes(t.id)).length;
 
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-card)]/90 ios-blur pb-safe">

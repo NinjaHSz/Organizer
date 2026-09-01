@@ -9,24 +9,15 @@ export const TaskFilters: React.FC = () => {
   const today = new Date().toISOString().split('T')[0];
 
   const totalCount = tasks.length;
-  const doneCount = tasks.filter(
-    (t) => completedTaskIds.includes(t.id) || t.status === 'done'
-  ).length;
+  const doneCount = tasks.filter((t) => completedTaskIds.includes(t.id)).length;
   const percentage = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
   const upcomingCount = tasks.filter(
-    (t) =>
-      (!t.due_date || t.due_date >= today) &&
-      !completedTaskIds.includes(t.id) &&
-      t.status !== 'done'
+    (t) => (!t.due_date || t.due_date >= today) && !completedTaskIds.includes(t.id)
   ).length;
 
   const overdueCount = tasks.filter(
-    (t) =>
-      t.due_date &&
-      t.due_date < today &&
-      !completedTaskIds.includes(t.id) &&
-      t.status !== 'done'
+    (t) => t.due_date && t.due_date < today && !completedTaskIds.includes(t.id)
   ).length;
 
   const tabs: {

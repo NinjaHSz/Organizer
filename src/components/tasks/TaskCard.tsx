@@ -42,7 +42,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     }
   };
 
-  const isDone = completedTaskIds.includes(task.id) || task.status === 'done';
+  const isDone = completedTaskIds.includes(task.id);
   const subject = subjects.find((s) => s.id === task.subject_id);
 
   // Priority Border Color

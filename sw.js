@@ -185,7 +185,7 @@ self.addEventListener('message', async (event) => {
   }
 });
 
-// 6. Push Notifications (Server Web Push)
+// 6. Push Notifications & Periodic Sync (Server Web Push / Background)
 const showNotification = (title, options) => {
   return self.registration.showNotification(title, {
     icon: '/assets/div.ico',
@@ -194,6 +194,69 @@ const showNotification = (title, options) => {
     ...options,
   });
 };
+
+const checkDailyReminderFromSW = async () => {
+  try {
+    const db = await openDB();
+    const settings = await getData(db, 'settings');
+    if (!settings || !settings.dailyEnabled) return;
+
+    const now = new Date();
+    const currentHours = String(now.getHours()).padStart(2, '0');
+    const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+    const currentTime = `${currentHours}:${currentMinutes}`;
+    const targetTime = settings.notifTime || '09:00';
+
+    const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const lastFiredDate = settings.lastFiredDate;
+
+    if (currentTime >= targetTime && lastFiredDate !== todayDateStr) {
+      const tasks = (await getData(db, 'tasks')) || [];
+      const pendingTasks = tasks.filter((t) => !t.isCompleted);
+      const pendingToday = pendingTasks.filter((t) => t.due_date === todayDateStr);
+
+      const dayOfWeek = now.getDay();
+      const diffToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+      const endOfWeek = new Date(now);
+      endOfWeek.setDate(now.getDate() + diffToSunday);
+      const endOfWeekStr = `${endOfWeek.getFullYear()}-${String(endOfWeek.getMonth() + 1).padStart(2, '0')}-${String(endOfWeek.getDate()).padStart(2, '0')}`;
+
+      const pendingThisWeek = pendingTasks.filter(
+        (t) => t.due_date && t.due_date >= todayDateStr && t.due_date <= endOfWeekStr
+      );
+
+      const weekCount = pendingThisWeek.length;
+      const weekText = weekCount === 1 ? '1 tarefa' : `${weekCount} tarefas`;
+
+      let title = 'Passando para lembrar das suas Tarefas';
+      let body = 'Você não tem tarefas pendentes para entregar nesta semana!';
+
+      if (pendingToday.length > 0) {
+        const todayText = pendingToday.length === 1 ? '1 tarefa' : `${pendingToday.length} tarefas`;
+        title = 'Lembrete de Tarefas';
+        body = `Você tem ${todayText} para entregar hoje e ${weekText} no total para esta semana.`;
+      } else if (weekCount > 0) {
+        body = `Você tem ${weekText} para entregar nesta semana.`;
+      }
+
+      await showNotification(title, {
+        body,
+        tag: 'daily-reminder',
+      });
+
+      settings.lastFiredDate = todayDateStr;
+      await setData(db, 'settings', settings);
+    }
+  } catch (err) {
+    console.warn('[SW] Falha ao verificar lembrete diário:', err);
+  }
+};
+
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'daily-reminder-sync') {
+    event.waitUntil(checkDailyReminderFromSW());
+  }
+});
 
 self.addEventListener('push', (event) => {
   console.log('[SW] Mensagem de Push recebida!');

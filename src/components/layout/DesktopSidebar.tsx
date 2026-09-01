@@ -19,7 +19,7 @@ export const DesktopSidebar: React.FC = () => {
     openNewTaskModal,
   } = useApp();
 
-  const pendingCount = tasks.length - completedTaskIds.length;
+  const pendingCount = tasks.filter((t) => !completedTaskIds.includes(t.id)).length;
 
   const navItems = [
     {

@@ -133,16 +133,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ]);
       setTasks(fetchedTasks);
       setSubjects(fetchedSubjects);
-
-      // Synchronize completedTaskIds with loaded tasks
-      const doneIds = fetchedTasks.filter((t) => t.status === 'done').map((t) => t.id);
-      setCompletedTaskIds((prev) => {
-        // Keep offline-created completed task IDs that aren't in fetchedTasks yet
-        const offlineDone = prev.filter((id) => !fetchedTasks.some((t) => t.id === id));
-        const allDoneIds = Array.from(new Set([...doneIds, ...offlineDone]));
-        localStorage.setItem('completed_tasks', JSON.stringify(allDoneIds));
-        return allDoneIds;
-      });
     } catch (err) {
       console.error('Failed to load data:', err);
       showToast('Erro ao sincronizar com banco de dados', 'error');
@@ -161,6 +151,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const isDailyEnabled = localStorage.getItem('daily-reminders-enabled') === 'true';
       if (!isDailyEnabled) return;
 
+      if (typeof Notification === 'undefined' || Notification.permission !== 'granted') {
+        return;
+      }
+
       const targetTime = localStorage.getItem('notif-time') || '09:00';
       const now = new Date();
       const currentHours = String(now.getHours()).padStart(2, '0');
@@ -173,21 +167,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const todayDateStr = `${year}-${month}-${day}`;
       const lastFiredDate = localStorage.getItem('last-daily-notif-date');
 
-      if (currentTime === targetTime && lastFiredDate !== todayDateStr) {
+      if (currentTime >= targetTime && lastFiredDate !== todayDateStr) {
         localStorage.setItem('last-daily-notif-date', todayDateStr);
 
-        // Calculate end of the current week
-        const currentDayOfWeek = now.getDay();
-        const daysUntilSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek;
+        // Calculate end of the current week (Sunday)
+        const dayOfWeek = now.getDay();
+        const diffToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
         const endOfWeek = new Date(now);
-        endOfWeek.setDate(now.getDate() + (daysUntilSunday === 0 ? 6 : daysUntilSunday));
+        endOfWeek.setDate(now.getDate() + diffToSunday);
         const endOfWeekStr = `${endOfWeek.getFullYear()}-${String(endOfWeek.getMonth() + 1).padStart(2, '0')}-${String(endOfWeek.getDate()).padStart(2, '0')}`;
 
         const pendingToday = tasks.filter(
           (t) =>
             t.due_date === todayDateStr &&
-            !completedTaskIds.includes(t.id) &&
-            t.status !== 'done'
+            !completedTaskIds.includes(t.id)
         );
 
         const pendingThisWeek = tasks.filter(
@@ -195,8 +188,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             t.due_date &&
             t.due_date >= todayDateStr &&
             t.due_date <= endOfWeekStr &&
-            !completedTaskIds.includes(t.id) &&
-            t.status !== 'done'
+            !completedTaskIds.includes(t.id)
         );
 
         const weekCount = pendingThisWeek.length;
@@ -222,9 +214,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     };
 
-    const interval = setInterval(checkReminder, 25000); // Check every 25 seconds
+    const interval = setInterval(checkReminder, 10000); // Check every 10 seconds
     checkReminder();
     return () => clearInterval(interval);
+  }, [tasks, completedTaskIds]);
+
+  // Sync tasks & settings to Service Worker for background notifications
+  useEffect(() => {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SYNC_DATA',
+        tasks: tasks.map((t) => ({
+          ...t,
+          isCompleted: completedTaskIds.includes(t.id),
+        })),
+        settings: {
+          dailyEnabled: localStorage.getItem('daily-reminders-enabled') === 'true',
+          notifTime: localStorage.getItem('notif-time') || '09:00',
+          lastFiredDate: localStorage.getItem('last-daily-notif-date') || '',
+        },
+      });
+    }
   }, [tasks, completedTaskIds]);
 
   // Tasks CRUD
@@ -237,16 +247,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateTask = async (id: string, updates: Partial<Task>) => {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...updates } : t)));
-    if (updates.status) {
-      setCompletedTaskIds((prev) => {
-        const updated =
-          updates.status === 'done'
-            ? Array.from(new Set([...prev, id]))
-            : prev.filter((cid) => cid !== id);
-        localStorage.setItem('completed_tasks', JSON.stringify(updated));
-        return updated;
-      });
-    }
     await dbService.updateTask(id, updates);
     showToast('Tarefa atualizada!', 'info');
   };
@@ -264,8 +264,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const toggleTaskDone = async (id: string) => {
-    const task = tasks.find((t) => t.id === id);
-    const currentlyDone = completedTaskIds.includes(id) || task?.status === 'done';
+    const currentlyDone = completedTaskIds.includes(id);
     const isNowDone = !currentlyDone;
 
     let newCompleted: string[];
@@ -286,16 +285,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setCompletedTaskIds(newCompleted);
     localStorage.setItem('completed_tasks', JSON.stringify(newCompleted));
-
-    const newStatus: Task['status'] = isNowDone ? 'done' : 'todo';
-
-    // Synchronously update in-memory tasks state
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, status: newStatus } : t))
-    );
-
-    // Persist to Supabase / Local Cache
-    await dbService.updateTask(id, { status: newStatus });
   };
 
   // Subjects CRUD
