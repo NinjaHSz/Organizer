@@ -1,12 +1,35 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { CheckCircle2, Clock, AlertTriangle, SearchX, Plus, Sparkles } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { TaskCard } from './TaskCard';
 import { EmptyState } from '../common/EmptyState';
 import { Task } from '../../types/task';
 
+const useColumnCount = () => {
+  const [columnCount, setColumnCount] = useState<number>(() => {
+    if (typeof window === 'undefined') return 1;
+    if (window.innerWidth >= 1280) return 3;
+    if (window.innerWidth >= 768) return 2;
+    return 1;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const count = width >= 1280 ? 3 : width >= 768 ? 2 : 1;
+      setColumnCount((prev) => (prev !== count ? count : prev));
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return columnCount;
+};
+
 export const TaskList: React.FC = () => {
   const { tasks, filters, completedTaskIds, openNewTaskModal, openAIScannerModal } = useApp();
+  const columnCount = useColumnCount();
 
   const filteredTasks = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -47,6 +70,14 @@ export const TaskList: React.FC = () => {
         return a.due_date.localeCompare(b.due_date);
       });
   }, [tasks, filters, completedTaskIds]);
+
+  const taskColumns = useMemo(() => {
+    const cols: Task[][] = Array.from({ length: columnCount }, () => []);
+    filteredTasks.forEach((task, index) => {
+      cols[index % columnCount].push(task);
+    });
+    return cols;
+  }, [filteredTasks, columnCount]);
 
   if (filteredTasks.length === 0) {
     if (filters.search) {
@@ -116,9 +147,21 @@ export const TaskList: React.FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5 items-start">
-      {filteredTasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
+    <div
+      className={`grid gap-3.5 items-start ${
+        columnCount === 3
+          ? 'grid-cols-3'
+          : columnCount === 2
+          ? 'grid-cols-2'
+          : 'grid-cols-1'
+      }`}
+    >
+      {taskColumns.map((col, colIdx) => (
+        <div key={colIdx} className="flex flex-col gap-3.5">
+          {col.map((task) => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+        </div>
       ))}
     </div>
   );

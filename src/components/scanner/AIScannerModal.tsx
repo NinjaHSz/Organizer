@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   Camera,
   UploadCloud,
@@ -30,6 +30,20 @@ export const AIScannerModal: React.FC = () => {
   const [subjectId, setSubjectId] = useState<string>('');
   const [priority, setPriority] = useState<Priority>('medium');
   const [dueDate, setDueDate] = useState<string>('');
+
+  const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const adjustDescriptionHeight = () => {
+    if (descriptionRef.current) {
+      descriptionRef.current.style.height = 'auto';
+      const newHeight = Math.min(descriptionRef.current.scrollHeight, 125);
+      descriptionRef.current.style.height = `${Math.max(newHeight, 56)}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustDescriptionHeight();
+  }, [description, parsedResult]);
 
   const selectedSubject = subjects.find((s) => s.id === subjectId);
   const nextClassSuggestion = useMemo(() => {
@@ -245,10 +259,14 @@ export const AIScannerModal: React.FC = () => {
               Conteúdo Extraído
             </label>
             <textarea
-              rows={4}
+              ref={descriptionRef}
+              rows={2}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-[var(--surface-subtle)] text-[var(--text-primary)] px-4 py-2.5 rounded-2xl text-xs outline-none border border-transparent focus:border-[var(--action-primary)] resize-none"
+              onChange={(e) => {
+                setDescription(e.target.value);
+                adjustDescriptionHeight();
+              }}
+              className="w-full bg-[var(--surface-subtle)] text-[var(--text-primary)] px-4 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed outline-none border border-transparent focus:border-[var(--action-primary)] resize-none min-h-[3.5rem] max-h-[7.8rem] overflow-y-auto"
             />
           </div>
 

@@ -231,7 +231,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           <div className="mt-3 pt-3 border-t border-[var(--surface-subtle)] animate-fade-in space-y-2.5 pl-2 sm:pl-9">
             {/* Full Formatted Description */}
             {task.description ? (
-              <p className="text-sm text-[var(--text-secondary)] whitespace-pre-line leading-relaxed">
+              <p className="text-sm text-[var(--text-secondary)] whitespace-pre-line leading-relaxed max-h-32 overflow-y-auto pr-1">
                 {task.description}
               </p>
             ) : (

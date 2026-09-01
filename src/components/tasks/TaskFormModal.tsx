@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Calendar,
   FolderOpen,
@@ -39,6 +39,17 @@ export const TaskFormModal: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const adjustDescriptionHeight = () => {
+    if (descriptionRef.current) {
+      descriptionRef.current.style.height = 'auto';
+      // 5 lines max height ~ 125px
+      const newHeight = Math.min(descriptionRef.current.scrollHeight, 125);
+      descriptionRef.current.style.height = `${Math.max(newHeight, 56)}px`;
+    }
+  };
+
   const selectedSubject = subjects.find((s) => s.id === subjectId);
   const nextClassSuggestion = useMemo(() => {
     return getNextClassForSubject(selectedSubject?.name);
@@ -71,6 +82,14 @@ export const TaskFormModal: React.FC = () => {
       setAttachments([]);
     }
   }, [editingTask, initialTaskDueDate, isTaskModalOpen, subjects]);
+
+  useEffect(() => {
+    if (isTaskModalOpen) {
+      // Small timeout to allow DOM paint and layout calculation
+      const timer = setTimeout(adjustDescriptionHeight, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [description, isTaskModalOpen]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -183,17 +202,21 @@ export const TaskFormModal: React.FC = () => {
           </div>
         </div>
 
-        {/* Description (Compact height) */}
+        {/* Description (Expands up to 5 lines with vertical scrollbar) */}
         <div>
           <label className="block text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
             Descrição / Anotações
           </label>
           <textarea
+            ref={descriptionRef}
             rows={2}
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              adjustDescriptionHeight();
+            }}
             placeholder="Detalhes adicionais, itens de checklist, questões ou orientações..."
-            className="w-full bg-[var(--surface-subtle)] text-[var(--text-primary)] px-3.5 py-2 rounded-xl text-xs outline-none border border-transparent focus:border-[var(--action-primary)] focus:bg-[var(--surface-card)] transition-all resize-none max-h-16"
+            className="w-full bg-[var(--surface-subtle)] text-[var(--text-primary)] px-3.5 py-2 rounded-xl text-xs sm:text-sm leading-relaxed outline-none border border-transparent focus:border-[var(--action-primary)] focus:bg-[var(--surface-card)] transition-all resize-none min-h-[3.5rem] max-h-[7.8rem] overflow-y-auto"
           />
         </div>
 
