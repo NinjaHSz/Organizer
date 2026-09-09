@@ -5,7 +5,7 @@ import { Subject } from '../types/subject';
 import { dbService } from '../services/supabase';
 import { notificationService } from '../services/notificationService';
 
-export type AppPage = 'dashboard' | 'calendar' | 'schedule' | 'subjects' | 'settings';
+export type AppPage = 'dashboard' | 'calendar' | 'schedule' | 'subjects' | 'settings' | 'study-notes';
 
 export interface ToastItem {
   id: string;

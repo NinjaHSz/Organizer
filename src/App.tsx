@@ -11,6 +11,7 @@ import { CalendarPage } from './pages/CalendarPage';
 import { SchedulePage } from './pages/SchedulePage';
 import { SubjectsPage } from './pages/SubjectsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { StudyNotesPage } from './pages/StudyNotesPage';
 
 import { initPwaManager } from './services/pwaManager';
 
@@ -37,6 +38,8 @@ export const App: React.FC = () => {
         return <SchedulePage />;
       case 'subjects':
         return <SubjectsPage />;
+      case 'study-notes':
+        return <StudyNotesPage />;
       case 'settings':
         return <SettingsPage />;
       default:

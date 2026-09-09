@@ -5,6 +5,7 @@ import { useApp } from '../../context/AppContext';
 export const Header: React.FC = () => {
   const {
     activePage,
+    setActivePage,
     filters,
     setSearch,
     openNewSubjectModal,
@@ -34,6 +35,11 @@ export const Header: React.FC = () => {
         return {
           title: 'Minhas Matérias',
           subtitle: 'Gerencie suas disciplinas escolares',
+        };
+      case 'study-notes':
+        return {
+          title: 'Materiais ENEM',
+          subtitle: 'Acervo e links de estudo organizados',
         };
       case 'settings':
         return {
@@ -121,6 +127,39 @@ export const Header: React.FC = () => {
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Study Notes SVG Icon Button */}
+          <button
+            onClick={() => setActivePage(activePage === 'study-notes' ? 'dashboard' : 'study-notes')}
+            className={`p-2.5 rounded-xl transition-all cursor-pointer relative ${
+              activePage === 'study-notes'
+                ? 'bg-[var(--action-primary)] text-white shadow-md shadow-[var(--action-primary)]/25 scale-105'
+                : 'text-[var(--text-secondary)] hover:text-[var(--action-primary)] hover:bg-[var(--surface-subtle)] active:scale-95'
+            }`}
+            title="Anotações & Materiais de Estudo"
+            aria-label="Anotações e Materiais de Estudo"
+          >
+            {/* Símbolo SVG de Notas */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="size-5"
+            >
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="8" y1="13" x2="16" y2="13" />
+              <line x1="8" y1="17" x2="13" y2="17" />
+              <line x1="8" y1="9" x2="10" y2="9" />
+            </svg>
+            {activePage === 'study-notes' && (
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white" />
+            )}
+          </button>
+
           {/* Mobile Search Toggle */}
           {(activePage === 'dashboard' || activePage === 'calendar') && !isSearchOpen && (
             <button
