@@ -7,7 +7,6 @@ import {
   Search,
   Copy,
   Check,
-  Flame,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
@@ -444,12 +443,6 @@ export const StudyNotesPage: React.FC = () => {
                       >
                         {link.title}
                       </h4>
-
-                      {link.pinned && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-[var(--action-primary)] text-white shadow-xs shrink-0">
-                          <Flame size={10} /> Destaque
-                        </span>
-                      )}
                     </div>
 
                     {/* Sub-row: Categoria (com dot colorido) + Tags prévias */}
