@@ -14,6 +14,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { StudyNotesPage } from './pages/StudyNotesPage';
 
 import { initPwaManager } from './services/pwaManager';
+import { notificationService } from './services/notificationService';
 
 // Modals
 import { TaskFormModal } from './components/tasks/TaskFormModal';
@@ -26,6 +27,15 @@ export const App: React.FC = () => {
   useEffect(() => {
     // Initialize PWA auto-update manager & service worker
     initPwaManager();
+
+    // Ensure push subscription and time settings are synced with Supabase
+    if (
+      localStorage.getItem('daily-reminders-enabled') === 'true' &&
+      typeof Notification !== 'undefined' &&
+      Notification.permission === 'granted'
+    ) {
+      notificationService.subscribeToPush();
+    }
   }, []);
 
   const renderActivePage = () => {

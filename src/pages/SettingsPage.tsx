@@ -60,6 +60,7 @@ export const SettingsPage: React.FC = () => {
     } else {
       setDailyNotif(false);
       localStorage.setItem('daily-reminders-enabled', 'false');
+      notificationService.subscribeToPush();
       showToast('Lembretes diários desativados.', 'info');
     }
   };
@@ -71,6 +72,8 @@ export const SettingsPage: React.FC = () => {
     notificationService.subscribeToPush();
     showToast(`Horário de lembrete definido para ${time}`, 'info');
   };
+
+  const [isTestingNotif, setIsTestingNotif] = useState(false);
 
   const handleTestNotification = async () => {
     if (!('Notification' in window)) {
@@ -84,10 +87,25 @@ export const SettingsPage: React.FC = () => {
     }
 
     if (perm === 'granted') {
+      setIsTestingNotif(true);
+      // 1. Local preview notification
       notificationService.showLocalNotification('Organizer Notificações', {
-        body: 'Tudo pronto! Suas notificações de tarefas estão funcionando perfeitamente. 🎉',
+        body: 'Notificação local ativa! Testando conexão com servidor Web Push... 🎉',
       });
-      showToast('Notificação de teste enviada!', 'success');
+
+      // 2. Trigger server Web Push Edge Function
+      try {
+        const res = await notificationService.triggerServerPushTest();
+        if (res.success) {
+          showToast('Sinal Web Push enviado pelo servidor!', 'success');
+        } else {
+          showToast(`Lembrete local OK (${res.message})`, 'info');
+        }
+      } catch {
+        showToast('Notificação local disparada com sucesso.', 'success');
+      } finally {
+        setIsTestingNotif(false);
+      }
     } else {
       showToast('Permissão de notificação negada no navegador.', 'error');
     }
@@ -233,7 +251,7 @@ export const SettingsPage: React.FC = () => {
               {/* Time Selector */}
               <div className="pt-2 flex items-center justify-between">
                 <span className="text-xs font-bold text-[var(--text-primary)]">
-                  Horário do Resumo Matinal
+                  Horário do Resumo de Tarefas
                 </span>
                 <input
                   type="time"
@@ -246,10 +264,11 @@ export const SettingsPage: React.FC = () => {
               {/* Test Button */}
               <button
                 onClick={handleTestNotification}
-                className="w-full py-2.5 px-4 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-subtle)]/80 text-[var(--text-primary)] text-xs font-bold transition-all flex items-center justify-center gap-2"
+                disabled={isTestingNotif}
+                className="w-full py-2.5 px-4 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-subtle)]/80 text-[var(--text-primary)] text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
               >
-                <Send size={14} />
-                <span>Testar Notificação Agora</span>
+                <Send size={14} className={isTestingNotif ? 'animate-pulse' : ''} />
+                <span>{isTestingNotif ? 'Enviando teste...' : 'Testar Notificação Agora'}</span>
               </button>
             </div>
           </section>

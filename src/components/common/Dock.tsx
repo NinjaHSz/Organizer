@@ -18,7 +18,6 @@ export interface DockProps {
   magnification?: number;
   distance?: number;
   panelHeight?: number;
-  dockHeight?: number;
   baseItemSize?: number;
 }
 

@@ -26,11 +26,6 @@ export const getSupabaseClient = (): SupabaseClient | null => {
   }
 };
 
-export const resetSupabaseClient = () => {
-  clientInstance = null;
-  return getSupabaseClient();
-};
-
 export const dbService = {
   // TASKS
   async getTasks(): Promise<Task[]> {
@@ -270,23 +265,70 @@ export const dbService = {
   },
 
   // PUSH SUBSCRIPTIONS
-  async savePushSubscription(subscription: PushSubscription, settings: { dailyEnabled: boolean; notifTime: string }) {
+  async savePushSubscription(
+    subscription: PushSubscription,
+    settings: { dailyEnabled: boolean; notifTime: string }
+  ) {
     const client = getSupabaseClient();
     if (!client) return;
 
     try {
-      const subJson = subscription.toJSON();
-      const payload = {
-        endpoint: subJson.endpoint,
-        p256dh: subJson.keys?.p256dh,
-        auth: subJson.keys?.auth,
-        user_agent: navigator.userAgent,
-        daily_enabled: settings.dailyEnabled,
-        notif_time: settings.notifTime,
-        updated_at: new Date().toISOString(),
-      };
+      const subJson = typeof subscription.toJSON === 'function' ? subscription.toJSON() : subscription;
+      const endpoint = subJson.endpoint;
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Sao_Paulo';
+      const recordId = localStorage.getItem('ps_record_id');
 
-      await client.from('push_subscriptions').upsert(payload, { onConflict: 'endpoint' });
+      let existingId = recordId;
+      if (!existingId && endpoint) {
+        const { data: existing } = await client
+          .from('push_subscriptions')
+          .select('id')
+          .filter('subscription->>endpoint', 'eq', endpoint)
+          .maybeSingle();
+
+        if (existing?.id) {
+          existingId = existing.id;
+        }
+      }
+
+      if (existingId) {
+        const { error } = await client
+          .from('push_subscriptions')
+          .update({
+            subscription: subJson,
+            notif_time: settings.notifTime,
+            daily_enabled: settings.dailyEnabled,
+            timezone,
+          })
+          .eq('id', existingId);
+
+        if (!error) {
+          localStorage.setItem('ps_record_id', existingId);
+          console.log('[DB] Inscrição Push atualizada com sucesso no Supabase.');
+        } else {
+          console.warn('[DB] Erro ao atualizar inscrição Push:', error);
+        }
+      } else {
+        const { data, error } = await client
+          .from('push_subscriptions')
+          .insert([
+            {
+              subscription: subJson,
+              notif_time: settings.notifTime,
+              daily_enabled: settings.dailyEnabled,
+              timezone,
+            },
+          ])
+          .select('id')
+          .single();
+
+        if (!error && data?.id) {
+          localStorage.setItem('ps_record_id', data.id);
+          console.log('[DB] Nova inscrição Push salva com sucesso no Supabase:', data.id);
+        } else if (error) {
+          console.warn('[DB] Erro ao salvar nova inscrição Push:', error);
+        }
+      }
     } catch (err) {
       console.warn('[DB] Error saving push subscription:', err);
     }
@@ -301,14 +343,33 @@ export const dbService = {
         const reg = await navigator.serviceWorker.ready;
         const sub = await reg.pushManager.getSubscription();
         if (sub) {
-          await client
-            .from('push_subscriptions')
-            .update({
-              daily_enabled: settings.dailyEnabled,
-              notif_time: settings.notifTime,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('endpoint', sub.endpoint);
+          const endpoint = sub.endpoint;
+          const recordId = localStorage.getItem('ps_record_id');
+          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Sao_Paulo';
+
+          const payload = {
+            notif_time: settings.notifTime,
+            daily_enabled: settings.dailyEnabled,
+            timezone,
+          };
+
+          let query = client.from('push_subscriptions').update(payload);
+
+          if (recordId) {
+            query = query.eq('id', recordId);
+          } else {
+            query = query.filter('subscription->>endpoint', 'eq', endpoint);
+          }
+
+          const { data, error } = await query.select('id');
+          if (!error && data && data.length > 0 && !recordId) {
+            localStorage.setItem('ps_record_id', data[0].id);
+          }
+          if (error) {
+            console.warn('[DB] Erro ao atualizar ajustes de Push:', error);
+          } else {
+            console.log('[DB] Ajustes de notificação sincronizados no Supabase:', payload);
+          }
         }
       }
     } catch (err) {

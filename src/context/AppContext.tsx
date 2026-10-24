@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import confetti from 'canvas-confetti';
-import { Task, FilterState, TaskCategory, Priority, ViewMode } from '../types/task';
+import { Task, FilterState, TaskCategory } from '../types/task';
 import { Subject } from '../types/subject';
 import { dbService } from '../services/supabase';
 import { notificationService } from '../services/notificationService';
@@ -37,9 +37,6 @@ interface AppContextType {
   setActivePage: (page: AppPage) => void;
   setSearch: (search: string) => void;
   setCategory: (category: TaskCategory) => void;
-  setPriorityFilter: (priority: 'all' | Priority) => void;
-  setSubjectFilter: (subjectId: string) => void;
-  setViewMode: (mode: ViewMode) => void;
   setCalendarDate: (date: Date) => void;
   setSelectedCalendarDate: (dateStr: string) => void;
 
@@ -91,9 +88,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [filters, setFilters] = useState<FilterState>(() => ({
     search: '',
     category: 'upcoming',
-    priority: 'all',
-    subjectId: 'all',
-    viewMode: (localStorage.getItem('view-mode') as ViewMode) || 'list',
   }));
 
   // Calendar
@@ -216,7 +210,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const interval = setInterval(checkReminder, 10000); // Check every 10 seconds
     checkReminder();
-    return () => clearInterval(interval);
+
+    const handleSettingsChange = () => {
+      checkReminder();
+    };
+    window.addEventListener('notif-settings-changed', handleSettingsChange);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('notif-settings-changed', handleSettingsChange);
+    };
   }, [tasks, completedTaskIds]);
 
   // Sync tasks & settings to Service Worker for background notifications
@@ -310,12 +313,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Filter Setters
   const setSearch = (search: string) => setFilters((prev) => ({ ...prev, search }));
   const setCategory = (category: TaskCategory) => setFilters((prev) => ({ ...prev, category }));
-  const setPriorityFilter = (priority: 'all' | Priority) => setFilters((prev) => ({ ...prev, priority }));
-  const setSubjectFilter = (subjectId: string) => setFilters((prev) => ({ ...prev, subjectId }));
-  const setViewMode = (viewMode: ViewMode) => {
-    localStorage.setItem('view-mode', viewMode);
-    setFilters((prev) => ({ ...prev, viewMode }));
-  };
 
   // Modal Handlers
   const openNewTaskModal = (dueDate?: string) => {
@@ -374,9 +371,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setActivePage,
       setSearch,
       setCategory,
-      setPriorityFilter,
-      setSubjectFilter,
-      setViewMode,
       setCalendarDate,
       setSelectedCalendarDate,
       createTask,

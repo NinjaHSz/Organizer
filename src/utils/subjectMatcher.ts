@@ -3,7 +3,7 @@ import { SUBJECT_METADATA } from '../components/schedule/scheduleData';
 /**
  * Normalizes text for robust comparison (removes accents, punctuation, lowercases, trims)
  */
-export function normalizeText(text?: string | null): string {
+function normalizeText(text?: string | null): string {
   if (!text) return '';
   return text
     .toLowerCase()
@@ -18,7 +18,7 @@ export function normalizeText(text?: string | null): string {
  * Known aliases for timetable subject codes.
  * Ensures composite subjects like "Ed. Física" are never confused with "Física".
  */
-export const SUBJECT_ALIASES: Record<string, string[]> = {
+const SUBJECT_ALIASES: Record<string, string[]> = {
   'ED.FIS': [
     'ed fisica',
     'ed fis',

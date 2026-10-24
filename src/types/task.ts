@@ -2,8 +2,6 @@ export type Priority = 'low' | 'medium' | 'high';
 
 export type TaskCategory = 'all' | 'today' | 'upcoming' | 'overdue' | 'done';
 
-export type ViewMode = 'list' | 'grid';
-
 export interface TaskAttachment {
   name: string;
   url: string;
@@ -27,7 +25,5 @@ export interface Task {
 export interface FilterState {
   search: string;
   category: TaskCategory;
-  priority: 'all' | Priority;
-  subjectId: string;
-  viewMode: ViewMode;
 }
+

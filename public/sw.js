@@ -165,8 +165,8 @@ self.addEventListener('message', async (event) => {
   const db = await openDB();
 
   if (data.type === 'SYNC_DATA') {
-    await setData(db, 'tasks', data.tasks);
-    await setData(db, 'settings', data.settings);
+    if (data.tasks) await setData(db, 'tasks', data.tasks);
+    if (data.settings) await setData(db, 'settings', data.settings);
     await setData(db, 'lastSync', Date.now());
     console.log('[SW] Dados sincronizados no IndexedDB');
   }
@@ -197,19 +197,30 @@ const showNotification = (title, options) => {
 
 self.addEventListener('push', (event) => {
   console.log('[SW] Mensagem de Push recebida!');
+  let title = 'Organizer';
+  let body = 'Você tem novidades no seu organizador.';
+  let tag = 'daily-reminder';
+  let url = '/';
+
   if (event.data) {
     try {
       const payload = event.data.json();
-      const promise = showNotification(payload.title || 'Organizer', {
-        body: payload.body || 'Você tem novidades no seu organizador.',
-        tag: payload.tag || 'push-notification',
-        data: { url: payload.url || '/' },
-      });
-      event.waitUntil(promise);
-    } catch (e) {
-      console.error('[SW] Erro ao processar payload de push:', e);
+      title = payload.title || title;
+      body = payload.body || body;
+      tag = payload.tag || tag;
+      if (payload.data && payload.data.url) url = payload.data.url;
+      else if (payload.url) url = payload.url;
+    } catch {
+      body = event.data.text() || body;
     }
   }
+
+  const promise = showNotification(title, {
+    body,
+    tag,
+    data: { url },
+  });
+  event.waitUntil(promise);
 });
 
 self.addEventListener('notificationclick', (event) => {
