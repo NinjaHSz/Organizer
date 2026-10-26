@@ -292,7 +292,7 @@ export const dbService = {
       }
 
       if (existingId) {
-        const { error } = await client
+        const { data: updatedRows, error } = await client
           .from('push_subscriptions')
           .update({
             subscription: subJson,
@@ -300,13 +300,31 @@ export const dbService = {
             daily_enabled: settings.dailyEnabled,
             timezone,
           })
-          .eq('id', existingId);
+          .eq('id', existingId)
+          .select('id');
 
-        if (!error) {
+        if (!error && updatedRows && updatedRows.length > 0) {
           localStorage.setItem('ps_record_id', existingId);
           console.log('[DB] Inscrição Push atualizada com sucesso no Supabase.');
-        } else {
+        } else if (error) {
           console.warn('[DB] Erro ao atualizar inscrição Push:', error);
+        } else {
+          // Linha salva no localStorage não existe mais no banco: insere nova.
+          console.warn('[DB] Linha antiga de inscrição não existe mais. Inserindo nova.');
+          localStorage.removeItem('ps_record_id');
+          await client.from('push_subscriptions').insert([
+            {
+              subscription: subJson,
+              notif_time: settings.notifTime,
+              daily_enabled: settings.dailyEnabled,
+              timezone,
+            },
+          ]).select('id').single().then(({ data }) => {
+            if (data?.id) {
+              localStorage.setItem('ps_record_id', data.id);
+              console.log('[DB] Nova inscrição Push salva com sucesso no Supabase:', data.id);
+            }
+          });
         }
       } else {
         const { data, error } = await client
