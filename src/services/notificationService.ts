@@ -13,6 +13,10 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
+let lastSubscribeError = '';
+
+export const getLastSubscribeError = () => lastSubscribeError;
+
 export const notificationService = {
   async requestPermission(): Promise<NotificationPermission> {
     if (!('Notification' in window)) return 'denied';
@@ -24,11 +28,33 @@ export const notificationService = {
   },
 
   async subscribeToPush(): Promise<boolean> {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !VAPID_PUBLIC_KEY) return false;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !VAPID_PUBLIC_KEY) {
+      lastSubscribeError = !VAPID_PUBLIC_KEY ? 'VAPID key ausente' : 'Push API indisponível neste navegador';
+      return false;
+    }
 
     try {
-      const registration = await navigator.serviceWorker.ready;
-      let subscription = await registration.pushManager.getSubscription();
+      // serviceWorker.ready nunca resolve se nenhum SW estiver registrado (ex: modo dev).
+      const registration = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('serviceWorker.ready timeout')), 8000)
+        ),
+      ]);
+      let subscription: PushSubscription | null = await registration.pushManager.getSubscription();
+
+      // Chave VAPID mudou? Reinscreve para evitar assinaturas mortas no banco.
+      if (subscription) {
+        const storedKey = subscription.options?.applicationServerKey;
+        const expected = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+        const actual = storedKey ? new Uint8Array(storedKey as unknown as ArrayBuffer) : null;
+        const keyMatches =
+          !!actual && actual.length === expected.length && expected.every((v, i) => v === actual[i]);
+        if (!keyMatches) {
+          await subscription.unsubscribe();
+          subscription = await registration.pushManager.getSubscription();
+        }
+      }
 
       const settings = {
         dailyEnabled: localStorage.getItem('daily-reminders-enabled') === 'true',
@@ -61,6 +87,7 @@ export const notificationService = {
 
       return true;
     } catch (err) {
+      lastSubscribeError = err instanceof Error ? err.message : String(err);
       console.warn('[Notifications] Error subscribing to push:', err);
       return false;
     }

@@ -287,6 +287,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     setCompletedTaskIds(newCompleted);
+    // Sincroniza status no banco para o push do servidor saber o que está pendente.
+    dbService.updateTask(id, { status: isNowDone ? 'done' : 'todo' });
     localStorage.setItem('completed_tasks', JSON.stringify(newCompleted));
   };
 

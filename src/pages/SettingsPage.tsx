@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useTheme, ACCENT_COLORS } from '../context/ThemeContext';
 import { useApp } from '../context/AppContext';
-import { notificationService } from '../services/notificationService';
+import { notificationService, getLastSubscribeError } from '../services/notificationService';
 import { checkForAppUpdates, forceUpdateAndClearCache } from '../services/pwaManager';
 
 export const SettingsPage: React.FC = () => {
@@ -46,8 +46,12 @@ export const SettingsPage: React.FC = () => {
         setDailyNotif(true);
         localStorage.setItem('daily-reminders-enabled', 'true');
         localStorage.removeItem('last-daily-notif-date');
-        showToast('Lembretes diários ativados!', 'success');
-        notificationService.subscribeToPush();
+        const pushOk = await notificationService.subscribeToPush();
+        if (pushOk) {
+          showToast('Lembretes diários ativados!', 'success');
+        } else {
+          showToast(`Push falhou em ${location.origin}: ${getLastSubscribeError() || 'motivo desconhecido'}`, 'error');
+        }
       } else if (perm === 'denied') {
         setDailyNotif(false);
         localStorage.setItem('daily-reminders-enabled', 'false');
