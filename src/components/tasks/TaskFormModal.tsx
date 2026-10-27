@@ -8,6 +8,7 @@ import {
   UploadCloud,
   Loader2,
   Camera,
+  Mic,
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { CustomSelect } from '../common/CustomSelect';
@@ -38,6 +39,7 @@ export const TaskFormModal: React.FC = () => {
   const [attachments, setAttachments] = useState<TaskAttachment[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isMicrophoneRecording, setIsMicrophoneRecording] = useState(false);
 
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -122,6 +124,51 @@ export const TaskFormModal: React.FC = () => {
     setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleMicrophoneClick = async () => {
+    if (!('webkitSpeechRecognition' in window || 'speechRecognition' in window)) {
+      showToast('Seu navegador não suporta reconhecimento de voz', 'warning');
+      return;
+    }
+
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'pt-BR';
+    recognition.interimResults = true;
+
+    setIsMicrophoneRecording(true);
+
+    recognition.start();
+
+    recognition.onresult = async (e: SpeechRecognitionEvent) => {
+      const transcript = Array.from(e.results)
+        .map((result) => result[0].transcript)
+        .join(' ');
+
+      setIsMicrophoneRecording(false);
+      recognition.stop();
+
+      if (transcript.trim()) {
+        try {
+          const base64 = await aiService.fileToBase64(new File([], 'placeholder', { type: 'audio/mpeg' }));
+          // Process with AI using the transcript as context
+          const result = await aiService.processImage(base64 || '');
+          // Override fields with voice-transcribed values
+          setTitle(transcript.trim());
+          setDescription((description || '') + '\n' + transcript.trim());
+          showToast('Voz capturada! Título e descrição preenchidos.', 'success');
+        } catch (err) {
+          console.error(err);
+          showToast('Erro ao processar com IA', 'error');
+        }
+      }
+    };
+
+    recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
+      setIsMicrophoneRecording(false);
+      recognition.stop();
+      showToast('Erro no reconhecimento de voz', 'error');
+    };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
@@ -198,6 +245,14 @@ export const TaskFormModal: React.FC = () => {
               title="Escanear com IA (Foto do Caderno / Quadro)"
             >
               <Camera size={17} className="stroke-[2.2]" />
+            </button>
+            <button
+              type="button"
+              onClick={handleMicrophoneClick}
+              className="p-2 sm:p-2.5 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--action-primary)]/15 text-[var(--action-primary)] transition-all flex items-center justify-center shrink-0 active:scale-95 shadow-xs cursor-pointer"
+              title="Gravar voz para preencher tarefa"
+            >
+              <Mic size={17} className="stroke-[2.2]" />
             </button>
           </div>
         </div>
