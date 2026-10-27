@@ -1,4 +1,44 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+// Web Speech API types
+declare global {
+  interface Window {
+    webkitSpeechRecognition?: new () => SpeechRecognition;
+    SpeechRecognition?: new () => SpeechRecognition;
+  }
+  interface SpeechRecognition extends EventTarget {
+    grammars: any;
+    lang: string;
+    interimResults: boolean;
+    continuous: boolean;
+    soundlevel: number;
+    start(): void;
+    stop(): void;
+    onresult: ((this: SpeechRecognition, e: SpeechRecognitionEvent) => any) | null;
+    onerror: ((this: SpeechRecognition, e: SpeechRecognitionErrorEvent) => any) | null;
+    abort(): void;
+  }
+  interface SpeechRecognitionEvent extends Event {
+    readonly readonlyResult: boolean;
+    results: SpeechRecognitionResultList;
+    readonly resultIndex: number;
+    readonly transcript: string;
+  }
+  interface SpeechRecognitionResult {
+    readonly index: number;
+    readonly length: number;
+    item(index: number): SpeechRecognitionAlternative;
+    readonly [key: number]: SpeechRecognitionAlternative;
+  }
+  interface SpeechRecognitionAlternative {
+    readonly transcript: string;
+    readonly confidence: number;
+  }
+  interface SpeechRecognitionErrorEvent extends Event {
+    readonly error: string;
+    readonly message: string;
+  }
+}
+
 import {
   Calendar,
   FolderOpen,
@@ -40,6 +80,7 @@ export const TaskFormModal: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isMicrophoneRecording, setIsMicrophoneRecording] = useState(false);
+  // Used for microphone UI feedback - type assertion for Web Speech API types
 
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -130,7 +171,8 @@ export const TaskFormModal: React.FC = () => {
       return;
     }
 
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    const recognitionWindow = window.SpeechRecognition || window.webkitSpeechRecognition!;
+const recognition = new recognitionWindow();;
     recognition.lang = 'pt-BR';
     recognition.interimResults = true;
 
@@ -148,10 +190,6 @@ export const TaskFormModal: React.FC = () => {
 
       if (transcript.trim()) {
         try {
-          const base64 = await aiService.fileToBase64(new File([], 'placeholder', { type: 'audio/mpeg' }));
-          // Process with AI using the transcript as context
-          const result = await aiService.processImage(base64 || '');
-          // Override fields with voice-transcribed values
           setTitle(transcript.trim());
           setDescription((description || '') + '\n' + transcript.trim());
           showToast('Voz capturada! Título e descrição preenchidos.', 'success');
@@ -162,7 +200,7 @@ export const TaskFormModal: React.FC = () => {
       }
     };
 
-    recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
+    recognition.onerror = (_e: SpeechRecognitionErrorEvent) => {
       setIsMicrophoneRecording(false);
       recognition.stop();
       showToast('Erro no reconhecimento de voz', 'error');
@@ -253,6 +291,9 @@ export const TaskFormModal: React.FC = () => {
               title="Gravar voz para preencher tarefa"
             >
               <Mic size={17} className="stroke-[2.2]" />
+              {isMicrophoneRecording && (
+                <span className="w-1 h-1 rounded-full bg-[var(--action-primary)] animate-pulse mr-1" />
+              )}
             </button>
           </div>
         </div>
