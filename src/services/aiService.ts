@@ -129,25 +129,6 @@ export const aiService = {
 
     const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-    const systemPrompt = `
-      Você é um assistente especializado em organizar tarefas de estudantes.
-      A partir do texto de voz abaixo, extraia as seguintes informações em JSON puro.
-      
-      REGRAS:
-      - Retorne APENAS um objeto JSON válido, sem texto adicional, sem markdown, sem blocos de código.
-      - Campos obrigatórios: title, description
-      - Campo opcional: due_date (formato YYYY-MM-DD ou null)
-      - Campo opcional: subject_suggestion (nome da matéria)
-      
-      Exemplo de JSON esperado:
-      {
-        "title": "Nome da tarefa",
-        "description": "Descrição detalhada",
-        "due_date": "2026-12-15" | null,
-        "subject_suggestion": "Matemática"
-      }
-    `;
-
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
