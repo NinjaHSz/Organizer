@@ -56,6 +56,7 @@ import { CustomDatePicker } from '../common/CustomDatePicker';
 import { useApp } from '../../context/AppContext';
 import { Priority, TaskAttachment } from '../../types/task';
 import { storageService } from '../../services/storageService';
+import { aiService } from '../../services/aiService';
 import { getNextClassForSubject } from '../../utils/scheduleHelper';
 
 export const TaskFormModal: React.FC = () => {
@@ -190,16 +191,18 @@ const recognition = new recognitionWindow();;
 
       if (transcript.trim()) {
         try {
-          setTitle(transcript.trim());
-          setDescription((description || '') + '\n' + transcript.trim());
-          showToast('Voz capturada! Título e descrição preenchidos.', 'success');
+          const parsed = await aiService.processTranscript(transcript);
+          setTitle(parsed.title);
+          setDescription(parsed.description || transcript.trim());
+          showToast('Voz processada pela IA! Título e descrição preenchidos.', 'success');
         } catch (err) {
           console.error(err);
-          showToast('Erro ao processar com IA', 'error');
+          setTitle(transcript.trim());
+          setDescription((description || '') + '\\n' + transcript.trim());
+          showToast('Voz capturada (IA indisponível)', 'warning');
         }
-      }
     };
-
+        }
     recognition.onerror = (_e: SpeechRecognitionErrorEvent) => {
       setIsMicrophoneRecording(false);
       recognition.stop();

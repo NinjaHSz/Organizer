@@ -12,8 +12,7 @@ export const aiService = {
     if (!apiKey) {
       throw new Error('Chave de API do OpenRouter não configurada. Defina VITE_OPENROUTER_API_KEY no arquivo .env');
     }
-    const primaryModel =
-      (import.meta.env.VITE_OPENROUTER_MODEL as string) || 'google/gemini-2.5-flash';
+    const primaryModel: string = (import.meta.env.VITE_OPENROUTER_MODEL as string) || 'google/gemini-2.5-flash';
     const fallbackModel = 'google/gemini-2.5-flash-lite';
 
     const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -23,7 +22,7 @@ export const aiService = {
       Analise a imagem de um caderno ou quadro branco e extraia as seguintes informações em JSON puro.
       
       REGRAS DE FORMATAÇÃO DA DESCRIÇÃO:
-      - Use quebras de linha reais (\\n) para separar parágrafos e itens.
+      - Use quebras de linha reais (\n) para separar parágrafos e itens.
       - Identifique as questões e inicie cada uma em uma nova linha com seu identificador original (Ex: "1.", "2.", "Q1.").
       - Se a questão começar com uma letra (Ex: "a)", "b)"), mantenha a letra na descrição como identificador.
       - NÃO adicione o prefixo "Questão X:" se a imagem contiver apenas o número. Use apenas o número encontrado (Ex: "1. [Texto]").
@@ -90,7 +89,7 @@ export const aiService = {
       const result = await response.json();
       const textResponse = result.choices?.[0]?.message?.content || '';
 
-      const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
+      const jsonMatch = textResponse.match(/\\{[\\s\\S]*\\}/);
       if (!jsonMatch) {
         throw new Error('A IA não retornou um formato de dados válido.');
       }
@@ -119,4 +118,75 @@ export const aiService = {
       reader.readAsDataURL(file);
     });
   },
+
+  /** Processa um transcript de voz e extrai informações estruturadas da tarefa */
+  async processTranscript(transcript: string): Promise<AIParsedTask> {
+    const apiKey = (import.meta.env.VITE_OPENROUTER_API_KEY as string) || '';
+    if (!apiKey) {
+      throw new Error('Chave de API do OpenRouter não configurada.');
+    }
+    const primaryModel: string = (import.meta.env.VITE_OPENROUTER_MODEL as string) || 'google/gemini-2.5-flash';
+
+    const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+
+    const systemPrompt = `
+      Você é um assistente especializado em organizar tarefas de estudantes.
+      A partir do texto de voz abaixo, extraia as seguintes informações em JSON puro.
+      
+      REGRAS:
+      - Retorne APENAS um objeto JSON válido, sem texto adicional, sem markdown, sem blocos de código.
+      - Campos obrigatórios: title, description
+      - Campo opcional: due_date (formato YYYY-MM-DD ou null)
+      - Campo opcional: subject_suggestion (nome da matéria)
+      
+      Exemplo de JSON esperado:
+      {
+        "title": "Nome da tarefa",
+        "description": "Descrição detalhada",
+        "due_date": "2026-12-15" | null,
+        "subject_suggestion": "Matemática"
+      }
+    `;
+
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + apiKey,
+        'HTTP-Referer': window.location.origin || 'https://organizer.local',
+      },
+      body: JSON.stringify({
+        model: primaryModel,
+        max_tokens: 500,
+        messages: [
+          { role: 'system', content: 'Responda APENAS com JSON puro, sem formatação.' },
+          { role: 'user', content: `Transcrição: "${transcript}". Extraia as informações da tarefa.` }
+        ],
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    const text = result.choices?.[0]?.message?.content || '{}';
+
+    // Extrair JSON do texto (pode vir cercado de texto)
+    const jsonMatch = text.match(/\\{[\\s\\S]*\\}/);
+    if (!jsonMatch) {
+      throw new Error('A IA não retornou JSON válido.');
+    }
+
+    const parsed: AIParsedTask = JSON.parse(jsonMatch[0]);
+    return {
+      title: parsed.title || '',
+      description: parsed.description || '',
+      priority: 'medium',
+      due_date: parsed.due_date || null,
+      subject_suggestion: parsed.subject_suggestion,
+    };
+  }
 };
