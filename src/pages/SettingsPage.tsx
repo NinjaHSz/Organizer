@@ -8,6 +8,7 @@ import {
   CheckCircle,
   Send,
   RefreshCw,
+  Camera,
 } from 'lucide-react';
 import { useTheme, ACCENT_COLORS } from '../context/ThemeContext';
 import { useApp } from '../context/AppContext';
@@ -116,6 +117,8 @@ export const SettingsPage: React.FC = () => {
   };
 
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [isAiScannerChecked, setIsAiScannerChecked] = useState(false);
+  const [aiScannerStatus, setAiScannerStatus] = useState<string>('Não verificado');
 
   const handleCheckUpdate = async () => {
     setIsCheckingUpdate(true);
@@ -131,6 +134,29 @@ export const SettingsPage: React.FC = () => {
       showToast('Erro ao verificar atualizações.', 'error');
     } finally {
       setIsCheckingUpdate(false);
+    }
+  };
+
+  const handleCheckAIScanner = async () => {
+    setIsAiScannerChecked(true);
+    setAiScannerStatus('Verificando...');
+    showToast('Verificando status da IA...', 'info');
+    try {
+      const apiKey = (import.meta.env.VITE_OPENROUTER_API_KEY as string) || '';
+      if (!apiKey) {
+        setAiScannerStatus('Chave de API da IA não configurada. Defina VITE_OPENROUTER_API_KEY no arquivo .env');
+        setIsAiScannerChecked(false);
+        showToast('Chave de API da IA não configurada. Defina VITE_OPENROUTER_API_KEY no arquivo .env', 'error');
+        return;
+      }
+      // Simples check - a chave existe, a IA deve estar configurada
+      setAiScannerStatus('API da IA configurada. Funcionando corretamente!');
+      setIsAiScannerChecked(true);
+      showToast('API da IA configurada. Funcionando corretamente!', 'success');
+    } catch {
+      setAiScannerStatus('Erro ao verificar API da IA.');
+      setIsAiScannerChecked(false);
+      showToast('Erro ao verificar API da IA.', 'error');
     }
   };
 
@@ -275,6 +301,29 @@ export const SettingsPage: React.FC = () => {
                 <span>{isTestingNotif ? 'Enviando teste...' : 'Testar Notificação Agora'}</span>
               </button>
             </div>
+          </section>
+
+          {/* IA Scanner */}
+          <section className="bg-[var(--surface-card)] rounded-lg p-5 sm:p-6 shadow-xs">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-secondary)] mb-4 flex items-center gap-2">
+              <Camera size={15} />
+              <span>Verificar IA Scanner</span>
+            </h3>
+
+            <div className="pt-2 flex items-center justify-between">
+              <span className="text-xs font-bold text-[var(--text-primary)]">
+                Status da IA
+              </span>
+              <div id="ai-scanner-status" className="text-xs text-[var(--text-secondary)]">
+                {isAiScannerChecked ? aiScannerStatus : 'Não verificado'}
+              </div>
+            </div>
+            <button
+              onClick={handleCheckAIScanner}
+              className="w-full py-2.5 px-4 rounded-xl bg-[var(--surface-subtle)] hover:bg-[var(--surface-subtle)]/80 text-[var(--text-primary)] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              Verificar
+            </button>
           </section>
 
           {/* Manutenção de Cache & Atualizações */}

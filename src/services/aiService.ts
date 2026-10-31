@@ -89,7 +89,7 @@ export const aiService = {
       const result = await response.json();
       const textResponse = result.choices?.[0]?.message?.content || '';
 
-      const jsonMatch = textResponse.match(/\\{[\\s\\S]*\\}/);
+      const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         throw new Error('A IA não retornou um formato de dados válido.');
       }
@@ -156,7 +156,7 @@ export const aiService = {
     const text = result.choices?.[0]?.message?.content || '{}';
 
     // Extrair JSON do texto (pode vir cercado de texto)
-    const jsonMatch = text.match(/\\{[\\s\\S]*\\}/);
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('A IA não retornou JSON válido.');
     }
